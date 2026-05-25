@@ -15,6 +15,7 @@ import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardUserRouteImport } from './routes/dashboard.user'
 
 const TailorRoute = TailorRouteImport.update({
   id: '/tailor',
@@ -46,31 +47,39 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardUserRoute = DashboardUserRouteImport.update({
+  id: '/user',
+  path: '/user',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
   '/register': typeof RegisterRoute
   '/tailor': typeof TailorRoute
+  '/dashboard/user': typeof DashboardUserRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
   '/register': typeof RegisterRoute
   '/tailor': typeof TailorRoute
+  '/dashboard/user': typeof DashboardUserRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/dashboard': typeof DashboardRouteWithChildren
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
   '/register': typeof RegisterRoute
   '/tailor': typeof TailorRoute
+  '/dashboard/user': typeof DashboardUserRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,8 +90,16 @@ export interface FileRouteTypes {
     | '/messages'
     | '/register'
     | '/tailor'
+    | '/dashboard/user'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/login' | '/messages' | '/register' | '/tailor'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/messages'
+    | '/register'
+    | '/tailor'
+    | '/dashboard/user'
   id:
     | '__root__'
     | '/'
@@ -91,11 +108,12 @@ export interface FileRouteTypes {
     | '/messages'
     | '/register'
     | '/tailor'
+    | '/dashboard/user'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
   LoginRoute: typeof LoginRoute
   MessagesRoute: typeof MessagesRoute
   RegisterRoute: typeof RegisterRoute
@@ -146,12 +164,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/user': {
+      id: '/dashboard/user'
+      path: '/user'
+      fullPath: '/dashboard/user'
+      preLoaderRoute: typeof DashboardUserRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
+interface DashboardRouteChildren {
+  DashboardUserRoute: typeof DashboardUserRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardUserRoute: DashboardUserRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRoute,
+  DashboardRoute: DashboardRouteWithChildren,
   LoginRoute: LoginRoute,
   MessagesRoute: MessagesRoute,
   RegisterRoute: RegisterRoute,
@@ -160,3 +197,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
