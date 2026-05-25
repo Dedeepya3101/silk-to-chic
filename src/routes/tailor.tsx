@@ -1,5 +1,12 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/tailor")({
-  component: () => <Navigate to="/dashboard/tailor" replace />,
+  component: TailorRedirect,
 });
+
+function TailorRedirect() {
+  const navigate = useNavigate();
+  useEffect(() => { navigate({ to: "/dashboard/tailor", replace: true }); }, [navigate]);
+  return null;
+}
