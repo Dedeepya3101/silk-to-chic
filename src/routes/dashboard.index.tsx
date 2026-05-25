@@ -1,5 +1,5 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { getSession } from "@/lib/session";
 
 export const Route = createFileRoute("/dashboard/")({
@@ -7,11 +7,11 @@ export const Route = createFileRoute("/dashboard/")({
 });
 
 function DashboardIndex() {
-  const [to, setTo] = useState<string | null>(null);
+  const navigate = useNavigate();
   useEffect(() => {
     const s = getSession();
-    setTo(s?.role === "tailor" ? "/dashboard/tailor" : s?.role === "user" ? "/dashboard/user" : "/login");
-  }, []);
-  if (!to) return null;
-  return <Navigate to={to} replace />;
+    const to = s?.role === "tailor" ? "/dashboard/tailor" : s?.role === "user" ? "/dashboard/user" : "/login";
+    navigate({ to, replace: true });
+  }, [navigate]);
+  return null;
 }
