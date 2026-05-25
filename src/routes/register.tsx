@@ -2,16 +2,17 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Heart, Scissors, ArrowRight } from "lucide-react";
 import { AuthShell, TextField } from "@/components/AuthShell";
+import { setSession, type Role } from "@/lib/session";
 
 export const Route = createFileRoute("/register")({
   head: () => ({ meta: [{ title: "Join MatchO" }] }),
   component: RegisterPage,
 });
 
-type Role = "user" | "tailor" | null;
-
 function RegisterPage() {
-  const [role, setRole] = useState<Role>(null);
+  const [role, setRole] = useState<Role | null>(null);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const navigate = useNavigate();
 
   return (
@@ -37,12 +38,16 @@ function RegisterPage() {
           />
         </div>
       ) : (
-        <form className="space-y-4" onSubmit={(e) => {
-          e.preventDefault();
-          navigate({ to: role === "tailor" ? "/tailor" : "/dashboard" });
-        }}>
-          <TextField label="Full name" placeholder="Aanya Sharma" required />
-          <TextField label="Email" type="email" placeholder="you@email.com" required />
+        <form
+          className="space-y-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setSession({ name: name.trim() || "Guest", email, role });
+            navigate({ to: role === "tailor" ? "/dashboard/tailor" : "/dashboard/user" });
+          }}
+        >
+          <TextField label="Full name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Aanya Sharma" required />
+          <TextField label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" required />
           <TextField label="City" placeholder="Bengaluru" required />
           <TextField label="Password" type="password" placeholder="••••••••" required />
           {role === "tailor" && (
