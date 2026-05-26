@@ -1,7 +1,8 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Sparkles, LayoutDashboard, Upload, MessageCircle, Heart, Bell, Settings, Inbox, Scissors, Star, LogOut, BarChart3, CheckCircle2, UserCircle } from "lucide-react";
-import { clearSession, getSession, type Role } from "@/lib/session";
+import { getSession, refreshSession, signOut, type Role } from "@/lib/session";
+import { supabase } from "@/integrations/supabase/client";
 
 type Item = { to: string; hash?: string; label: string; icon: React.ComponentType<{ className?: string }> };
 
@@ -29,15 +30,30 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
   const items = role === "user" ? userNav : tailorNav;
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
-  const [name, setName] = useState("Guest");
+  const [name, setName] = useState(() => getSession()?.name || "Guest");
 
   useEffect(() => {
-    const s = getSession();
-    if (s) setName(s.name);
-  }, []);
+    let active = true;
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!active) return;
+      if (!user) {
+        navigate({ to: "/login", replace: true });
+        return;
+      }
+      const s = await refreshSession();
+      if (active && s?.name) setName(s.name);
+    })();
+    return () => { active = false; };
+  }, [navigate]);
 
   const initial = (name || "G").trim()[0]?.toUpperCase() || "G";
   const themeAccent = role === "tailor" ? "bg-secondary text-secondary-foreground" : "bg-gradient-primary text-primary-foreground";
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate({ to: "/" });
+  };
 
   return (
     <div className={`min-h-screen ${role === "tailor" ? "bg-background" : "bg-gradient-soft"}`}>
@@ -72,7 +88,7 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
               })}
             </nav>
             <button
-              onClick={() => { clearSession(); navigate({ to: "/" }); }}
+              onClick={handleSignOut}
               className="mt-2 flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm text-muted-foreground hover:bg-accent"
             >
               <LogOut className="h-4 w-4" /> Sign out

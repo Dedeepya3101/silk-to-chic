@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Upload, Sparkles, MessageCircle, Heart, Bell, CheckCircle2, MapPin, Star, ArrowRight } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Upload, Sparkles, MessageCircle, Heart, Bell, CheckCircle2, MapPin, Star, Loader2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { getSession } from "@/lib/session";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import saree1 from "@/assets/saree-1.jpg";
 import saree2 from "@/assets/saree-2.jpg";
 import saree3 from "@/assets/saree-3.jpg";
@@ -13,36 +15,53 @@ export const Route = createFileRoute("/dashboard/user")({
   component: UserDashboard,
 });
 
+type SareeRow = { id: string; image_url: string; title: string | null; description: string | null; created_at: string };
+
 function UserDashboard() {
   const [name, setName] = useState("there");
+  const [uploads, setUploads] = useState<SareeRow[]>([]);
+
   useEffect(() => {
     const s = getSession();
     if (s?.name) setName(s.name.split(" ")[0]);
+    void loadUploads(setUploads);
   }, []);
 
   return (
     <AppShell role="user" title={`Hi ${name}, ready to reimagine?`}>
       <div className="grid gap-5 lg:grid-cols-3">
-        <UploadCard />
-        <StatTile icon={Sparkles} label="Active requests" value="3" tone="primary" />
-        <StatTile icon={CheckCircle2} label="Completed transformations" value="7" tone="secondary" />
+        <UploadCard onUploaded={() => loadUploads(setUploads)} />
+        <StatTile icon={Sparkles} label="Active requests" value={String(uploads.length)} tone="primary" />
+        <StatTile icon={CheckCircle2} label="Completed transformations" value="0" tone="secondary" />
       </div>
 
       <section className="mt-6 grid gap-5 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-5">
+          <Panel title="Your saree uploads" id="requests">
+            {uploads.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No uploads yet — share your first saree above.</p>
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {uploads.map((u) => (
+                  <div key={u.id} className="overflow-hidden rounded-2xl bg-card shadow-soft">
+                    <img src={u.image_url} alt={u.title || ""} className="h-40 w-full object-cover" />
+                    <div className="p-4">
+                      <p className="font-medium">{u.title || "Untitled saree"}</p>
+                      <p className="line-clamp-2 text-sm text-muted-foreground">{u.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Panel>
+
           <Panel title="Tailor suggestions" action={<Link to="/messages" className="text-sm text-primary">Open chat →</Link>}>
             <div className="space-y-4">
               {SUGGESTIONS.map((s) => <SuggestionRow key={s.id} {...s} />)}
             </div>
           </Panel>
 
-          <Panel title="Active requests" id="requests">
-            <div className="grid gap-4 sm:grid-cols-2">
-              {REQUESTS.map((r) => <RequestCard key={r.id} {...r} />)}
-            </div>
-          </Panel>
-
-          <Panel title="Completed transformations">
+          <Panel title="Inspiration gallery">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {[transformAfter, saree2, saree3, saree1, transformAfter, saree2].map((src, i) => (
                 <div key={i} className="aspect-square overflow-hidden rounded-2xl shadow-soft">
@@ -80,21 +99,79 @@ function UserDashboard() {
   );
 }
 
-function UploadCard() {
+async function loadUploads(setUploads: (rows: SareeRow[]) => void) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+  const { data } = await supabase
+    .from("saree_uploads")
+    .select("id, image_url, title, description, created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+  setUploads((data as SareeRow[]) || []);
+}
+
+function UploadCard({ onUploaded }: { onUploaded: () => void }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBusy(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { toast.error("Please sign in"); return; }
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${user.id}/${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("sarees").upload(path, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("sarees").getPublicUrl(path);
+      const { error: insErr } = await supabase.from("saree_uploads").insert({
+        user_id: user.id,
+        image_url: pub.publicUrl,
+        title: title || file.name,
+        description,
+      });
+      if (insErr) throw insErr;
+      toast.success("Saree uploaded — tailors will see it soon");
+      setTitle(""); setDescription("");
+      if (fileRef.current) fileRef.current.value = "";
+      onUploaded();
+    } catch (err: any) {
+      toast.error(err.message || "Upload failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div id="upload" className="relative overflow-hidden rounded-3xl bg-gradient-primary p-6 text-primary-foreground shadow-elegant">
       <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/20 blur-2xl" />
       <Upload className="h-6 w-6" />
       <h3 className="mt-4 font-display text-xl">Upload a saree</h3>
       <p className="mt-1 text-sm text-primary-foreground/80">Share a photo and details to invite nearby tailors.</p>
-      <button className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm font-medium backdrop-blur hover:bg-white/30">
-        New upload <ArrowRight className="h-4 w-4" />
+      <input
+        value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title (e.g. Mom's pink Kanjivaram)"
+        className="mt-3 w-full rounded-xl bg-white/15 px-3 py-2 text-sm placeholder:text-primary-foreground/60 outline-none"
+      />
+      <input
+        value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What would you like it redesigned into?"
+        className="mt-2 w-full rounded-xl bg-white/15 px-3 py-2 text-sm placeholder:text-primary-foreground/60 outline-none"
+      />
+      <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
+      <button
+        disabled={busy}
+        onClick={() => fileRef.current?.click()}
+        className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm font-medium backdrop-blur hover:bg-white/30 disabled:opacity-60"
+      >
+        {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+        {busy ? "Uploading…" : "Choose image"}
       </button>
-      <div className="mt-5 grid grid-cols-4 gap-2 text-[10px]">
-        {["Style", "Occasion", "Fabric", "Color"].map((t) => (
-          <span key={t} className="rounded-full bg-white/15 px-2 py-1 text-center">{t}</span>
-        ))}
-      </div>
     </div>
   );
 }
@@ -148,27 +225,6 @@ function SuggestionRow({ tailor, style, img, distance, rating }: typeof SUGGESTI
         <p className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground"><MapPin className="h-3 w-3" /> {distance} · <Star className="h-3 w-3 fill-gold text-gold" /> {rating}</p>
       </div>
       <Link to="/messages" className="rounded-full bg-gradient-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-soft">Chat</Link>
-    </div>
-  );
-}
-
-const REQUESTS = [
-  { id: 1, title: "Mom's pink Kanjivaram", style: "Crop-top set", img: saree2, replies: 4 },
-  { id: 2, title: "Lavender silk", style: "Long frock", img: saree1, replies: 2 },
-];
-
-function RequestCard({ title, style, img, replies }: typeof REQUESTS[number]) {
-  return (
-    <div className="overflow-hidden rounded-2xl bg-card shadow-soft transition hover:-translate-y-0.5">
-      <img src={img} alt="" className="h-32 w-full object-cover" />
-      <div className="p-4">
-        <p className="font-medium">{title}</p>
-        <p className="text-sm text-muted-foreground">{style}</p>
-        <div className="mt-3 flex items-center justify-between text-xs">
-          <span className="rounded-full bg-secondary px-2 py-1 text-secondary-foreground">{replies} replies</span>
-          <span className="text-muted-foreground">Open</span>
-        </div>
-      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { getSession } from "@/lib/session";
+import { refreshSession } from "@/lib/session";
 
 export const Route = createFileRoute("/dashboard/")({
   component: DashboardIndex,
@@ -9,9 +9,18 @@ export const Route = createFileRoute("/dashboard/")({
 function DashboardIndex() {
   const navigate = useNavigate();
   useEffect(() => {
-    const s = getSession();
-    const to = s?.role === "tailor" ? "/dashboard/tailor" : s?.role === "user" ? "/dashboard/user" : "/login";
-    navigate({ to, replace: true });
+    let cancelled = false;
+    (async () => {
+      const s = await refreshSession();
+      if (cancelled) return;
+      const to = s?.role === "tailor" ? "/dashboard/tailor" : s?.role === "user" ? "/dashboard/user" : "/login";
+      navigate({ to, replace: true });
+    })();
+    return () => { cancelled = true; };
   }, [navigate]);
-  return null;
+  return (
+    <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">
+      Loading your dashboard…
+    </div>
+  );
 }

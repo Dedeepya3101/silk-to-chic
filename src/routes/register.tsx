@@ -1,8 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { Heart, Scissors, ArrowRight } from "lucide-react";
+import { Heart, Scissors, ArrowRight, Loader2 } from "lucide-react";
 import { AuthShell, TextField } from "@/components/AuthShell";
-import { setSession, type Role } from "@/lib/session";
+import { supabase } from "@/integrations/supabase/client";
+import { refreshSession, type Role } from "@/lib/session";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/register")({
   head: () => ({ meta: [{ title: "Join MatchO" }] }),
@@ -13,7 +15,33 @@ function RegisterPage() {
   const [role, setRole] = useState<Role | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [city, setCity] = useState("");
+  const [specialization, setSpecialization] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!role) return;
+    setLoading(true);
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/dashboard`,
+        data: { display_name: name.trim(), role, city, specialization },
+      },
+    });
+    if (error) {
+      toast.error(error.message);
+      setLoading(false);
+      return;
+    }
+    await refreshSession();
+    toast.success("Welcome to MatchO!");
+    navigate({ to: role === "tailor" ? "/dashboard/tailor" : "/dashboard/user" });
+  };
 
   return (
     <AuthShell
@@ -23,38 +51,22 @@ function RegisterPage() {
     >
       {!role ? (
         <div className="grid gap-4 sm:grid-cols-2">
-          <RoleCard
-            icon={<Heart className="h-5 w-5" />}
-            title="I'm a User"
-            text="Upload sarees and get redesign ideas from local tailors."
-            onClick={() => setRole("user")}
-          />
-          <RoleCard
-            icon={<Scissors className="h-5 w-5" />}
-            title="I'm a Tailor"
-            text="Discover nearby saree requests and grow your studio."
-            onClick={() => setRole("tailor")}
-            highlighted
-          />
+          <RoleCard icon={<Heart className="h-5 w-5" />} title="I'm a User"
+            text="Upload sarees and get redesign ideas from local tailors." onClick={() => setRole("user")} />
+          <RoleCard icon={<Scissors className="h-5 w-5" />} title="I'm a Tailor"
+            text="Discover nearby saree requests and grow your studio." onClick={() => setRole("tailor")} highlighted />
         </div>
       ) : (
-        <form
-          className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            setSession({ name: name.trim() || "Guest", email, role });
-            navigate({ to: role === "tailor" ? "/dashboard/tailor" : "/dashboard/user" });
-          }}
-        >
+        <form className="space-y-4" onSubmit={submit}>
           <TextField label="Full name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Aanya Sharma" required />
           <TextField label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" required />
-          <TextField label="City" placeholder="Bengaluru" required />
-          <TextField label="Password" type="password" placeholder="••••••••" required />
+          <TextField label="City" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Bengaluru" required />
+          <TextField label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="At least 6 characters" required minLength={6} />
           {role === "tailor" && (
-            <TextField label="Studio / Specialization" placeholder="Indo-western, lehengas" />
+            <TextField label="Studio / Specialization" value={specialization} onChange={(e) => setSpecialization(e.target.value)} placeholder="Indo-western, lehengas" />
           )}
-          <button className="w-full rounded-full bg-gradient-primary py-3 font-medium text-primary-foreground shadow-soft">
-            Create account
+          <button disabled={loading} className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-primary py-3 font-medium text-primary-foreground shadow-soft disabled:opacity-60">
+            {loading && <Loader2 className="h-4 w-4 animate-spin" />} Create account
           </button>
           <button type="button" onClick={() => setRole(null)} className="w-full text-center text-xs text-muted-foreground">
             ← Change role
