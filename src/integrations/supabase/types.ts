@@ -14,16 +14,188 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          recipient_id: string
+          saree_upload_id: string | null
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          recipient_id: string
+          saree_upload_id?: string | null
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          recipient_id?: string
+          saree_upload_id?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_saree_upload_id_fkey"
+            columns: ["saree_upload_id"]
+            isOneToOne: false
+            referencedRelation: "saree_uploads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          city: string | null
+          created_at: string
+          display_name: string
+          email: string | null
+          id: string
+          specialization: string | null
+          updated_at: string
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          display_name?: string
+          email?: string | null
+          id: string
+          specialization?: string | null
+          updated_at?: string
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          display_name?: string
+          email?: string | null
+          id?: string
+          specialization?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      saree_uploads: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string
+          occasion: string | null
+          status: string
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url: string
+          occasion?: string | null
+          status?: string
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string
+          occasion?: string | null
+          status?: string
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tailor_requests: {
+        Row: {
+          created_at: string
+          fabric_notes: string | null
+          id: string
+          price: number | null
+          saree_upload_id: string
+          sleeves: string | null
+          status: string
+          suggested_style: string | null
+          tailor_id: string
+        }
+        Insert: {
+          created_at?: string
+          fabric_notes?: string | null
+          id?: string
+          price?: number | null
+          saree_upload_id: string
+          sleeves?: string | null
+          status?: string
+          suggested_style?: string | null
+          tailor_id: string
+        }
+        Update: {
+          created_at?: string
+          fabric_notes?: string | null
+          id?: string
+          price?: number | null
+          saree_upload_id?: string
+          sleeves?: string | null
+          status?: string
+          suggested_style?: string | null
+          tailor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tailor_requests_saree_upload_id_fkey"
+            columns: ["saree_upload_id"]
+            isOneToOne: false
+            referencedRelation: "saree_uploads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "user" | "tailor"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +322,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["user", "tailor"],
+    },
   },
 } as const
