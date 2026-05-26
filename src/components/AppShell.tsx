@@ -88,7 +88,7 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
               })}
             </nav>
             <button
-              onClick={() => { clearSession(); navigate({ to: "/" }); }}
+              onClick={handleSignOut}
               className="mt-2 flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm text-muted-foreground hover:bg-accent"
             >
               <LogOut className="h-4 w-4" /> Sign out
