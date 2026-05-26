@@ -1,5 +1,7 @@
+import { supabase } from "@/integrations/supabase/client";
+
 export type Role = "user" | "tailor";
-export type Session = { name: string; role: Role; email?: string };
+export type Session = { id: string; name: string; role: Role; email?: string };
 
 const KEY = "matcho.session";
 
@@ -31,4 +33,30 @@ export function nameFromEmail(email: string) {
     .filter(Boolean)
     .map((p) => p[0].toUpperCase() + p.slice(1))
     .join(" ");
+}
+
+/** Hydrate cached session from Supabase auth + profiles + user_roles. */
+export async function refreshSession(): Promise<Session | null> {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    clearSession();
+    return null;
+  }
+  const [{ data: profile }, { data: roleRow }] = await Promise.all([
+    supabase.from("profiles").select("display_name, email").eq("id", user.id).maybeSingle(),
+    supabase.from("user_roles").select("role").eq("user_id", user.id).maybeSingle(),
+  ]);
+  const session: Session = {
+    id: user.id,
+    name: profile?.display_name || nameFromEmail(user.email || ""),
+    email: profile?.email || user.email || undefined,
+    role: (roleRow?.role as Role) || "user",
+  };
+  setSession(session);
+  return session;
+}
+
+export async function signOut() {
+  await supabase.auth.signOut();
+  clearSession();
 }
