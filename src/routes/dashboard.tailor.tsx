@@ -237,7 +237,7 @@ function Stat({ icon: Icon, label, value, sub }: { icon: any; label: string; val
   );
 }
 
-function FeedCard({ r, saved, onSave, onSuggest }: { r: typeof FEED[number]; saved: boolean; onSave: () => void; onSuggest: () => void }) {
+function FeedCard({ r, saved, onSave, onSuggest }: { r: FeedItem; saved: boolean; onSave: () => void; onSuggest: () => void }) {
   return (
     <div className="group overflow-hidden rounded-3xl border border-border bg-card shadow-soft transition-all hover:-translate-y-1 hover:shadow-float">
       <div className="relative h-44 overflow-hidden">
