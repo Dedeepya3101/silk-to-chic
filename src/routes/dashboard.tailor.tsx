@@ -1,46 +1,124 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { MapPin, Clock, Star, ShieldCheck, Sparkles, X, Send, CheckCircle2, BarChart3, TrendingUp, Bookmark, Eye, Filter, MessageCircle, UserCircle } from "lucide-react";
+import { MapPin, Clock, Star, ShieldCheck, Sparkles, X, Send, CheckCircle2, BarChart3, TrendingUp, Bookmark, Eye, Filter, MessageCircle, UserCircle, Loader2, Inbox } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { getSession } from "@/lib/session";
+import { supabase } from "@/integrations/supabase/client";
 import saree1 from "@/assets/saree-1.jpg";
 import saree2 from "@/assets/saree-2.jpg";
 import saree3 from "@/assets/saree-3.jpg";
 import transformAfter from "@/assets/transform-after.jpg";
+
+type FeedItem = {
+  id: string;
+  name: string;
+  img: string;
+  desc: string;
+  style: string;
+  occasion: string;
+  location: string;
+  date: string;
+  time: string;
+  title: string;
+};
 
 export const Route = createFileRoute("/dashboard/tailor")({
   head: () => ({ meta: [{ title: "Tailor Studio — MatchO" }] }),
   component: TailorDashboard,
 });
 
-const FEED = [
-  { id: 1, name: "Aanya S.", img: saree2, desc: "Mom's pink Kanjivaram, want something cocktail-ready.", style: "Crop-top set", occasion: "Cocktail", location: "Indiranagar, 1.2 km", date: "Today, 9:14 AM", time: "3m" },
-  { id: 2, name: "Diya R.", img: saree1, desc: "Lavender silk from college, looking for a long frock vibe.", style: "Long frock", occasion: "Family function", location: "Koramangala, 3.4 km", date: "Today, 8:55 AM", time: "12m" },
-  { id: 3, name: "Meera P.", img: saree3, desc: "Cream saree with floral embroidery — would love an indo-western gown.", style: "Gown", occasion: "Engagement", location: "HSR Layout, 4.6 km", date: "Yesterday", time: "32m" },
-  { id: 4, name: "Kavya N.", img: saree2, desc: "Pink saree from my wedding, want a kurta set for daily wear.", style: "Kurta", occasion: "Daily", location: "JP Nagar, 5.1 km", date: "Yesterday", time: "1h" },
-  { id: 5, name: "Riya M.", img: saree1, desc: "Old Banarasi — interested in a lehenga conversion.", style: "Lehenga", occasion: "Wedding", location: "Whitefield, 6.0 km", date: "2 days ago", time: "3h" },
-];
 
-const FILTERS = ["All", "Lehenga", "Frock", "Kurta", "Gown", "Crop-top set"];
+const FILTERS = ["All", "Lehenga", "Frock", "Kurta", "Gown", "Crop-top set", "Custom"];
+
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "now";
+  if (m < 60) return `${m}m`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h`;
+  const d = Math.floor(h / 24);
+  return `${d}d`;
+}
+
+function fmtDate(iso: string): string {
+  const d = new Date(iso);
+  const today = new Date();
+  const sameDay = d.toDateString() === today.toDateString();
+  if (sameDay) return `Today, ${d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+  const yest = new Date(); yest.setDate(today.getDate() - 1);
+  if (d.toDateString() === yest.toDateString()) return "Yesterday";
+  return d.toLocaleDateString();
+}
 
 function TailorDashboard() {
-  const [active, setActive] = useState<typeof FEED[number] | null>(null);
+  const [active, setActive] = useState<FeedItem | null>(null);
   const [filter, setFilter] = useState("All");
-  const [saved, setSaved] = useState<number[]>([]);
+  const [saved, setSaved] = useState<string[]>([]);
   const [name, setName] = useState("Rohini");
+  const [feed, setFeed] = useState<FeedItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const s = getSession();
     if (s?.name) setName(s.name.split(" ")[0]);
   }, []);
 
-  const filtered = useMemo(() => filter === "All" ? FEED : FEED.filter(f => f.style.toLowerCase().includes(filter.toLowerCase())), [filter]);
+  const loadFeed = async () => {
+    const { data: uploads, error } = await supabase
+      .from("saree_uploads")
+      .select("id, image_url, title, description, occasion, created_at, user_id, status")
+      .eq("status", "open")
+      .order("created_at", { ascending: false })
+      .limit(60);
+    if (error) { setLoading(false); return; }
+    const ids = Array.from(new Set((uploads || []).map(u => u.user_id)));
+    const profilesMap = new Map<string, { display_name: string | null; city: string | null }>();
+    if (ids.length) {
+      const { data: profs } = await supabase
+        .from("profiles").select("id, display_name, city").in("id", ids);
+      profs?.forEach(p => profilesMap.set(p.id, { display_name: p.display_name, city: p.city }));
+    }
+    const items: FeedItem[] = (uploads || []).map(u => {
+      const p = profilesMap.get(u.user_id);
+      return {
+        id: u.id,
+        name: p?.display_name || "MatchO user",
+        img: u.image_url,
+        title: u.title || "Saree redesign",
+        desc: u.description || "No description provided.",
+        style: u.occasion || "Custom",
+        occasion: u.occasion || "Custom",
+        location: p?.city || "Location unknown",
+        date: fmtDate(u.created_at),
+        time: timeAgo(u.created_at),
+      };
+    });
+    setFeed(items);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    void loadFeed();
+    const channel = supabase
+      .channel("saree_uploads_feed")
+      .on("postgres_changes", { event: "*", schema: "public", table: "saree_uploads" }, () => {
+        void loadFeed();
+      })
+      .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, []);
+
+  const filtered = useMemo(
+    () => filter === "All" ? feed : feed.filter(f => f.style.toLowerCase() === filter.toLowerCase()),
+    [filter, feed]
+  );
 
   return (
     <AppShell role="tailor" title={`Good morning, ${name}`}>
       <div className="grid gap-5 lg:grid-cols-4">
         <ProfileCard name={name} />
-        <Stat icon={Sparkles} label="New requests" value="14" sub="today" />
+        <Stat icon={Sparkles} label="Open requests" value={loading ? "—" : String(feed.length)} sub="live from users" />
         <Stat icon={CheckCircle2} label="Orders" value="32" sub="this month" />
         <Stat icon={Star} label="Avg rating" value="4.9" sub="from 248 reviews" />
       </div>
@@ -67,17 +145,32 @@ function TailorDashboard() {
             ))}
           </div>
         </div>
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {filtered.map(r => (
-            <FeedCard
-              key={r.id}
-              r={r}
-              saved={saved.includes(r.id)}
-              onSave={() => setSaved(s => s.includes(r.id) ? s.filter(x => x !== r.id) : [...s, r.id])}
-              onSuggest={() => setActive(r)}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid place-items-center rounded-3xl border border-border bg-card p-12 shadow-soft">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <p className="mt-3 text-sm text-muted-foreground">Loading nearby requests…</p>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="grid place-items-center rounded-3xl border border-dashed border-border bg-card p-12 text-center shadow-soft">
+            <Inbox className="h-8 w-8 text-muted-foreground" />
+            <p className="mt-3 font-medium">No requests yet</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {feed.length === 0 ? "New saree uploads will appear here in real time." : "No requests match this filter."}
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {filtered.map(r => (
+              <FeedCard
+                key={r.id}
+                r={r}
+                saved={saved.includes(r.id)}
+                onSave={() => setSaved(s => s.includes(r.id) ? s.filter(x => x !== r.id) : [...s, r.id])}
+                onSuggest={() => setActive(r)}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="mt-8 grid gap-5 lg:grid-cols-3">
@@ -159,7 +252,7 @@ function Stat({ icon: Icon, label, value, sub }: { icon: any; label: string; val
   );
 }
 
-function FeedCard({ r, saved, onSave, onSuggest }: { r: typeof FEED[number]; saved: boolean; onSave: () => void; onSuggest: () => void }) {
+function FeedCard({ r, saved, onSave, onSuggest }: { r: FeedItem; saved: boolean; onSave: () => void; onSuggest: () => void }) {
   return (
     <div className="group overflow-hidden rounded-3xl border border-border bg-card shadow-soft transition-all hover:-translate-y-1 hover:shadow-float">
       <div className="relative h-44 overflow-hidden">
@@ -168,9 +261,12 @@ function FeedCard({ r, saved, onSave, onSuggest }: { r: typeof FEED[number]; sav
         <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-foreground px-2 py-1 text-[11px] font-medium text-background">{r.style}</span>
       </div>
       <div className="p-5">
-        <div className="flex items-center justify-between">
-          <p className="font-medium">{r.name}</p>
-          <p className="flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" /> {r.location}</p>
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="truncate font-medium">{r.title}</p>
+            <p className="text-xs text-muted-foreground">by {r.name}</p>
+          </div>
+          <p className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3" /> {r.location}</p>
         </div>
         <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{r.desc}</p>
         <div className="mt-3 flex flex-wrap gap-1.5 text-[11px]">
@@ -324,7 +420,7 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-function SuggestionPanel({ request, onClose }: { request: typeof FEED[number]; onClose: () => void }) {
+function SuggestionPanel({ request, onClose }: { request: FeedItem; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex">
       <div className="flex-1 bg-foreground/30 backdrop-blur-sm" onClick={onClose} />

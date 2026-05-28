@@ -110,10 +110,13 @@ async function loadUploads(setUploads: (rows: SareeRow[]) => void) {
   setUploads((data as SareeRow[]) || []);
 }
 
+const CATEGORIES = ["Lehenga", "Frock", "Kurta", "Gown", "Crop-top set", "Custom"];
+
 function UploadCard({ onUploaded }: { onUploaded: () => void }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("Custom");
   const [busy, setBusy] = useState(false);
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,8 +129,7 @@ function UploadCard({ onUploaded }: { onUploaded: () => void }) {
       const ext = file.name.split(".").pop() || "jpg";
       const path = `${user.id}/${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage.from("sarees").upload(path, file, {
-        cacheControl: "3600",
-        upsert: false,
+        cacheControl: "3600", upsert: false,
       });
       if (upErr) throw upErr;
       const { data: pub } = supabase.storage.from("sarees").getPublicUrl(path);
@@ -136,10 +138,11 @@ function UploadCard({ onUploaded }: { onUploaded: () => void }) {
         image_url: pub.publicUrl,
         title: title || file.name,
         description,
+        occasion: category,
       });
       if (insErr) throw insErr;
-      toast.success("Saree uploaded — tailors will see it soon");
-      setTitle(""); setDescription("");
+      toast.success("Saree uploaded — tailors will see it instantly");
+      setTitle(""); setDescription(""); setCategory("Custom");
       if (fileRef.current) fileRef.current.value = "";
       onUploaded();
     } catch (err: any) {
@@ -163,6 +166,12 @@ function UploadCard({ onUploaded }: { onUploaded: () => void }) {
         value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What would you like it redesigned into?"
         className="mt-2 w-full rounded-xl bg-white/15 px-3 py-2 text-sm placeholder:text-primary-foreground/60 outline-none"
       />
+      <select
+        value={category} onChange={(e) => setCategory(e.target.value)}
+        className="mt-2 w-full rounded-xl bg-white/15 px-3 py-2 text-sm outline-none [&>option]:text-foreground"
+      >
+        {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+      </select>
       <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
       <button
         disabled={busy}
@@ -170,7 +179,7 @@ function UploadCard({ onUploaded }: { onUploaded: () => void }) {
         className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm font-medium backdrop-blur hover:bg-white/30 disabled:opacity-60"
       >
         {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-        {busy ? "Uploading…" : "Choose image"}
+        {busy ? "Uploading…" : "Choose image & upload"}
       </button>
     </div>
   );
