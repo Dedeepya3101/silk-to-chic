@@ -35,20 +35,91 @@ const FEED = [
   { id: 5, name: "Riya M.", img: saree1, desc: "Old Banarasi — interested in a lehenga conversion.", style: "Lehenga", occasion: "Wedding", location: "Whitefield, 6.0 km", date: "2 days ago", time: "3h" },
 ];
 
-const FILTERS = ["All", "Lehenga", "Frock", "Kurta", "Gown", "Crop-top set"];
+const FILTERS = ["All", "Lehenga", "Frock", "Kurta", "Gown", "Crop-top set", "Custom"];
+
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "now";
+  if (m < 60) return `${m}m`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h`;
+  const d = Math.floor(h / 24);
+  return `${d}d`;
+}
+
+function fmtDate(iso: string): string {
+  const d = new Date(iso);
+  const today = new Date();
+  const sameDay = d.toDateString() === today.toDateString();
+  if (sameDay) return `Today, ${d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+  const yest = new Date(); yest.setDate(today.getDate() - 1);
+  if (d.toDateString() === yest.toDateString()) return "Yesterday";
+  return d.toLocaleDateString();
+}
 
 function TailorDashboard() {
-  const [active, setActive] = useState<typeof FEED[number] | null>(null);
+  const [active, setActive] = useState<FeedItem | null>(null);
   const [filter, setFilter] = useState("All");
-  const [saved, setSaved] = useState<number[]>([]);
+  const [saved, setSaved] = useState<string[]>([]);
   const [name, setName] = useState("Rohini");
+  const [feed, setFeed] = useState<FeedItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const s = getSession();
     if (s?.name) setName(s.name.split(" ")[0]);
   }, []);
 
-  const filtered = useMemo(() => filter === "All" ? FEED : FEED.filter(f => f.style.toLowerCase().includes(filter.toLowerCase())), [filter]);
+  const loadFeed = async () => {
+    const { data: uploads, error } = await supabase
+      .from("saree_uploads")
+      .select("id, image_url, title, description, occasion, created_at, user_id, status")
+      .eq("status", "open")
+      .order("created_at", { ascending: false })
+      .limit(60);
+    if (error) { setLoading(false); return; }
+    const ids = Array.from(new Set((uploads || []).map(u => u.user_id)));
+    const profilesMap = new Map<string, { display_name: string | null; city: string | null }>();
+    if (ids.length) {
+      const { data: profs } = await supabase
+        .from("profiles").select("id, display_name, city").in("id", ids);
+      profs?.forEach(p => profilesMap.set(p.id, { display_name: p.display_name, city: p.city }));
+    }
+    const items: FeedItem[] = (uploads || []).map(u => {
+      const p = profilesMap.get(u.user_id);
+      return {
+        id: u.id,
+        name: p?.display_name || "MatchO user",
+        img: u.image_url,
+        title: u.title || "Saree redesign",
+        desc: u.description || "No description provided.",
+        style: u.occasion || "Custom",
+        occasion: u.occasion || "Custom",
+        location: p?.city || "Location unknown",
+        date: fmtDate(u.created_at),
+        time: timeAgo(u.created_at),
+      };
+    });
+    setFeed(items);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    void loadFeed();
+    const channel = supabase
+      .channel("saree_uploads_feed")
+      .on("postgres_changes", { event: "*", schema: "public", table: "saree_uploads" }, () => {
+        void loadFeed();
+      })
+      .subscribe();
+    return () => { void supabase.removeChannel(channel); };
+  }, []);
+
+  const filtered = useMemo(
+    () => filter === "All" ? feed : feed.filter(f => f.style.toLowerCase() === filter.toLowerCase()),
+    [filter, feed]
+  );
 
   return (
     <AppShell role="tailor" title={`Good morning, ${name}`}>
