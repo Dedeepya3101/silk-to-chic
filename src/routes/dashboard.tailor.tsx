@@ -118,7 +118,7 @@ function TailorDashboard() {
     <AppShell role="tailor" title={`Good morning, ${name}`}>
       <div className="grid gap-5 lg:grid-cols-4">
         <ProfileCard name={name} />
-        <Stat icon={Sparkles} label="New requests" value="14" sub="today" />
+        <Stat icon={Sparkles} label="Open requests" value={loading ? "—" : String(feed.length)} sub="live from users" />
         <Stat icon={CheckCircle2} label="Orders" value="32" sub="this month" />
         <Stat icon={Star} label="Avg rating" value="4.9" sub="from 248 reviews" />
       </div>
