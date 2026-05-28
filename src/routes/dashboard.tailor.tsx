@@ -145,17 +145,32 @@ function TailorDashboard() {
             ))}
           </div>
         </div>
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          {filtered.map(r => (
-            <FeedCard
-              key={r.id}
-              r={r}
-              saved={saved.includes(r.id)}
-              onSave={() => setSaved(s => s.includes(r.id) ? s.filter(x => x !== r.id) : [...s, r.id])}
-              onSuggest={() => setActive(r)}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid place-items-center rounded-3xl border border-border bg-card p-12 shadow-soft">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <p className="mt-3 text-sm text-muted-foreground">Loading nearby requests…</p>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="grid place-items-center rounded-3xl border border-dashed border-border bg-card p-12 text-center shadow-soft">
+            <Inbox className="h-8 w-8 text-muted-foreground" />
+            <p className="mt-3 font-medium">No requests yet</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {feed.length === 0 ? "New saree uploads will appear here in real time." : "No requests match this filter."}
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {filtered.map(r => (
+              <FeedCard
+                key={r.id}
+                r={r}
+                saved={saved.includes(r.id)}
+                onSave={() => setSaved(s => s.includes(r.id) ? s.filter(x => x !== r.id) : [...s, r.id])}
+                onSuggest={() => setActive(r)}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="mt-8 grid gap-5 lg:grid-cols-3">
