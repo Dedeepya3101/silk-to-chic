@@ -27,13 +27,6 @@ export const Route = createFileRoute("/dashboard/tailor")({
   component: TailorDashboard,
 });
 
-const FEED = [
-  { id: 1, name: "Aanya S.", img: saree2, desc: "Mom's pink Kanjivaram, want something cocktail-ready.", style: "Crop-top set", occasion: "Cocktail", location: "Indiranagar, 1.2 km", date: "Today, 9:14 AM", time: "3m" },
-  { id: 2, name: "Diya R.", img: saree1, desc: "Lavender silk from college, looking for a long frock vibe.", style: "Long frock", occasion: "Family function", location: "Koramangala, 3.4 km", date: "Today, 8:55 AM", time: "12m" },
-  { id: 3, name: "Meera P.", img: saree3, desc: "Cream saree with floral embroidery — would love an indo-western gown.", style: "Gown", occasion: "Engagement", location: "HSR Layout, 4.6 km", date: "Yesterday", time: "32m" },
-  { id: 4, name: "Kavya N.", img: saree2, desc: "Pink saree from my wedding, want a kurta set for daily wear.", style: "Kurta", occasion: "Daily", location: "JP Nagar, 5.1 km", date: "Yesterday", time: "1h" },
-  { id: 5, name: "Riya M.", img: saree1, desc: "Old Banarasi — interested in a lehenga conversion.", style: "Lehenga", occasion: "Wedding", location: "Whitefield, 6.0 km", date: "2 days ago", time: "3h" },
-];
 
 const FILTERS = ["All", "Lehenga", "Frock", "Kurta", "Gown", "Crop-top set", "Custom"];
 
