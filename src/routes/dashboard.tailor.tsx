@@ -402,7 +402,7 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
-function SuggestionPanel({ request, onClose }: { request: typeof FEED[number]; onClose: () => void }) {
+function SuggestionPanel({ request, onClose }: { request: FeedItem; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex">
       <div className="flex-1 bg-foreground/30 backdrop-blur-sm" onClick={onClose} />
