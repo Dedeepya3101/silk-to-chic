@@ -10,7 +10,7 @@ const userNav: Item[] = [
   { to: "/dashboard/user", label: "Overview", icon: LayoutDashboard },
   { to: "/dashboard/user", hash: "upload", label: "Upload saree", icon: Upload },
   { to: "/dashboard/user", hash: "requests", label: "Active requests", icon: Sparkles },
-  { to: "/messages", label: "Messages", icon: MessageCircle },
+  { to: "/dashboard/user/messages", label: "Messages", icon: MessageCircle },
   { to: "/dashboard/user", hash: "saved", label: "Saved tailors", icon: Heart },
   { to: "/dashboard/user", hash: "notifications", label: "Notifications", icon: Bell },
   { to: "/dashboard/user", hash: "settings", label: "Profile settings", icon: Settings },
@@ -19,7 +19,7 @@ const userNav: Item[] = [
 const tailorNav: Item[] = [
   { to: "/dashboard/tailor", label: "Overview", icon: LayoutDashboard },
   { to: "/dashboard/tailor", hash: "feed", label: "Request feed", icon: Inbox },
-  { to: "/messages", label: "Conversations", icon: MessageCircle },
+  { to: "/dashboard/tailor/messages", label: "Conversations", icon: MessageCircle },
   { to: "/dashboard/tailor", hash: "analytics", label: "Analytics", icon: BarChart3 },
   { to: "/dashboard/tailor", hash: "completed", label: "Completed", icon: CheckCircle2 },
   { to: "/dashboard/tailor", hash: "reviews", label: "Reviews", icon: Star },
