@@ -1,12 +1,26 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { MapPin, Clock, Star, ShieldCheck, Sparkles, X, Send, CheckCircle2, BarChart3, TrendingUp, Bookmark, Eye, Filter, MessageCircle, UserCircle } from "lucide-react";
+import { MapPin, Clock, Star, ShieldCheck, Sparkles, X, Send, CheckCircle2, BarChart3, TrendingUp, Bookmark, Eye, Filter, MessageCircle, UserCircle, Loader2, Inbox } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { getSession } from "@/lib/session";
+import { supabase } from "@/integrations/supabase/client";
 import saree1 from "@/assets/saree-1.jpg";
 import saree2 from "@/assets/saree-2.jpg";
 import saree3 from "@/assets/saree-3.jpg";
 import transformAfter from "@/assets/transform-after.jpg";
+
+type FeedItem = {
+  id: string;
+  name: string;
+  img: string;
+  desc: string;
+  style: string;
+  occasion: string;
+  location: string;
+  date: string;
+  time: string;
+  title: string;
+};
 
 export const Route = createFileRoute("/dashboard/tailor")({
   head: () => ({ meta: [{ title: "Tailor Studio — MatchO" }] }),
