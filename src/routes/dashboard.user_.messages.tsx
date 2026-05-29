@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { MessagesView } from "@/components/MessagesView";
 import { refreshSession } from "@/lib/session";
 
-export const Route = createFileRoute("/dashboard/user/messages")({
+export const Route = createFileRoute("/dashboard/user_/messages")({
   head: () => ({ meta: [{ title: "Messages — MatchO" }] }),
   component: UserMessages,
 });

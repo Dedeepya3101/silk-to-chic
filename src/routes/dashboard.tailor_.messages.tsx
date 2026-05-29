@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { MessagesView } from "@/components/MessagesView";
 import { refreshSession } from "@/lib/session";
 
-export const Route = createFileRoute("/dashboard/tailor/messages")({
+export const Route = createFileRoute("/dashboard/tailor_/messages")({
   head: () => ({ meta: [{ title: "Conversations — MatchO Tailor" }] }),
   component: TailorMessages,
 });

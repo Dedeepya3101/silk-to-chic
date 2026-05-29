@@ -18,8 +18,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardUserRouteImport } from './routes/dashboard.user'
 import { Route as DashboardTailorRouteImport } from './routes/dashboard.tailor'
-import { Route as DashboardUserMessagesRouteImport } from './routes/dashboard.user.messages'
-import { Route as DashboardTailorMessagesRouteImport } from './routes/dashboard.tailor.messages'
+import { Route as DashboardUserMessagesRouteImport } from './routes/dashboard.user_.messages'
+import { Route as DashboardTailorMessagesRouteImport } from './routes/dashboard.tailor_.messages'
 
 const TailorRoute = TailorRouteImport.update({
   id: '/tailor',
@@ -67,14 +67,14 @@ const DashboardTailorRoute = DashboardTailorRouteImport.update({
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardUserMessagesRoute = DashboardUserMessagesRouteImport.update({
-  id: '/messages',
-  path: '/messages',
-  getParentRoute: () => DashboardUserRoute,
+  id: '/user_/messages',
+  path: '/user/messages',
+  getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardTailorMessagesRoute = DashboardTailorMessagesRouteImport.update({
-  id: '/messages',
-  path: '/messages',
-  getParentRoute: () => DashboardTailorRoute,
+  id: '/tailor_/messages',
+  path: '/tailor/messages',
+  getParentRoute: () => DashboardRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -84,8 +84,8 @@ export interface FileRoutesByFullPath {
   '/messages': typeof MessagesRoute
   '/register': typeof RegisterRoute
   '/tailor': typeof TailorRoute
-  '/dashboard/tailor': typeof DashboardTailorRouteWithChildren
-  '/dashboard/user': typeof DashboardUserRouteWithChildren
+  '/dashboard/tailor': typeof DashboardTailorRoute
+  '/dashboard/user': typeof DashboardUserRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/tailor/messages': typeof DashboardTailorMessagesRoute
   '/dashboard/user/messages': typeof DashboardUserMessagesRoute
@@ -96,8 +96,8 @@ export interface FileRoutesByTo {
   '/messages': typeof MessagesRoute
   '/register': typeof RegisterRoute
   '/tailor': typeof TailorRoute
-  '/dashboard/tailor': typeof DashboardTailorRouteWithChildren
-  '/dashboard/user': typeof DashboardUserRouteWithChildren
+  '/dashboard/tailor': typeof DashboardTailorRoute
+  '/dashboard/user': typeof DashboardUserRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/tailor/messages': typeof DashboardTailorMessagesRoute
   '/dashboard/user/messages': typeof DashboardUserMessagesRoute
@@ -110,11 +110,11 @@ export interface FileRoutesById {
   '/messages': typeof MessagesRoute
   '/register': typeof RegisterRoute
   '/tailor': typeof TailorRoute
-  '/dashboard/tailor': typeof DashboardTailorRouteWithChildren
-  '/dashboard/user': typeof DashboardUserRouteWithChildren
+  '/dashboard/tailor': typeof DashboardTailorRoute
+  '/dashboard/user': typeof DashboardUserRoute
   '/dashboard/': typeof DashboardIndexRoute
-  '/dashboard/tailor/messages': typeof DashboardTailorMessagesRoute
-  '/dashboard/user/messages': typeof DashboardUserMessagesRoute
+  '/dashboard/tailor_/messages': typeof DashboardTailorMessagesRoute
+  '/dashboard/user_/messages': typeof DashboardUserMessagesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -153,8 +153,8 @@ export interface FileRouteTypes {
     | '/dashboard/tailor'
     | '/dashboard/user'
     | '/dashboard/'
-    | '/dashboard/tailor/messages'
-    | '/dashboard/user/messages'
+    | '/dashboard/tailor_/messages'
+    | '/dashboard/user_/messages'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -231,57 +231,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardTailorRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/dashboard/user/messages': {
-      id: '/dashboard/user/messages'
-      path: '/messages'
+    '/dashboard/user_/messages': {
+      id: '/dashboard/user_/messages'
+      path: '/user/messages'
       fullPath: '/dashboard/user/messages'
       preLoaderRoute: typeof DashboardUserMessagesRouteImport
-      parentRoute: typeof DashboardUserRoute
+      parentRoute: typeof DashboardRoute
     }
-    '/dashboard/tailor/messages': {
-      id: '/dashboard/tailor/messages'
-      path: '/messages'
+    '/dashboard/tailor_/messages': {
+      id: '/dashboard/tailor_/messages'
+      path: '/tailor/messages'
       fullPath: '/dashboard/tailor/messages'
       preLoaderRoute: typeof DashboardTailorMessagesRouteImport
-      parentRoute: typeof DashboardTailorRoute
+      parentRoute: typeof DashboardRoute
     }
   }
 }
 
-interface DashboardTailorRouteChildren {
+interface DashboardRouteChildren {
+  DashboardTailorRoute: typeof DashboardTailorRoute
+  DashboardUserRoute: typeof DashboardUserRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardTailorMessagesRoute: typeof DashboardTailorMessagesRoute
-}
-
-const DashboardTailorRouteChildren: DashboardTailorRouteChildren = {
-  DashboardTailorMessagesRoute: DashboardTailorMessagesRoute,
-}
-
-const DashboardTailorRouteWithChildren = DashboardTailorRoute._addFileChildren(
-  DashboardTailorRouteChildren,
-)
-
-interface DashboardUserRouteChildren {
   DashboardUserMessagesRoute: typeof DashboardUserMessagesRoute
 }
 
-const DashboardUserRouteChildren: DashboardUserRouteChildren = {
-  DashboardUserMessagesRoute: DashboardUserMessagesRoute,
-}
-
-const DashboardUserRouteWithChildren = DashboardUserRoute._addFileChildren(
-  DashboardUserRouteChildren,
-)
-
-interface DashboardRouteChildren {
-  DashboardTailorRoute: typeof DashboardTailorRouteWithChildren
-  DashboardUserRoute: typeof DashboardUserRouteWithChildren
-  DashboardIndexRoute: typeof DashboardIndexRoute
-}
-
 const DashboardRouteChildren: DashboardRouteChildren = {
-  DashboardTailorRoute: DashboardTailorRouteWithChildren,
-  DashboardUserRoute: DashboardUserRouteWithChildren,
+  DashboardTailorRoute: DashboardTailorRoute,
+  DashboardUserRoute: DashboardUserRoute,
   DashboardIndexRoute: DashboardIndexRoute,
+  DashboardTailorMessagesRoute: DashboardTailorMessagesRoute,
+  DashboardUserMessagesRoute: DashboardUserMessagesRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
