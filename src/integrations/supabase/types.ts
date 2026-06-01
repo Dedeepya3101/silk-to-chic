@@ -49,6 +49,36 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          link: string | null
+          message: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          link?: string | null
+          message: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          link?: string | null
+          message?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           city: string | null
@@ -111,6 +141,85 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      suggestion_replies: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          suggestion_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          suggestion_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          suggestion_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suggestion_replies_suggestion_id_fkey"
+            columns: ["suggestion_id"]
+            isOneToOne: false
+            referencedRelation: "suggestions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suggestions: {
+        Row: {
+          best_fit: string | null
+          color_suggestions: string | null
+          created_at: string
+          id: string
+          saree_upload_id: string
+          silhouette: string | null
+          sleeve_ideas: string | null
+          stitching_notes: string | null
+          tailor_id: string
+          user_id: string
+        }
+        Insert: {
+          best_fit?: string | null
+          color_suggestions?: string | null
+          created_at?: string
+          id?: string
+          saree_upload_id: string
+          silhouette?: string | null
+          sleeve_ideas?: string | null
+          stitching_notes?: string | null
+          tailor_id: string
+          user_id: string
+        }
+        Update: {
+          best_fit?: string | null
+          color_suggestions?: string | null
+          created_at?: string
+          id?: string
+          saree_upload_id?: string
+          silhouette?: string | null
+          sleeve_ideas?: string | null
+          stitching_notes?: string | null
+          tailor_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suggestions_saree_upload_id_fkey"
+            columns: ["saree_upload_id"]
+            isOneToOne: false
+            referencedRelation: "saree_uploads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tailor_requests: {
         Row: {

@@ -18,6 +18,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardUserRouteImport } from './routes/dashboard.user'
 import { Route as DashboardTailorRouteImport } from './routes/dashboard.tailor'
+import { Route as DashboardUserSuggestionsRouteImport } from './routes/dashboard.user_.suggestions'
+import { Route as DashboardUserNotificationsRouteImport } from './routes/dashboard.user_.notifications'
 import { Route as DashboardUserMessagesRouteImport } from './routes/dashboard.user_.messages'
 import { Route as DashboardTailorMessagesRouteImport } from './routes/dashboard.tailor_.messages'
 
@@ -66,6 +68,18 @@ const DashboardTailorRoute = DashboardTailorRouteImport.update({
   path: '/tailor',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardUserSuggestionsRoute =
+  DashboardUserSuggestionsRouteImport.update({
+    id: '/user_/suggestions',
+    path: '/user/suggestions',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+const DashboardUserNotificationsRoute =
+  DashboardUserNotificationsRouteImport.update({
+    id: '/user_/notifications',
+    path: '/user/notifications',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 const DashboardUserMessagesRoute = DashboardUserMessagesRouteImport.update({
   id: '/user_/messages',
   path: '/user/messages',
@@ -89,6 +103,8 @@ export interface FileRoutesByFullPath {
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/tailor/messages': typeof DashboardTailorMessagesRoute
   '/dashboard/user/messages': typeof DashboardUserMessagesRoute
+  '/dashboard/user/notifications': typeof DashboardUserNotificationsRoute
+  '/dashboard/user/suggestions': typeof DashboardUserSuggestionsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -101,6 +117,8 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/tailor/messages': typeof DashboardTailorMessagesRoute
   '/dashboard/user/messages': typeof DashboardUserMessagesRoute
+  '/dashboard/user/notifications': typeof DashboardUserNotificationsRoute
+  '/dashboard/user/suggestions': typeof DashboardUserSuggestionsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -115,6 +133,8 @@ export interface FileRoutesById {
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/tailor_/messages': typeof DashboardTailorMessagesRoute
   '/dashboard/user_/messages': typeof DashboardUserMessagesRoute
+  '/dashboard/user_/notifications': typeof DashboardUserNotificationsRoute
+  '/dashboard/user_/suggestions': typeof DashboardUserSuggestionsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -130,6 +150,8 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/dashboard/tailor/messages'
     | '/dashboard/user/messages'
+    | '/dashboard/user/notifications'
+    | '/dashboard/user/suggestions'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -142,6 +164,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/dashboard/tailor/messages'
     | '/dashboard/user/messages'
+    | '/dashboard/user/notifications'
+    | '/dashboard/user/suggestions'
   id:
     | '__root__'
     | '/'
@@ -155,6 +179,8 @@ export interface FileRouteTypes {
     | '/dashboard/'
     | '/dashboard/tailor_/messages'
     | '/dashboard/user_/messages'
+    | '/dashboard/user_/notifications'
+    | '/dashboard/user_/suggestions'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -231,6 +257,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardTailorRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/user_/suggestions': {
+      id: '/dashboard/user_/suggestions'
+      path: '/user/suggestions'
+      fullPath: '/dashboard/user/suggestions'
+      preLoaderRoute: typeof DashboardUserSuggestionsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/user_/notifications': {
+      id: '/dashboard/user_/notifications'
+      path: '/user/notifications'
+      fullPath: '/dashboard/user/notifications'
+      preLoaderRoute: typeof DashboardUserNotificationsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/user_/messages': {
       id: '/dashboard/user_/messages'
       path: '/user/messages'
@@ -254,6 +294,8 @@ interface DashboardRouteChildren {
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardTailorMessagesRoute: typeof DashboardTailorMessagesRoute
   DashboardUserMessagesRoute: typeof DashboardUserMessagesRoute
+  DashboardUserNotificationsRoute: typeof DashboardUserNotificationsRoute
+  DashboardUserSuggestionsRoute: typeof DashboardUserSuggestionsRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
@@ -262,6 +304,8 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardTailorMessagesRoute: DashboardTailorMessagesRoute,
   DashboardUserMessagesRoute: DashboardUserMessagesRoute,
+  DashboardUserNotificationsRoute: DashboardUserNotificationsRoute,
+  DashboardUserSuggestionsRoute: DashboardUserSuggestionsRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(

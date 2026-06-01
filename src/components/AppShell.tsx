@@ -10,9 +10,10 @@ const userNav: Item[] = [
   { to: "/dashboard/user", label: "Overview", icon: LayoutDashboard },
   { to: "/dashboard/user", hash: "upload", label: "Upload saree", icon: Upload },
   { to: "/dashboard/user", hash: "requests", label: "Active requests", icon: Sparkles },
+  { to: "/dashboard/user/suggestions", label: "Suggestions", icon: Scissors },
   { to: "/dashboard/user/messages", label: "Messages", icon: MessageCircle },
   { to: "/dashboard/user", hash: "saved", label: "Saved tailors", icon: Heart },
-  { to: "/dashboard/user", hash: "notifications", label: "Notifications", icon: Bell },
+  { to: "/dashboard/user/notifications", label: "Notifications", icon: Bell },
   { to: "/dashboard/user", hash: "settings", label: "Profile settings", icon: Settings },
 ];
 
@@ -31,6 +32,7 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const [name, setName] = useState(() => getSession()?.name || "Guest");
+  const [unread, setUnread] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -43,9 +45,26 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
       }
       const s = await refreshSession();
       if (active && s?.name) setName(s.name);
+
+      if (role === "user") {
+        const refreshUnread = async () => {
+          const { count } = await supabase
+            .from("notifications")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", user.id)
+            .eq("is_read", false);
+          if (active) setUnread(count || 0);
+        };
+        void refreshUnread();
+        const ch = supabase
+          .channel("appshell_notif_" + user.id)
+          .on("postgres_changes", { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, () => void refreshUnread())
+          .subscribe();
+        return () => { void supabase.removeChannel(ch); };
+      }
     })();
     return () => { active = false; };
-  }, [navigate]);
+  }, [navigate, role]);
 
   const initial = (name || "G").trim()[0]?.toUpperCase() || "G";
   const themeAccent = role === "tailor" ? "bg-secondary text-secondary-foreground" : "bg-gradient-primary text-primary-foreground";
@@ -104,7 +123,18 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
               <h1 className="font-display text-2xl">{title}</h1>
             </div>
             <div className="flex items-center gap-3">
-              <button className="grid h-9 w-9 place-items-center rounded-full bg-card shadow-soft"><Bell className="h-4 w-4" /></button>
+              {role === "user" ? (
+                <Link to="/dashboard/user/notifications" className="relative grid h-9 w-9 place-items-center rounded-full bg-card shadow-soft" aria-label="Notifications">
+                  <Bell className="h-4 w-4" />
+                  {unread > 0 && (
+                    <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[10px] font-medium text-primary-foreground">
+                      {unread > 9 ? "9+" : unread}
+                    </span>
+                  )}
+                </Link>
+              ) : (
+                <button className="grid h-9 w-9 place-items-center rounded-full bg-card shadow-soft"><Bell className="h-4 w-4" /></button>
+              )}
               <div className={`grid h-9 w-9 place-items-center rounded-full font-display ${themeAccent}`}>{initial}</div>
             </div>
           </header>
