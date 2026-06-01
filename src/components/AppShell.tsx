@@ -123,7 +123,18 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
               <h1 className="font-display text-2xl">{title}</h1>
             </div>
             <div className="flex items-center gap-3">
-              <button className="grid h-9 w-9 place-items-center rounded-full bg-card shadow-soft"><Bell className="h-4 w-4" /></button>
+              {role === "user" ? (
+                <Link to="/dashboard/user/notifications" className="relative grid h-9 w-9 place-items-center rounded-full bg-card shadow-soft" aria-label="Notifications">
+                  <Bell className="h-4 w-4" />
+                  {unread > 0 && (
+                    <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-[10px] font-medium text-primary-foreground">
+                      {unread > 9 ? "9+" : unread}
+                    </span>
+                  )}
+                </Link>
+              ) : (
+                <button className="grid h-9 w-9 place-items-center rounded-full bg-card shadow-soft"><Bell className="h-4 w-4" /></button>
+              )}
               <div className={`grid h-9 w-9 place-items-center rounded-full font-display ${themeAccent}`}>{initial}</div>
             </div>
           </header>
