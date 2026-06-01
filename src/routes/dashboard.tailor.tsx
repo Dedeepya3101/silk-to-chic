@@ -424,6 +424,33 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 function SuggestionPanel({ request, onClose }: { request: FeedItem; onClose: () => void }) {
+  const [silhouette, setSilhouette] = useState("");
+  const [sleeves, setSleeves] = useState("");
+  const [colors, setColors] = useState("");
+  const [stitching, setStitching] = useState("");
+  const [bestFit, setBestFit] = useState("");
+  const [sending, setSending] = useState(false);
+
+  const submit = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { toast.error("Please sign in"); return; }
+    setSending(true);
+    const { error } = await supabase.from("suggestions").insert({
+      saree_upload_id: request.id,
+      user_id: request.user_id,
+      tailor_id: user.id,
+      silhouette: silhouette || null,
+      sleeve_ideas: sleeves || null,
+      color_suggestions: colors || null,
+      stitching_notes: stitching || null,
+      best_fit: bestFit || null,
+    });
+    setSending(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Suggestion sent successfully.");
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex">
       <div className="flex-1 bg-foreground/30 backdrop-blur-sm" onClick={onClose} />
@@ -444,22 +471,36 @@ function SuggestionPanel({ request, onClose }: { request: FeedItem; onClose: () 
           </div>
         </div>
         <div className="flex-1 space-y-5 overflow-y-auto p-5">
-          <Field label="Recommended silhouette" placeholder="e.g. A-line crop-top with sweetheart neckline" />
-          <Field label="Sleeve ideas" placeholder="Puff, off-shoulder, three-quarter…" />
-          <Field label="Color & embroidery suggestions" placeholder="Add gold piping, keep the pallu as dupatta" />
-          <Field label="Stitching notes" placeholder="French seams, lined bodice" textarea />
+          <Field label="Recommended silhouette" placeholder="e.g. A-line crop-top with sweetheart neckline" value={silhouette} onChange={setSilhouette} />
+          <Field label="Sleeve ideas" placeholder="Puff, off-shoulder, three-quarter…" value={sleeves} onChange={setSleeves} />
+          <Field label="Color & embroidery suggestions" placeholder="Add gold piping, keep the pallu as dupatta" value={colors} onChange={setColors} />
+          <Field label="Stitching notes" placeholder="French seams, lined bodice" textarea value={stitching} onChange={setStitching} />
           <div>
             <p className="mb-2 text-sm font-medium">Best fit for this saree</p>
             <div className="flex flex-wrap gap-2">
               {["Long frock","Short frock","Kurta","Gown","Lehenga","Crop-top set","Indo-western"].map(t => (
-                <button key={t} className="rounded-full border border-border bg-card px-3 py-1.5 text-xs shadow-soft hover:bg-accent">{t}</button>
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setBestFit(t)}
+                  className={`rounded-full border px-3 py-1.5 text-xs shadow-soft transition ${
+                    bestFit === t ? "border-foreground bg-foreground text-background" : "border-border bg-card hover:bg-accent"
+                  }`}
+                >
+                  {t}
+                </button>
               ))}
             </div>
           </div>
         </div>
         <div className="border-t border-border p-5">
-          <button className="flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-3 font-medium text-background">
-            <Send className="h-4 w-4" /> Send suggestion
+          <button
+            onClick={submit}
+            disabled={sending}
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-foreground py-3 font-medium text-background disabled:opacity-60"
+          >
+            {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            {sending ? "Sending…" : "Send suggestion"}
           </button>
           <p className="mt-2 text-center text-[11px] text-muted-foreground">Contact details stay restricted until both agree.</p>
         </div>
@@ -468,15 +509,15 @@ function SuggestionPanel({ request, onClose }: { request: FeedItem; onClose: () 
   );
 }
 
-function Field({ label, placeholder, textarea }: { label: string; placeholder: string; textarea?: boolean }) {
+function Field({ label, placeholder, textarea, value, onChange }: { label: string; placeholder: string; textarea?: boolean; value: string; onChange: (v: string) => void }) {
   return (
     <label className="block">
       <span className="text-sm font-medium">{label}</span>
       {textarea ? (
-        <textarea rows={3} placeholder={placeholder}
+        <textarea rows={3} placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)}
           className="mt-1.5 w-full rounded-2xl border border-border bg-card px-4 py-2.5 text-sm shadow-soft outline-none focus:border-primary focus:ring-2 focus:ring-ring/40" />
       ) : (
-        <input placeholder={placeholder}
+        <input placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)}
           className="mt-1.5 w-full rounded-2xl border border-border bg-card px-4 py-2.5 text-sm shadow-soft outline-none focus:border-primary focus:ring-2 focus:ring-ring/40" />
       )}
     </label>
