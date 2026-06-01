@@ -12,6 +12,7 @@ import transformAfter from "@/assets/transform-after.jpg";
 
 type FeedItem = {
   id: string;
+  user_id: string;
   name: string;
   img: string;
   desc: string;
