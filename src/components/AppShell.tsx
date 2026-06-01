@@ -32,6 +32,7 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const [name, setName] = useState(() => getSession()?.name || "Guest");
+  const [unread, setUnread] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -44,9 +45,26 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
       }
       const s = await refreshSession();
       if (active && s?.name) setName(s.name);
+
+      if (role === "user") {
+        const refreshUnread = async () => {
+          const { count } = await supabase
+            .from("notifications")
+            .select("id", { count: "exact", head: true })
+            .eq("user_id", user.id)
+            .eq("is_read", false);
+          if (active) setUnread(count || 0);
+        };
+        void refreshUnread();
+        const ch = supabase
+          .channel("appshell_notif_" + user.id)
+          .on("postgres_changes", { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, () => void refreshUnread())
+          .subscribe();
+        return () => { void supabase.removeChannel(ch); };
+      }
     })();
     return () => { active = false; };
-  }, [navigate]);
+  }, [navigate, role]);
 
   const initial = (name || "G").trim()[0]?.toUpperCase() || "G";
   const themeAccent = role === "tailor" ? "bg-secondary text-secondary-foreground" : "bg-gradient-primary text-primary-foreground";
