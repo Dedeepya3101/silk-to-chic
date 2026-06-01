@@ -85,6 +85,7 @@ function TailorDashboard() {
       const p = profilesMap.get(u.user_id);
       return {
         id: u.id,
+        user_id: u.user_id,
         name: p?.display_name || "MatchO user",
         img: u.image_url,
         title: u.title || "Saree redesign",
