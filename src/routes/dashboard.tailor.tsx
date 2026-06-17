@@ -400,7 +400,7 @@ function StudioProfile({ name }: { name: string }) {
     <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="flex items-center gap-2 font-display text-xl"><UserCircle className="h-4 w-4" /> Studio profile</h3>
-        <button className="rounded-full bg-foreground px-3 py-1.5 text-xs text-background">Edit</button>
+        <Link to="/dashboard/tailor/profile-edit" className="rounded-full bg-foreground px-3 py-1.5 text-xs text-background">Edit</Link>
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
         <Row label="Studio name" value={`${name} Tailoring`} />
