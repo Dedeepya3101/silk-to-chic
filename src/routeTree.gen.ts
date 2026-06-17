@@ -19,17 +19,17 @@ import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardUserRouteImport } from './routes/dashboard.user'
 import { Route as DashboardTailorRouteImport } from './routes/dashboard.tailor'
 import { Route as DashboardUserSuggestionsRouteImport } from './routes/dashboard.user_.suggestions'
-import { Route as DashboardUserSavedRouteImport } from './routes/dashboard.user_.saved'
 import { Route as DashboardUserNotificationsRouteImport } from './routes/dashboard.user_.notifications'
 import { Route as DashboardUserMessagesRouteImport } from './routes/dashboard.user_.messages'
+import { Route as DashboardUserSavedRouteImport } from './routes/dashboard.user_.saved'
 import { Route as DashboardUserCompletedRouteImport } from './routes/dashboard.user_.completed'
-import { Route as DashboardTailorReviewsRouteImport } from './routes/dashboard.tailor_.reviews'
-import { Route as DashboardTailorProfileEditRouteImport } from './routes/dashboard.tailor_.profile-edit'
-import { Route as DashboardTailorPortfolioRouteImport } from './routes/dashboard.tailor_.portfolio'
+import { Route as DashboardUserTailorIdRouteImport } from './routes/dashboard.user_.tailors.$tailorId'
 import { Route as DashboardTailorMessagesRouteImport } from './routes/dashboard.tailor_.messages'
-import { Route as DashboardTailorCompletedRouteImport } from './routes/dashboard.tailor_.completed'
 import { Route as DashboardTailorAssignedRouteImport } from './routes/dashboard.tailor_.assigned'
-import { Route as DashboardUserTailorsTailorIdRouteImport } from './routes/dashboard.user_.tailors.$tailorId'
+import { Route as DashboardTailorCompletedRouteImport } from './routes/dashboard.tailor_.completed'
+import { Route as DashboardTailorReviewsRouteImport } from './routes/dashboard.tailor_.reviews'
+import { Route as DashboardTailorPortfolioRouteImport } from './routes/dashboard.tailor_.portfolio'
+import { Route as DashboardTailorProfileEditRouteImport } from './routes/dashboard.tailor_.profile-edit'
 
 const TailorRoute = TailorRouteImport.update({
   id: '/tailor',
@@ -76,26 +76,24 @@ const DashboardTailorRoute = DashboardTailorRouteImport.update({
   path: '/tailor',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardUserSuggestionsRoute =
-  DashboardUserSuggestionsRouteImport.update({
-    id: '/user_/suggestions',
-    path: '/user/suggestions',
-    getParentRoute: () => DashboardRoute,
-  } as any)
-const DashboardUserSavedRoute = DashboardUserSavedRouteImport.update({
-  id: '/user_/saved',
-  path: '/user/saved',
+const DashboardUserSuggestionsRoute = DashboardUserSuggestionsRouteImport.update({
+  id: '/user_/suggestions',
+  path: '/user/suggestions',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardUserNotificationsRoute =
-  DashboardUserNotificationsRouteImport.update({
-    id: '/user_/notifications',
-    path: '/user/notifications',
-    getParentRoute: () => DashboardRoute,
-  } as any)
+const DashboardUserNotificationsRoute = DashboardUserNotificationsRouteImport.update({
+  id: '/user_/notifications',
+  path: '/user/notifications',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardUserMessagesRoute = DashboardUserMessagesRouteImport.update({
   id: '/user_/messages',
   path: '/user/messages',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardUserSavedRoute = DashboardUserSavedRouteImport.update({
+  id: '/user_/saved',
+  path: '/user/saved',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardUserCompletedRoute = DashboardUserCompletedRouteImport.update({
@@ -103,45 +101,41 @@ const DashboardUserCompletedRoute = DashboardUserCompletedRouteImport.update({
   path: '/user/completed',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardTailorReviewsRoute = DashboardTailorReviewsRouteImport.update({
-  id: '/tailor_/reviews',
-  path: '/tailor/reviews',
+const DashboardUserTailorIdRoute = DashboardUserTailorIdRouteImport.update({
+  id: '/user_/tailors/$tailorId',
+  path: '/user/tailors/$tailorId',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardTailorProfileEditRoute =
-  DashboardTailorProfileEditRouteImport.update({
-    id: '/tailor_/profile-edit',
-    path: '/tailor/profile-edit',
-    getParentRoute: () => DashboardRoute,
-  } as any)
-const DashboardTailorPortfolioRoute =
-  DashboardTailorPortfolioRouteImport.update({
-    id: '/tailor_/portfolio',
-    path: '/tailor/portfolio',
-    getParentRoute: () => DashboardRoute,
-  } as any)
 const DashboardTailorMessagesRoute = DashboardTailorMessagesRouteImport.update({
   id: '/tailor_/messages',
   path: '/tailor/messages',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardTailorCompletedRoute =
-  DashboardTailorCompletedRouteImport.update({
-    id: '/tailor_/completed',
-    path: '/tailor/completed',
-    getParentRoute: () => DashboardRoute,
-  } as any)
 const DashboardTailorAssignedRoute = DashboardTailorAssignedRouteImport.update({
   id: '/tailor_/assigned',
   path: '/tailor/assigned',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardUserTailorsTailorIdRoute =
-  DashboardUserTailorsTailorIdRouteImport.update({
-    id: '/user_/tailors/$tailorId',
-    path: '/user/tailors/$tailorId',
-    getParentRoute: () => DashboardRoute,
-  } as any)
+const DashboardTailorCompletedRoute = DashboardTailorCompletedRouteImport.update({
+  id: '/tailor_/completed',
+  path: '/tailor/completed',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardTailorReviewsRoute = DashboardTailorReviewsRouteImport.update({
+  id: '/tailor_/reviews',
+  path: '/tailor/reviews',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardTailorPortfolioRoute = DashboardTailorPortfolioRouteImport.update({
+  id: '/tailor_/portfolio',
+  path: '/tailor/portfolio',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardTailorProfileEditRoute = DashboardTailorProfileEditRouteImport.update({
+  id: '/tailor_/profile-edit',
+  path: '/tailor/profile-edit',
+  getParentRoute: () => DashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -153,18 +147,18 @@ export interface FileRoutesByFullPath {
   '/dashboard/tailor': typeof DashboardTailorRoute
   '/dashboard/user': typeof DashboardUserRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/tailor/messages': typeof DashboardTailorMessagesRoute
   '/dashboard/tailor/assigned': typeof DashboardTailorAssignedRoute
   '/dashboard/tailor/completed': typeof DashboardTailorCompletedRoute
-  '/dashboard/tailor/messages': typeof DashboardTailorMessagesRoute
+  '/dashboard/tailor/reviews': typeof DashboardTailorReviewsRoute
   '/dashboard/tailor/portfolio': typeof DashboardTailorPortfolioRoute
   '/dashboard/tailor/profile-edit': typeof DashboardTailorProfileEditRoute
-  '/dashboard/tailor/reviews': typeof DashboardTailorReviewsRoute
-  '/dashboard/user/completed': typeof DashboardUserCompletedRoute
   '/dashboard/user/messages': typeof DashboardUserMessagesRoute
   '/dashboard/user/notifications': typeof DashboardUserNotificationsRoute
-  '/dashboard/user/saved': typeof DashboardUserSavedRoute
   '/dashboard/user/suggestions': typeof DashboardUserSuggestionsRoute
-  '/dashboard/user/tailors/$tailorId': typeof DashboardUserTailorsTailorIdRoute
+  '/dashboard/user/saved': typeof DashboardUserSavedRoute
+  '/dashboard/user/completed': typeof DashboardUserCompletedRoute
+  '/dashboard/user/tailors/$tailorId': typeof DashboardUserTailorIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -175,18 +169,18 @@ export interface FileRoutesByTo {
   '/dashboard/tailor': typeof DashboardTailorRoute
   '/dashboard/user': typeof DashboardUserRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/tailor/messages': typeof DashboardTailorMessagesRoute
   '/dashboard/tailor/assigned': typeof DashboardTailorAssignedRoute
   '/dashboard/tailor/completed': typeof DashboardTailorCompletedRoute
-  '/dashboard/tailor/messages': typeof DashboardTailorMessagesRoute
+  '/dashboard/tailor/reviews': typeof DashboardTailorReviewsRoute
   '/dashboard/tailor/portfolio': typeof DashboardTailorPortfolioRoute
   '/dashboard/tailor/profile-edit': typeof DashboardTailorProfileEditRoute
-  '/dashboard/tailor/reviews': typeof DashboardTailorReviewsRoute
-  '/dashboard/user/completed': typeof DashboardUserCompletedRoute
   '/dashboard/user/messages': typeof DashboardUserMessagesRoute
   '/dashboard/user/notifications': typeof DashboardUserNotificationsRoute
-  '/dashboard/user/saved': typeof DashboardUserSavedRoute
   '/dashboard/user/suggestions': typeof DashboardUserSuggestionsRoute
-  '/dashboard/user/tailors/$tailorId': typeof DashboardUserTailorsTailorIdRoute
+  '/dashboard/user/saved': typeof DashboardUserSavedRoute
+  '/dashboard/user/completed': typeof DashboardUserCompletedRoute
+  '/dashboard/user/tailors/$tailorId': typeof DashboardUserTailorIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -199,18 +193,18 @@ export interface FileRoutesById {
   '/dashboard/tailor': typeof DashboardTailorRoute
   '/dashboard/user': typeof DashboardUserRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/tailor_/messages': typeof DashboardTailorMessagesRoute
   '/dashboard/tailor_/assigned': typeof DashboardTailorAssignedRoute
   '/dashboard/tailor_/completed': typeof DashboardTailorCompletedRoute
-  '/dashboard/tailor_/messages': typeof DashboardTailorMessagesRoute
+  '/dashboard/tailor_/reviews': typeof DashboardTailorReviewsRoute
   '/dashboard/tailor_/portfolio': typeof DashboardTailorPortfolioRoute
   '/dashboard/tailor_/profile-edit': typeof DashboardTailorProfileEditRoute
-  '/dashboard/tailor_/reviews': typeof DashboardTailorReviewsRoute
-  '/dashboard/user_/completed': typeof DashboardUserCompletedRoute
   '/dashboard/user_/messages': typeof DashboardUserMessagesRoute
   '/dashboard/user_/notifications': typeof DashboardUserNotificationsRoute
-  '/dashboard/user_/saved': typeof DashboardUserSavedRoute
   '/dashboard/user_/suggestions': typeof DashboardUserSuggestionsRoute
-  '/dashboard/user_/tailors/$tailorId': typeof DashboardUserTailorsTailorIdRoute
+  '/dashboard/user_/saved': typeof DashboardUserSavedRoute
+  '/dashboard/user_/completed': typeof DashboardUserCompletedRoute
+  '/dashboard/user_/tailors/$tailorId': typeof DashboardUserTailorIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -224,17 +218,17 @@ export interface FileRouteTypes {
     | '/dashboard/tailor'
     | '/dashboard/user'
     | '/dashboard/'
+    | '/dashboard/tailor/messages'
     | '/dashboard/tailor/assigned'
     | '/dashboard/tailor/completed'
-    | '/dashboard/tailor/messages'
+    | '/dashboard/tailor/reviews'
     | '/dashboard/tailor/portfolio'
     | '/dashboard/tailor/profile-edit'
-    | '/dashboard/tailor/reviews'
-    | '/dashboard/user/completed'
     | '/dashboard/user/messages'
     | '/dashboard/user/notifications'
-    | '/dashboard/user/saved'
     | '/dashboard/user/suggestions'
+    | '/dashboard/user/saved'
+    | '/dashboard/user/completed'
     | '/dashboard/user/tailors/$tailorId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -246,17 +240,17 @@ export interface FileRouteTypes {
     | '/dashboard/tailor'
     | '/dashboard/user'
     | '/dashboard'
+    | '/dashboard/tailor/messages'
     | '/dashboard/tailor/assigned'
     | '/dashboard/tailor/completed'
-    | '/dashboard/tailor/messages'
+    | '/dashboard/tailor/reviews'
     | '/dashboard/tailor/portfolio'
     | '/dashboard/tailor/profile-edit'
-    | '/dashboard/tailor/reviews'
-    | '/dashboard/user/completed'
     | '/dashboard/user/messages'
     | '/dashboard/user/notifications'
-    | '/dashboard/user/saved'
     | '/dashboard/user/suggestions'
+    | '/dashboard/user/saved'
+    | '/dashboard/user/completed'
     | '/dashboard/user/tailors/$tailorId'
   id:
     | '__root__'
@@ -269,17 +263,17 @@ export interface FileRouteTypes {
     | '/dashboard/tailor'
     | '/dashboard/user'
     | '/dashboard/'
+    | '/dashboard/tailor_/messages'
     | '/dashboard/tailor_/assigned'
     | '/dashboard/tailor_/completed'
-    | '/dashboard/tailor_/messages'
+    | '/dashboard/tailor_/reviews'
     | '/dashboard/tailor_/portfolio'
     | '/dashboard/tailor_/profile-edit'
-    | '/dashboard/tailor_/reviews'
-    | '/dashboard/user_/completed'
     | '/dashboard/user_/messages'
     | '/dashboard/user_/notifications'
-    | '/dashboard/user_/saved'
     | '/dashboard/user_/suggestions'
+    | '/dashboard/user_/saved'
+    | '/dashboard/user_/completed'
     | '/dashboard/user_/tailors/$tailorId'
   fileRoutesById: FileRoutesById
 }
@@ -294,153 +288,27 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/tailor': {
-      id: '/tailor'
-      path: '/tailor'
-      fullPath: '/tailor'
-      preLoaderRoute: typeof TailorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/messages': {
-      id: '/messages'
-      path: '/messages'
-      fullPath: '/messages'
-      preLoaderRoute: typeof MessagesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard/': {
-      id: '/dashboard/'
-      path: '/'
-      fullPath: '/dashboard/'
-      preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/user': {
-      id: '/dashboard/user'
-      path: '/user'
-      fullPath: '/dashboard/user'
-      preLoaderRoute: typeof DashboardUserRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/tailor': {
-      id: '/dashboard/tailor'
-      path: '/tailor'
-      fullPath: '/dashboard/tailor'
-      preLoaderRoute: typeof DashboardTailorRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/user_/suggestions': {
-      id: '/dashboard/user_/suggestions'
-      path: '/user/suggestions'
-      fullPath: '/dashboard/user/suggestions'
-      preLoaderRoute: typeof DashboardUserSuggestionsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/user_/saved': {
-      id: '/dashboard/user_/saved'
-      path: '/user/saved'
-      fullPath: '/dashboard/user/saved'
-      preLoaderRoute: typeof DashboardUserSavedRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/user_/notifications': {
-      id: '/dashboard/user_/notifications'
-      path: '/user/notifications'
-      fullPath: '/dashboard/user/notifications'
-      preLoaderRoute: typeof DashboardUserNotificationsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/user_/messages': {
-      id: '/dashboard/user_/messages'
-      path: '/user/messages'
-      fullPath: '/dashboard/user/messages'
-      preLoaderRoute: typeof DashboardUserMessagesRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/user_/completed': {
-      id: '/dashboard/user_/completed'
-      path: '/user/completed'
-      fullPath: '/dashboard/user/completed'
-      preLoaderRoute: typeof DashboardUserCompletedRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/tailor_/reviews': {
-      id: '/dashboard/tailor_/reviews'
-      path: '/tailor/reviews'
-      fullPath: '/dashboard/tailor/reviews'
-      preLoaderRoute: typeof DashboardTailorReviewsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/tailor_/profile-edit': {
-      id: '/dashboard/tailor_/profile-edit'
-      path: '/tailor/profile-edit'
-      fullPath: '/dashboard/tailor/profile-edit'
-      preLoaderRoute: typeof DashboardTailorProfileEditRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/tailor_/portfolio': {
-      id: '/dashboard/tailor_/portfolio'
-      path: '/tailor/portfolio'
-      fullPath: '/dashboard/tailor/portfolio'
-      preLoaderRoute: typeof DashboardTailorPortfolioRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/tailor_/messages': {
-      id: '/dashboard/tailor_/messages'
-      path: '/tailor/messages'
-      fullPath: '/dashboard/tailor/messages'
-      preLoaderRoute: typeof DashboardTailorMessagesRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/tailor_/completed': {
-      id: '/dashboard/tailor_/completed'
-      path: '/tailor/completed'
-      fullPath: '/dashboard/tailor/completed'
-      preLoaderRoute: typeof DashboardTailorCompletedRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/tailor_/assigned': {
-      id: '/dashboard/tailor_/assigned'
-      path: '/tailor/assigned'
-      fullPath: '/dashboard/tailor/assigned'
-      preLoaderRoute: typeof DashboardTailorAssignedRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/user_/tailors/$tailorId': {
-      id: '/dashboard/user_/tailors/$tailorId'
-      path: '/user/tailors/$tailorId'
-      fullPath: '/dashboard/user/tailors/$tailorId'
-      preLoaderRoute: typeof DashboardUserTailorsTailorIdRouteImport
-      parentRoute: typeof DashboardRoute
-    }
+    '/tailor': { id: '/tailor'; path: '/tailor'; fullPath: '/tailor'; preLoaderRoute: typeof TailorRouteImport; parentRoute: typeof rootRouteImport }
+    '/register': { id: '/register'; path: '/register'; fullPath: '/register'; preLoaderRoute: typeof RegisterRouteImport; parentRoute: typeof rootRouteImport }
+    '/messages': { id: '/messages'; path: '/messages'; fullPath: '/messages'; preLoaderRoute: typeof MessagesRouteImport; parentRoute: typeof rootRouteImport }
+    '/login': { id: '/login'; path: '/login'; fullPath: '/login'; preLoaderRoute: typeof LoginRouteImport; parentRoute: typeof rootRouteImport }
+    '/dashboard': { id: '/dashboard'; path: '/dashboard'; fullPath: '/dashboard'; preLoaderRoute: typeof DashboardRouteImport; parentRoute: typeof rootRouteImport }
+    '/': { id: '/'; path: '/'; fullPath: '/'; preLoaderRoute: typeof IndexRouteImport; parentRoute: typeof rootRouteImport }
+    '/dashboard/': { id: '/dashboard/'; path: '/'; fullPath: '/dashboard/'; preLoaderRoute: typeof DashboardIndexRouteImport; parentRoute: typeof DashboardRoute }
+    '/dashboard/user': { id: '/dashboard/user'; path: '/user'; fullPath: '/dashboard/user'; preLoaderRoute: typeof DashboardUserRouteImport; parentRoute: typeof DashboardRoute }
+    '/dashboard/tailor': { id: '/dashboard/tailor'; path: '/tailor'; fullPath: '/dashboard/tailor'; preLoaderRoute: typeof DashboardTailorRouteImport; parentRoute: typeof DashboardRoute }
+    '/dashboard/user_/suggestions': { id: '/dashboard/user_/suggestions'; path: '/user/suggestions'; fullPath: '/dashboard/user/suggestions'; preLoaderRoute: typeof DashboardUserSuggestionsRouteImport; parentRoute: typeof DashboardRoute }
+    '/dashboard/user_/notifications': { id: '/dashboard/user_/notifications'; path: '/user/notifications'; fullPath: '/dashboard/user/notifications'; preLoaderRoute: typeof DashboardUserNotificationsRouteImport; parentRoute: typeof DashboardRoute }
+    '/dashboard/user_/messages': { id: '/dashboard/user_/messages'; path: '/user/messages'; fullPath: '/dashboard/user/messages'; preLoaderRoute: typeof DashboardUserMessagesRouteImport; parentRoute: typeof DashboardRoute }
+    '/dashboard/user_/saved': { id: '/dashboard/user_/saved'; path: '/user/saved'; fullPath: '/dashboard/user/saved'; preLoaderRoute: typeof DashboardUserSavedRouteImport; parentRoute: typeof DashboardRoute }
+    '/dashboard/user_/completed': { id: '/dashboard/user_/completed'; path: '/user/completed'; fullPath: '/dashboard/user/completed'; preLoaderRoute: typeof DashboardUserCompletedRouteImport; parentRoute: typeof DashboardRoute }
+    '/dashboard/user_/tailors/$tailorId': { id: '/dashboard/user_/tailors/$tailorId'; path: '/user/tailors/$tailorId'; fullPath: '/dashboard/user/tailors/$tailorId'; preLoaderRoute: typeof DashboardUserTailorIdRouteImport; parentRoute: typeof DashboardRoute }
+    '/dashboard/tailor_/messages': { id: '/dashboard/tailor_/messages'; path: '/tailor/messages'; fullPath: '/dashboard/tailor/messages'; preLoaderRoute: typeof DashboardTailorMessagesRouteImport; parentRoute: typeof DashboardRoute }
+    '/dashboard/tailor_/assigned': { id: '/dashboard/tailor_/assigned'; path: '/tailor/assigned'; fullPath: '/dashboard/tailor/assigned'; preLoaderRoute: typeof DashboardTailorAssignedRouteImport; parentRoute: typeof DashboardRoute }
+    '/dashboard/tailor_/completed': { id: '/dashboard/tailor_/completed'; path: '/tailor/completed'; fullPath: '/dashboard/tailor/completed'; preLoaderRoute: typeof DashboardTailorCompletedRouteImport; parentRoute: typeof DashboardRoute }
+    '/dashboard/tailor_/reviews': { id: '/dashboard/tailor_/reviews'; path: '/tailor/reviews'; fullPath: '/dashboard/tailor/reviews'; preLoaderRoute: typeof DashboardTailorReviewsRouteImport; parentRoute: typeof DashboardRoute }
+    '/dashboard/tailor_/portfolio': { id: '/dashboard/tailor_/portfolio'; path: '/tailor/portfolio'; fullPath: '/dashboard/tailor/portfolio'; preLoaderRoute: typeof DashboardTailorPortfolioRouteImport; parentRoute: typeof DashboardRoute }
+    '/dashboard/tailor_/profile-edit': { id: '/dashboard/tailor_/profile-edit'; path: '/tailor/profile-edit'; fullPath: '/dashboard/tailor/profile-edit'; preLoaderRoute: typeof DashboardTailorProfileEditRouteImport; parentRoute: typeof DashboardRoute }
   }
 }
 
@@ -448,36 +316,36 @@ interface DashboardRouteChildren {
   DashboardTailorRoute: typeof DashboardTailorRoute
   DashboardUserRoute: typeof DashboardUserRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardTailorMessagesRoute: typeof DashboardTailorMessagesRoute
   DashboardTailorAssignedRoute: typeof DashboardTailorAssignedRoute
   DashboardTailorCompletedRoute: typeof DashboardTailorCompletedRoute
-  DashboardTailorMessagesRoute: typeof DashboardTailorMessagesRoute
+  DashboardTailorReviewsRoute: typeof DashboardTailorReviewsRoute
   DashboardTailorPortfolioRoute: typeof DashboardTailorPortfolioRoute
   DashboardTailorProfileEditRoute: typeof DashboardTailorProfileEditRoute
-  DashboardTailorReviewsRoute: typeof DashboardTailorReviewsRoute
-  DashboardUserCompletedRoute: typeof DashboardUserCompletedRoute
   DashboardUserMessagesRoute: typeof DashboardUserMessagesRoute
   DashboardUserNotificationsRoute: typeof DashboardUserNotificationsRoute
-  DashboardUserSavedRoute: typeof DashboardUserSavedRoute
   DashboardUserSuggestionsRoute: typeof DashboardUserSuggestionsRoute
-  DashboardUserTailorsTailorIdRoute: typeof DashboardUserTailorsTailorIdRoute
+  DashboardUserSavedRoute: typeof DashboardUserSavedRoute
+  DashboardUserCompletedRoute: typeof DashboardUserCompletedRoute
+  DashboardUserTailorIdRoute: typeof DashboardUserTailorIdRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardTailorRoute: DashboardTailorRoute,
   DashboardUserRoute: DashboardUserRoute,
   DashboardIndexRoute: DashboardIndexRoute,
+  DashboardTailorMessagesRoute: DashboardTailorMessagesRoute,
   DashboardTailorAssignedRoute: DashboardTailorAssignedRoute,
   DashboardTailorCompletedRoute: DashboardTailorCompletedRoute,
-  DashboardTailorMessagesRoute: DashboardTailorMessagesRoute,
+  DashboardTailorReviewsRoute: DashboardTailorReviewsRoute,
   DashboardTailorPortfolioRoute: DashboardTailorPortfolioRoute,
   DashboardTailorProfileEditRoute: DashboardTailorProfileEditRoute,
-  DashboardTailorReviewsRoute: DashboardTailorReviewsRoute,
-  DashboardUserCompletedRoute: DashboardUserCompletedRoute,
   DashboardUserMessagesRoute: DashboardUserMessagesRoute,
   DashboardUserNotificationsRoute: DashboardUserNotificationsRoute,
-  DashboardUserSavedRoute: DashboardUserSavedRoute,
   DashboardUserSuggestionsRoute: DashboardUserSuggestionsRoute,
-  DashboardUserTailorsTailorIdRoute: DashboardUserTailorsTailorIdRoute,
+  DashboardUserSavedRoute: DashboardUserSavedRoute,
+  DashboardUserCompletedRoute: DashboardUserCompletedRoute,
+  DashboardUserTailorIdRoute: DashboardUserTailorIdRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
