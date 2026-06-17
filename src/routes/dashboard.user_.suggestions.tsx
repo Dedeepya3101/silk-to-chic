@@ -60,12 +60,12 @@ function UserSuggestions() {
     const uploadIds = Array.from(new Set(list.map(s => s.saree_upload_id)));
     const [{ data: profs }, { data: uploads }, { data: reps }] = await Promise.all([
       tailorIds.length ? supabase.from("profiles").select("id, display_name").in("id", tailorIds) : Promise.resolve({ data: [] as any[] }),
-      uploadIds.length ? supabase.from("saree_uploads").select("id, image_url").in("id", uploadIds) : Promise.resolve({ data: [] as any[] }),
+      uploadIds.length ? supabase.from("saree_uploads").select("id, image_url, status, assigned_tailor_id").in("id", uploadIds) : Promise.resolve({ data: [] as any[] }),
       list.length ? supabase.from("suggestion_replies").select("*").in("suggestion_id", list.map(s => s.id)).order("created_at", { ascending: true }) : Promise.resolve({ data: [] as any[] }),
     ]);
     const pm = new Map((profs || []).map((p: any) => [p.id, p.display_name]));
-    const um = new Map((uploads || []).map((u: any) => [u.id, u.image_url]));
-    setItems(list.map(s => ({ ...s, tailor_name: pm.get(s.tailor_id) || "Tailor", image_url: um.get(s.saree_upload_id) })));
+    const um = new Map((uploads || []).map((u: any) => [u.id, u]));
+    setItems(list.map(s => ({ ...s, tailor_name: pm.get(s.tailor_id) || "Tailor", image_url: um.get(s.saree_upload_id)?.image_url, request_status: um.get(s.saree_upload_id)?.status, assigned_tailor_id: um.get(s.saree_upload_id)?.assigned_tailor_id })));
     const grouped: Record<string, Reply[]> = {};
     (reps || []).forEach((r: any) => { (grouped[r.suggestion_id] ||= []).push(r); });
     setReplies(grouped);
