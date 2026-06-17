@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      completed_projects: {
+        Row: {
+          completion_date: string
+          id: string
+          request_id: string
+          tailor_id: string
+          user_id: string
+        }
+        Insert: {
+          completion_date?: string
+          id?: string
+          request_id: string
+          tailor_id: string
+          user_id: string
+        }
+        Update: {
+          completion_date?: string
+          id?: string
+          request_id?: string
+          tailor_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "completed_projects_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: true
+            referencedRelation: "saree_uploads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
@@ -79,6 +111,36 @@ export type Database = {
         }
         Relationships: []
       }
+      portfolio_items: {
+        Row: {
+          after_image: string
+          before_image: string | null
+          created_at: string
+          description: string | null
+          id: string
+          tailor_id: string
+          title: string | null
+        }
+        Insert: {
+          after_image: string
+          before_image?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          tailor_id: string
+          title?: string | null
+        }
+        Update: {
+          after_image?: string
+          before_image?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          tailor_id?: string
+          title?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           city: string | null
@@ -109,35 +171,106 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          created_at: string
+          id: string
+          rating: number
+          request_id: string
+          review_text: string | null
+          tailor_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rating: number
+          request_id: string
+          review_text?: string | null
+          tailor_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rating?: number
+          request_id?: string
+          review_text?: string | null
+          tailor_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: true
+            referencedRelation: "saree_uploads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saree_uploads: {
         Row: {
+          assigned_tailor_id: string | null
           created_at: string
           description: string | null
           id: string
           image_url: string
           occasion: string | null
           status: string
+          tailor_marked_completed: boolean
           title: string | null
+          updated_at: string
+          user_confirmed_completion: boolean
           user_id: string
         }
         Insert: {
+          assigned_tailor_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
           image_url: string
           occasion?: string | null
           status?: string
+          tailor_marked_completed?: boolean
           title?: string | null
+          updated_at?: string
+          user_confirmed_completion?: boolean
           user_id: string
         }
         Update: {
+          assigned_tailor_id?: string | null
           created_at?: string
           description?: string | null
           id?: string
           image_url?: string
           occasion?: string | null
           status?: string
+          tailor_marked_completed?: boolean
           title?: string | null
+          updated_at?: string
+          user_confirmed_completion?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
+      saved_tailors: {
+        Row: {
+          created_at: string
+          id: string
+          tailor_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          tailor_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          tailor_id?: string
           user_id?: string
         }
         Relationships: []
@@ -220,6 +353,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tailor_profiles: {
+        Row: {
+          bio: string | null
+          created_at: string
+          experience_years: number | null
+          id: string
+          location: string | null
+          owner_name: string | null
+          phone: string | null
+          phone_visibility: boolean
+          profile_photo: string | null
+          specialization: string | null
+          studio_name: string | null
+          tailor_id: string
+          updated_at: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          experience_years?: number | null
+          id?: string
+          location?: string | null
+          owner_name?: string | null
+          phone?: string | null
+          phone_visibility?: boolean
+          profile_photo?: string | null
+          specialization?: string | null
+          studio_name?: string | null
+          tailor_id: string
+          updated_at?: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          experience_years?: number | null
+          id?: string
+          location?: string | null
+          owner_name?: string | null
+          phone?: string | null
+          phone_visibility?: boolean
+          profile_photo?: string | null
+          specialization?: string | null
+          studio_name?: string | null
+          tailor_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       tailor_requests: {
         Row: {

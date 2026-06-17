@@ -1,7 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Inbox, Send, Sparkles, Scissors, Calendar } from "lucide-react";
+import { Loader2, Inbox, Send, Sparkles, Scissors, Calendar, CheckCircle2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { refreshSession } from "@/lib/session";
@@ -23,6 +23,8 @@ type Suggestion = {
   saree_upload_id: string;
   tailor_name?: string;
   image_url?: string;
+  request_status?: string;
+  assigned_tailor_id?: string | null;
 };
 
 type Reply = { id: string; suggestion_id: string; user_id: string; message: string; created_at: string };
@@ -58,12 +60,12 @@ function UserSuggestions() {
     const uploadIds = Array.from(new Set(list.map(s => s.saree_upload_id)));
     const [{ data: profs }, { data: uploads }, { data: reps }] = await Promise.all([
       tailorIds.length ? supabase.from("profiles").select("id, display_name").in("id", tailorIds) : Promise.resolve({ data: [] as any[] }),
-      uploadIds.length ? supabase.from("saree_uploads").select("id, image_url").in("id", uploadIds) : Promise.resolve({ data: [] as any[] }),
+      uploadIds.length ? supabase.from("saree_uploads").select("id, image_url, status, assigned_tailor_id").in("id", uploadIds) : Promise.resolve({ data: [] as any[] }),
       list.length ? supabase.from("suggestion_replies").select("*").in("suggestion_id", list.map(s => s.id)).order("created_at", { ascending: true }) : Promise.resolve({ data: [] as any[] }),
     ]);
     const pm = new Map((profs || []).map((p: any) => [p.id, p.display_name]));
-    const um = new Map((uploads || []).map((u: any) => [u.id, u.image_url]));
-    setItems(list.map(s => ({ ...s, tailor_name: pm.get(s.tailor_id) || "Tailor", image_url: um.get(s.saree_upload_id) })));
+    const um = new Map((uploads || []).map((u: any) => [u.id, u]));
+    setItems(list.map(s => ({ ...s, tailor_name: pm.get(s.tailor_id) || "Tailor", image_url: um.get(s.saree_upload_id)?.image_url, request_status: um.get(s.saree_upload_id)?.status, assigned_tailor_id: um.get(s.saree_upload_id)?.assigned_tailor_id })));
     const grouped: Record<string, Reply[]> = {};
     (reps || []).forEach((r: any) => { (grouped[r.suggestion_id] ||= []).push(r); });
     setReplies(grouped);
@@ -77,6 +79,7 @@ function UserSuggestions() {
       .channel("user_suggestions_rt")
       .on("postgres_changes", { event: "*", schema: "public", table: "suggestions" }, () => void load())
       .on("postgres_changes", { event: "*", schema: "public", table: "suggestion_replies" }, () => void load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "saree_uploads" }, () => void load())
       .subscribe();
     return () => { void supabase.removeChannel(ch); };
   }, [ready]);
@@ -94,6 +97,24 @@ function UserSuggestions() {
     if (error) { toast.error(error.message); return; }
     setDraft(d => ({ ...d, [suggestionId]: "" }));
     toast.success("Reply sent");
+  };
+
+  const selectTailor = async (s: Suggestion) => {
+    const { error } = await supabase.from("saree_uploads")
+      .update({ assigned_tailor_id: s.tailor_id, status: "in_progress" })
+      .eq("id", s.saree_upload_id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`Selected ${s.tailor_name} — request is now in progress`);
+    void load();
+  };
+
+  const confirmCompletion = async (s: Suggestion) => {
+    const { error } = await supabase.from("saree_uploads")
+      .update({ user_confirmed_completion: true })
+      .eq("id", s.saree_upload_id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Completion confirmed");
+    void load();
   };
 
   if (!ready) return <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">Loading…</div>;
@@ -133,6 +154,27 @@ function UserSuggestions() {
                     <Detail label="Colors & embroidery" value={s.color_suggestions} />
                     <Detail label="Stitching notes" value={s.stitching_notes} />
                     <Detail label="Best fit" value={s.best_fit} />
+                  </div>
+                  <div className="mt-4 flex flex-wrap items-center gap-2">
+                    <Link to="/dashboard/user/tailors/$tailorId" params={{ tailorId: s.tailor_id }} className="rounded-full border border-border bg-background px-3 py-1.5 text-xs">View tailor profile</Link>
+                    {s.request_status === "open" && (
+                      <button onClick={() => selectTailor(s)} className="inline-flex items-center gap-1 rounded-full bg-gradient-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">
+                        <CheckCircle2 className="h-3 w-3" /> Select this tailor
+                      </button>
+                    )}
+                    {s.request_status === "in_progress" && s.assigned_tailor_id === s.tailor_id && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-3 py-1.5 text-xs text-primary">In progress with this tailor</span>
+                    )}
+                    {s.request_status === "in_progress" && s.assigned_tailor_id === s.tailor_id && (
+                      <button onClick={() => confirmCompletion(s)} className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-xs text-background">
+                        <CheckCircle2 className="h-3 w-3" /> Confirm completion
+                      </button>
+                    )}
+                    {s.request_status === "completed" && s.assigned_tailor_id === s.tailor_id && (
+                      <Link to="/dashboard/user/completed" className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-3 py-1.5 text-xs text-emerald-700">
+                        <CheckCircle2 className="h-3 w-3" /> Completed — leave a review
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>

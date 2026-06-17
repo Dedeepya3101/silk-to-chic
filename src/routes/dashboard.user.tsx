@@ -15,7 +15,7 @@ export const Route = createFileRoute("/dashboard/user")({
   component: UserDashboard,
 });
 
-type SareeRow = { id: string; image_url: string; title: string | null; description: string | null; created_at: string };
+type SareeRow = { id: string; image_url: string; title: string | null; description: string | null; created_at: string; status?: string; tailor_marked_completed?: boolean; user_confirmed_completion?: boolean };
 
 function UserDashboard() {
   const [name, setName] = useState("there");
@@ -46,8 +46,14 @@ function UserDashboard() {
                   <div key={u.id} className="overflow-hidden rounded-2xl bg-card shadow-soft">
                     <img src={u.image_url} alt={u.title || ""} className="h-40 w-full object-cover" />
                     <div className="p-4">
-                      <p className="font-medium">{u.title || "Untitled saree"}</p>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-medium">{u.title || "Untitled saree"}</p>
+                        <StatusBadge status={u.status || "open"} />
+                      </div>
                       <p className="line-clamp-2 text-sm text-muted-foreground">{u.description}</p>
+                      {u.status === "in_progress" && u.tailor_marked_completed && !u.user_confirmed_completion && (
+                        <p className="mt-2 text-xs text-primary">Tailor marked complete — confirm in Suggestions.</p>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -104,7 +110,7 @@ async function loadUploads(setUploads: (rows: SareeRow[]) => void) {
   if (!user) return;
   const { data } = await supabase
     .from("saree_uploads")
-    .select("id, image_url, title, description, created_at")
+    .select("id, image_url, title, description, created_at, status, tailor_marked_completed, user_confirmed_completion")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
   setUploads((data as SareeRow[]) || []);
@@ -216,6 +222,16 @@ function Row({ label, value }: { label: string; value: string }) {
       <span className="font-medium">{value}</span>
     </div>
   );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const map: Record<string, string> = {
+    open: "bg-accent text-accent-foreground",
+    in_progress: "bg-primary text-primary-foreground",
+    completed: "bg-emerald-500/15 text-emerald-700",
+  };
+  const label = status === "in_progress" ? "In progress" : status[0].toUpperCase() + status.slice(1);
+  return <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] ${map[status] || "bg-accent"}`}>{label}</span>;
 }
 
 const SUGGESTIONS = [
