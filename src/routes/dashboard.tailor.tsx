@@ -236,7 +236,7 @@ function ProfileCard({ name }: { name: string }) {
       </div>
       <div className="mt-4 flex items-center justify-between text-[11px]">
         <span className="inline-flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-emerald-400" /> Available now</span>
-        <button className="rounded-full bg-background/15 px-3 py-1 backdrop-blur">Edit profile</button>
+        <Link to="/dashboard/tailor/profile-edit" className="rounded-full bg-background/15 px-3 py-1 backdrop-blur">Edit profile</Link>
       </div>
     </div>
   );
