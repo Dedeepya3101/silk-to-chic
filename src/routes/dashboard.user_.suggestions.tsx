@@ -98,6 +98,24 @@ function UserSuggestions() {
     toast.success("Reply sent");
   };
 
+  const selectTailor = async (s: Suggestion) => {
+    const { error } = await supabase.from("saree_uploads")
+      .update({ assigned_tailor_id: s.tailor_id, status: "in_progress" })
+      .eq("id", s.saree_upload_id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`Selected ${s.tailor_name} — request is now in progress`);
+    void load();
+  };
+
+  const confirmCompletion = async (s: Suggestion) => {
+    const { error } = await supabase.from("saree_uploads")
+      .update({ user_confirmed_completion: true })
+      .eq("id", s.saree_upload_id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Completion confirmed");
+    void load();
+  };
+
   if (!ready) return <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">Loading…</div>;
 
   return (
