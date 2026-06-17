@@ -104,7 +104,7 @@ async function loadUploads(setUploads: (rows: SareeRow[]) => void) {
   if (!user) return;
   const { data } = await supabase
     .from("saree_uploads")
-    .select("id, image_url, title, description, created_at")
+    .select("id, image_url, title, description, created_at, status, tailor_marked_completed, user_confirmed_completion")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
   setUploads((data as SareeRow[]) || []);
