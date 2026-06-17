@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Sparkles, LayoutDashboard, Upload, MessageCircle, Heart, Bell, Settings, Inbox, Scissors, Star, LogOut, BarChart3, CheckCircle2, UserCircle } from "lucide-react";
+import { Sparkles, LayoutDashboard, Upload, MessageCircle, Heart, Bell, Settings, Inbox, Scissors, Star, LogOut, BarChart3, CheckCircle2, UserCircle, Image as ImageIcon, ClipboardList } from "lucide-react";
 import { getSession, refreshSession, signOut, type Role } from "@/lib/session";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -12,7 +12,8 @@ const userNav: Item[] = [
   { to: "/dashboard/user", hash: "requests", label: "Active requests", icon: Sparkles },
   { to: "/dashboard/user/suggestions", label: "Suggestions", icon: Scissors },
   { to: "/dashboard/user/messages", label: "Messages", icon: MessageCircle },
-  { to: "/dashboard/user", hash: "saved", label: "Saved tailors", icon: Heart },
+  { to: "/dashboard/user/saved", label: "Saved tailors", icon: Heart },
+  { to: "/dashboard/user/completed", label: "Completed", icon: CheckCircle2 },
   { to: "/dashboard/user/notifications", label: "Notifications", icon: Bell },
   { to: "/dashboard/user", hash: "settings", label: "Profile settings", icon: Settings },
 ];
@@ -20,11 +21,13 @@ const userNav: Item[] = [
 const tailorNav: Item[] = [
   { to: "/dashboard/tailor", label: "Overview", icon: LayoutDashboard },
   { to: "/dashboard/tailor", hash: "feed", label: "Request feed", icon: Inbox },
+  { to: "/dashboard/tailor/assigned", label: "Assigned", icon: ClipboardList },
   { to: "/dashboard/tailor/messages", label: "Conversations", icon: MessageCircle },
   { to: "/dashboard/tailor", hash: "analytics", label: "Analytics", icon: BarChart3 },
-  { to: "/dashboard/tailor", hash: "completed", label: "Completed", icon: CheckCircle2 },
-  { to: "/dashboard/tailor", hash: "reviews", label: "Reviews", icon: Star },
-  { to: "/dashboard/tailor", hash: "profile", label: "Studio profile", icon: UserCircle },
+  { to: "/dashboard/tailor/completed", label: "Completed", icon: CheckCircle2 },
+  { to: "/dashboard/tailor/reviews", label: "Reviews", icon: Star },
+  { to: "/dashboard/tailor/portfolio", label: "Portfolio", icon: ImageIcon },
+  { to: "/dashboard/tailor/profile-edit", label: "Studio profile", icon: UserCircle },
 ];
 
 export function AppShell({ role, children, title }: { role: Role; children: React.ReactNode; title: string }) {
