@@ -79,6 +79,7 @@ function UserSuggestions() {
       .channel("user_suggestions_rt")
       .on("postgres_changes", { event: "*", schema: "public", table: "suggestions" }, () => void load())
       .on("postgres_changes", { event: "*", schema: "public", table: "suggestion_replies" }, () => void load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "saree_uploads" }, () => void load())
       .subscribe();
     return () => { void supabase.removeChannel(ch); };
   }, [ready]);
