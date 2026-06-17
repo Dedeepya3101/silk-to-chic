@@ -15,7 +15,7 @@ export const Route = createFileRoute("/dashboard/user")({
   component: UserDashboard,
 });
 
-type SareeRow = { id: string; image_url: string; title: string | null; description: string | null; created_at: string };
+type SareeRow = { id: string; image_url: string; title: string | null; description: string | null; created_at: string; status?: string; tailor_marked_completed?: boolean; user_confirmed_completion?: boolean };
 
 function UserDashboard() {
   const [name, setName] = useState("there");
