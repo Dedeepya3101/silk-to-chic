@@ -224,6 +224,16 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
+function StatusBadge({ status }: { status: string }) {
+  const map: Record<string, string> = {
+    open: "bg-accent text-accent-foreground",
+    in_progress: "bg-primary text-primary-foreground",
+    completed: "bg-emerald-500/15 text-emerald-700",
+  };
+  const label = status === "in_progress" ? "In progress" : status[0].toUpperCase() + status.slice(1);
+  return <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] ${map[status] || "bg-accent"}`}>{label}</span>;
+}
+
 const SUGGESTIONS = [
   { id: 1, tailor: "Rohini Tailoring", style: "Crop-top set with dupatta", img: saree2, distance: "1.2 km", rating: 4.9 },
   { id: 2, tailor: "Anjali Couture", style: "A-line long frock, puff sleeves", img: saree1, distance: "2.8 km", rating: 4.7 },
