@@ -154,6 +154,27 @@ function UserSuggestions() {
                     <Detail label="Stitching notes" value={s.stitching_notes} />
                     <Detail label="Best fit" value={s.best_fit} />
                   </div>
+                  <div className="mt-4 flex flex-wrap items-center gap-2">
+                    <Link to="/dashboard/user/tailors/$tailorId" params={{ tailorId: s.tailor_id }} className="rounded-full border border-border bg-background px-3 py-1.5 text-xs">View tailor profile</Link>
+                    {s.request_status === "open" && (
+                      <button onClick={() => selectTailor(s)} className="inline-flex items-center gap-1 rounded-full bg-gradient-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">
+                        <CheckCircle2 className="h-3 w-3" /> Select this tailor
+                      </button>
+                    )}
+                    {s.request_status === "in_progress" && s.assigned_tailor_id === s.tailor_id && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-3 py-1.5 text-xs text-primary">In progress with this tailor</span>
+                    )}
+                    {s.request_status === "in_progress" && s.assigned_tailor_id === s.tailor_id && (
+                      <button onClick={() => confirmCompletion(s)} className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-xs text-background">
+                        <CheckCircle2 className="h-3 w-3" /> Confirm completion
+                      </button>
+                    )}
+                    {s.request_status === "completed" && s.assigned_tailor_id === s.tailor_id && (
+                      <Link to="/dashboard/user/completed" className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-3 py-1.5 text-xs text-emerald-700">
+                        <CheckCircle2 className="h-3 w-3" /> Completed — leave a review
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="border-t border-border/60 bg-accent/30 p-5">
