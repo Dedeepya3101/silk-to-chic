@@ -23,6 +23,8 @@ type Suggestion = {
   saree_upload_id: string;
   tailor_name?: string;
   image_url?: string;
+  request_status?: string;
+  assigned_tailor_id?: string | null;
 };
 
 type Reply = { id: string; suggestion_id: string; user_id: string; message: string; created_at: string };
