@@ -46,8 +46,14 @@ function UserDashboard() {
                   <div key={u.id} className="overflow-hidden rounded-2xl bg-card shadow-soft">
                     <img src={u.image_url} alt={u.title || ""} className="h-40 w-full object-cover" />
                     <div className="p-4">
-                      <p className="font-medium">{u.title || "Untitled saree"}</p>
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="font-medium">{u.title || "Untitled saree"}</p>
+                        <StatusBadge status={u.status || "open"} />
+                      </div>
                       <p className="line-clamp-2 text-sm text-muted-foreground">{u.description}</p>
+                      {u.status === "in_progress" && u.tailor_marked_completed && !u.user_confirmed_completion && (
+                        <p className="mt-2 text-xs text-primary">Tailor marked complete — confirm in Suggestions.</p>
+                      )}
                     </div>
                   </div>
                 ))}
