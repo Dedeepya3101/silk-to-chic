@@ -139,8 +139,37 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
               ) : (
                 <button className="grid h-9 w-9 place-items-center rounded-full bg-card shadow-soft"><Bell className="h-4 w-4" /></button>
               )}
-              <div className={`grid h-9 w-9 place-items-center rounded-full font-display ${themeAccent}`}>{initial}</div>
-            </div>
+              {role === "tailor" ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      aria-label="Open profile menu"
+                      className={`grid h-9 w-9 place-items-center rounded-full font-display ${themeAccent} focus:outline-none focus:ring-2 focus:ring-ring`}
+                    >
+                      {initial}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel className="truncate">{name}</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={() => navigate({ to: "/dashboard/tailor/profile" })}>
+                      <UserIcon className="h-4 w-4" /> Tailor Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => navigate({ to: "/dashboard/tailor/studio-profile" })}>
+                      <Store className="h-4 w-4" /> Studio Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => navigate({ to: "/dashboard/tailor/settings" })}>
+                      <Settings className="h-4 w-4" /> Account Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={handleSignOut}>
+                      <LogOut className="h-4 w-4" /> Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <div className={`grid h-9 w-9 place-items-center rounded-full font-display ${themeAccent}`}>{initial}</div>
+              )}
           </header>
           {children}
         </main>
