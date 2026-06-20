@@ -170,6 +170,7 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
               ) : (
                 <div className={`grid h-9 w-9 place-items-center rounded-full font-display ${themeAccent}`}>{initial}</div>
               )}
+            </div>
           </header>
           {children}
         </main>
