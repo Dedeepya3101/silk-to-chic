@@ -93,6 +93,22 @@ function TailorPortfolio() {
     setItems(items.filter(i => i.id !== id));
   };
 
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<{ title: string; description: string }>({ title: "", description: "" });
+
+  const startEdit = (it: Item) => {
+    setEditingId(it.id);
+    setEditDraft({ title: it.title || "", description: it.description || "" });
+  };
+
+  const saveEdit = async (id: string) => {
+    const { error } = await supabase.from("portfolio_items").update({ title: editDraft.title || null, description: editDraft.description || null }).eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Updated");
+    setItems(items.map(i => i.id === id ? { ...i, title: editDraft.title, description: editDraft.description } : i));
+    setEditingId(null);
+  };
+
   if (!ready) return <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">Loading…</div>;
 
   return (
