@@ -151,6 +151,7 @@ export type Database = {
           email: string | null
           experience_years: number | null
           id: string
+          languages: string | null
           phone: string | null
           specialization: string | null
           tailor_category: string | null
@@ -165,6 +166,7 @@ export type Database = {
           email?: string | null
           experience_years?: number | null
           id: string
+          languages?: string | null
           phone?: string | null
           specialization?: string | null
           tailor_category?: string | null
@@ -179,6 +181,7 @@ export type Database = {
           email?: string | null
           experience_years?: number | null
           id?: string
+          languages?: string | null
           phone?: string | null
           specialization?: string | null
           tailor_category?: string | null
