@@ -160,6 +160,9 @@ function TailorProfile() {
           <Field label="Years of experience">
             <input type="number" min={0} value={form.experience_years} onChange={(e) => setForm({ ...form, experience_years: Number(e.target.value) })} className={input} />
           </Field>
+          <Field label="Languages spoken" className="sm:col-span-2">
+            <input value={form.languages} onChange={(e) => setForm({ ...form, languages: e.target.value })} placeholder="e.g. English, Hindi, Tamil" className={input} />
+          </Field>
           <Field label="Bio" className="sm:col-span-2">
             <textarea rows={4} value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} className={input} />
           </Field>
