@@ -153,7 +153,7 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
                     <DropdownMenuLabel className="truncate">{name}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onSelect={() => navigate({ to: "/dashboard/tailor/profile" })}>
-                      <UserIcon className="h-4 w-4" /> Tailor Profile
+                      <UserIcon className="h-4 w-4" /> My Profile
                     </DropdownMenuItem>
                     <DropdownMenuItem onSelect={() => navigate({ to: "/dashboard/tailor/studio-profile" })}>
                       <Store className="h-4 w-4" /> Studio Profile
