@@ -65,7 +65,10 @@ function TailorPortfolio() {
       const url = await uploadImage(f);
       if (which === "before") setBefore(url); else setAfter(url);
       toast.success(`${which === "before" ? "Before" : "After"} image uploaded`);
-    } catch (err: any) { toast.error(err.message); }
+    } catch (err: any) {
+      console.error(err);
+      toast.error("Couldn't upload image. Please try again.");
+    }
   };
 
   const add = async () => {
