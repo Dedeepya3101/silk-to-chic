@@ -150,11 +150,29 @@ function TailorPortfolio() {
                   <img src={it.after_image} alt="" className="aspect-square w-full object-cover" />
                 </div>
                 <div className="p-4">
-                  <p className="font-medium">{it.title || "Transformation"}</p>
-                  <p className="line-clamp-2 text-xs text-muted-foreground">{it.description}</p>
-                  <button onClick={() => remove(it.id)} className="mt-3 inline-flex items-center gap-1 text-xs text-destructive">
-                    <Trash2 className="h-3 w-3" /> Remove
-                  </button>
+                  {editingId === it.id ? (
+                    <div className="space-y-2">
+                      <input value={editDraft.title} onChange={e => setEditDraft({ ...editDraft, title: e.target.value })} placeholder="Title" className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+                      <textarea value={editDraft.description} onChange={e => setEditDraft({ ...editDraft, description: e.target.value })} placeholder="Description" rows={2} className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm" />
+                      <div className="flex gap-2">
+                        <button onClick={() => saveEdit(it.id)} className="inline-flex items-center gap-1 rounded-full bg-foreground px-3 py-1.5 text-xs text-background"><Save className="h-3 w-3" /> Save</button>
+                        <button onClick={() => setEditingId(null)} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs"><X className="h-3 w-3" /> Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="font-medium">{it.title || "Transformation"}</p>
+                      <p className="line-clamp-2 text-xs text-muted-foreground">{it.description}</p>
+                      <div className="mt-3 flex gap-3">
+                        <button onClick={() => startEdit(it)} className="inline-flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground">
+                          <Pencil className="h-3 w-3" /> Edit
+                        </button>
+                        <button onClick={() => remove(it.id)} className="inline-flex items-center gap-1 text-xs text-destructive">
+                          <Trash2 className="h-3 w-3" /> Remove
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
