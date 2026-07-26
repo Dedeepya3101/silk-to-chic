@@ -106,7 +106,7 @@ function TailorPortfolio() {
 
   const saveEdit = async (id: string) => {
     const { error } = await supabase.from("portfolio_items").update({ title: editDraft.title || null, description: editDraft.description || null }).eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { console.error(error); toast.error("Couldn't update item."); return; }
     toast.success("Updated");
     setItems(items.map(i => i.id === id ? { ...i, title: editDraft.title, description: editDraft.description } : i));
     setEditingId(null);
