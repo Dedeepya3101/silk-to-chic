@@ -86,12 +86,12 @@ function TailorPortfolio() {
       if (beforeRef.current) beforeRef.current.value = "";
       if (afterRef.current) afterRef.current.value = "";
       await load();
-    } catch (err: any) { toast.error(err.message); } finally { setBusy(false); }
+    } catch (err: any) { console.error(err); toast.error("Couldn't save portfolio item. Please try again."); } finally { setBusy(false); }
   };
 
   const remove = async (id: string) => {
     const { error } = await supabase.from("portfolio_items").delete().eq("id", id);
-    if (error) { toast.error(error.message); return; }
+    if (error) { console.error(error); toast.error("Couldn't remove item."); return; }
     toast.success("Removed");
     setItems(items.filter(i => i.id !== id));
   };
