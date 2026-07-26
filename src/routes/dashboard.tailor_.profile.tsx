@@ -77,7 +77,8 @@ function TailorProfile() {
       setForm(f => ({ ...f, avatar_url: pub.publicUrl }));
       toast.success("Photo uploaded");
     } catch (err: any) {
-      toast.error(err.message || "Upload failed");
+      console.error(err);
+      toast.error("Couldn't upload photo. Please try again.");
     } finally {
       setUploading(false);
     }
