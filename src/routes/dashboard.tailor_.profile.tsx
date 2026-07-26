@@ -96,6 +96,7 @@ function TailorProfile() {
         tailor_category: form.tailor_category,
         bio: form.bio,
         experience_years: Number(form.experience_years) || 0,
+        languages: form.languages,
       } as any).eq("id", user.id);
       if (error) throw error;
       await refreshSession();
