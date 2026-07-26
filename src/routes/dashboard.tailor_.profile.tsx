@@ -54,6 +54,7 @@ function TailorProfile() {
           tailor_category: (data as any).tailor_category || data.specialization || "",
           bio: (data as any).bio || "",
           experience_years: (data as any).experience_years || 0,
+          languages: (data as any).languages || "",
         });
       }
       setLoading(false);
