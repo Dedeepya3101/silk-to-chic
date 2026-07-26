@@ -29,6 +29,7 @@ function TailorProfile() {
     tailor_category: "",
     bio: "",
     experience_years: 0,
+    languages: "",
   });
 
   useEffect(() => {
