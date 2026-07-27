@@ -123,7 +123,7 @@ function UserCompleted() {
                   </div>
                 ) : (
                   <button onClick={() => { setReviewing(r.id); setRating(5); setText(""); }} className="mt-3 inline-flex items-center gap-1 rounded-full bg-gradient-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-                    <Star className="h-4 w-4" /> Leave a review
+                    <Star className="h-4 w-4" /> Rate Tailor
                   </button>
                 )}
               </div>
