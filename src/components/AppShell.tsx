@@ -36,10 +36,13 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const [name, setName] = useState(() => getSession()?.name || "Guest");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [unread, setUnread] = useState(0);
 
   useEffect(() => {
     let active = true;
+    let notifCh: ReturnType<typeof supabase.channel> | null = null;
+    let profCh: ReturnType<typeof supabase.channel> | null = null;
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!active) return;
@@ -49,6 +52,16 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
       }
       const s = await refreshSession();
       if (active && s?.name) setName(s.name);
+
+      const loadAvatar = async () => {
+        const { data } = await supabase.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle();
+        if (active) setAvatarUrl((data as any)?.avatar_url || null);
+      };
+      void loadAvatar();
+      profCh = supabase
+        .channel("appshell_prof_" + user.id)
+        .on("postgres_changes", { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${user.id}` }, () => void loadAvatar())
+        .subscribe();
 
       if (role === "user") {
         const refreshUnread = async () => {
@@ -60,15 +73,19 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
           if (active) setUnread(count || 0);
         };
         void refreshUnread();
-        const ch = supabase
+        notifCh = supabase
           .channel("appshell_notif_" + user.id)
           .on("postgres_changes", { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, () => void refreshUnread())
           .subscribe();
-        return () => { void supabase.removeChannel(ch); };
       }
     })();
-    return () => { active = false; };
+    return () => {
+      active = false;
+      if (notifCh) void supabase.removeChannel(notifCh);
+      if (profCh) void supabase.removeChannel(profCh);
+    };
   }, [navigate, role]);
+
 
   const initial = (name || "G").trim()[0]?.toUpperCase() || "G";
   const themeAccent = role === "tailor" ? "bg-secondary text-secondary-foreground" : "bg-gradient-primary text-primary-foreground";
