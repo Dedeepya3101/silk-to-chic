@@ -70,14 +70,19 @@ function TailorProfile() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not signed in");
       const ext = file.name.split(".").pop() || "jpg";
-      const path = `avatars/${user.id}/${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from("sarees").upload(path, file, { upsert: true });
-      if (error) throw error;
-      const { data: pub } = supabase.storage.from("sarees").getPublicUrl(path);
-      setForm(f => ({ ...f, avatar_url: pub.publicUrl }));
+      const path = `avatars/${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("sarees").upload(path, file, {
+        contentType: file.type || "image/jpeg",
+        cacheControl: "3600",
+      });
+      if (upErr) throw upErr;
+      const publicUrl = supabase.storage.from("sarees").getPublicUrl(path).data.publicUrl;
+      const { error: dbErr } = await supabase.from("profiles").update({ avatar_url: publicUrl } as any).eq("id", user.id);
+      if (dbErr) throw dbErr;
+      setForm(f => ({ ...f, avatar_url: publicUrl }));
       toast.success("Photo uploaded");
     } catch (err: any) {
-      console.error(err);
+      console.error("[avatar upload]", err);
       toast.error("Couldn't upload photo. Please try again.");
     } finally {
       setUploading(false);
