@@ -16,7 +16,7 @@ const userNav: Item[] = [
   { to: "/dashboard/user/saved", label: "Saved tailors", icon: Heart },
   { to: "/dashboard/user/completed", label: "Completed", icon: CheckCircle2 },
   { to: "/dashboard/user/notifications", label: "Notifications", icon: Bell },
-  { to: "/dashboard/user", hash: "settings", label: "Profile settings", icon: Settings },
+  { to: "/dashboard/user/profile", label: "Profile settings", icon: Settings },
 ];
 
 const tailorNav: Item[] = [
