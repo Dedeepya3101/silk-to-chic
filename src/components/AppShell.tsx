@@ -163,9 +163,9 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
                   <DropdownMenuTrigger asChild>
                     <button
                       aria-label="Open profile menu"
-                      className={`grid h-9 w-9 place-items-center rounded-full font-display ${themeAccent} focus:outline-none focus:ring-2 focus:ring-ring`}
+                      className={`grid h-9 w-9 place-items-center overflow-hidden rounded-full font-display ${themeAccent} focus:outline-none focus:ring-2 focus:ring-ring`}
                     >
-                      {initial}
+                      {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : initial}
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
@@ -187,7 +187,13 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <div className={`grid h-9 w-9 place-items-center rounded-full font-display ${themeAccent}`}>{initial}</div>
+                <Link
+                  to="/dashboard/user/profile"
+                  aria-label="Open profile"
+                  className={`grid h-9 w-9 place-items-center overflow-hidden rounded-full font-display ${themeAccent}`}
+                >
+                  {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : initial}
+                </Link>
               )}
             </div>
           </header>
