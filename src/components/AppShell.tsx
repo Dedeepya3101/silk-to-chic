@@ -109,7 +109,9 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
               </span>
             </Link>
             <div className="mb-3 flex items-center gap-2 rounded-2xl bg-accent/60 px-3 py-2">
-              <div className={`grid h-8 w-8 place-items-center rounded-full font-display text-sm ${themeAccent}`}>{initial}</div>
+              <div className={`grid h-8 w-8 place-items-center overflow-hidden rounded-full font-display text-sm ${themeAccent}`}>
+                {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : initial}
+              </div>
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium">{name}</p>
                 <p className="text-[10px] text-muted-foreground">Signed in</p>
