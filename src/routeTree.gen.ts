@@ -20,6 +20,7 @@ import { Route as DashboardUserRouteImport } from './routes/dashboard.user'
 import { Route as DashboardTailorRouteImport } from './routes/dashboard.tailor'
 import { Route as DashboardUserSuggestionsRouteImport } from './routes/dashboard.user_.suggestions'
 import { Route as DashboardUserSavedRouteImport } from './routes/dashboard.user_.saved'
+import { Route as DashboardUserProfileRouteImport } from './routes/dashboard.user_.profile'
 import { Route as DashboardUserNotificationsRouteImport } from './routes/dashboard.user_.notifications'
 import { Route as DashboardUserMessagesRouteImport } from './routes/dashboard.user_.messages'
 import { Route as DashboardUserCompletedRouteImport } from './routes/dashboard.user_.completed'
@@ -88,6 +89,11 @@ const DashboardUserSuggestionsRoute =
 const DashboardUserSavedRoute = DashboardUserSavedRouteImport.update({
   id: '/user_/saved',
   path: '/user/saved',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardUserProfileRoute = DashboardUserProfileRouteImport.update({
+  id: '/user_/profile',
+  path: '/user/profile',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardUserNotificationsRoute =
@@ -184,6 +190,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/user/completed': typeof DashboardUserCompletedRoute
   '/dashboard/user/messages': typeof DashboardUserMessagesRoute
   '/dashboard/user/notifications': typeof DashboardUserNotificationsRoute
+  '/dashboard/user/profile': typeof DashboardUserProfileRoute
   '/dashboard/user/saved': typeof DashboardUserSavedRoute
   '/dashboard/user/suggestions': typeof DashboardUserSuggestionsRoute
   '/dashboard/user/tailors/$tailorId': typeof DashboardUserTailorsTailorIdRoute
@@ -209,6 +216,7 @@ export interface FileRoutesByTo {
   '/dashboard/user/completed': typeof DashboardUserCompletedRoute
   '/dashboard/user/messages': typeof DashboardUserMessagesRoute
   '/dashboard/user/notifications': typeof DashboardUserNotificationsRoute
+  '/dashboard/user/profile': typeof DashboardUserProfileRoute
   '/dashboard/user/saved': typeof DashboardUserSavedRoute
   '/dashboard/user/suggestions': typeof DashboardUserSuggestionsRoute
   '/dashboard/user/tailors/$tailorId': typeof DashboardUserTailorsTailorIdRoute
@@ -236,6 +244,7 @@ export interface FileRoutesById {
   '/dashboard/user_/completed': typeof DashboardUserCompletedRoute
   '/dashboard/user_/messages': typeof DashboardUserMessagesRoute
   '/dashboard/user_/notifications': typeof DashboardUserNotificationsRoute
+  '/dashboard/user_/profile': typeof DashboardUserProfileRoute
   '/dashboard/user_/saved': typeof DashboardUserSavedRoute
   '/dashboard/user_/suggestions': typeof DashboardUserSuggestionsRoute
   '/dashboard/user_/tailors/$tailorId': typeof DashboardUserTailorsTailorIdRoute
@@ -264,6 +273,7 @@ export interface FileRouteTypes {
     | '/dashboard/user/completed'
     | '/dashboard/user/messages'
     | '/dashboard/user/notifications'
+    | '/dashboard/user/profile'
     | '/dashboard/user/saved'
     | '/dashboard/user/suggestions'
     | '/dashboard/user/tailors/$tailorId'
@@ -289,6 +299,7 @@ export interface FileRouteTypes {
     | '/dashboard/user/completed'
     | '/dashboard/user/messages'
     | '/dashboard/user/notifications'
+    | '/dashboard/user/profile'
     | '/dashboard/user/saved'
     | '/dashboard/user/suggestions'
     | '/dashboard/user/tailors/$tailorId'
@@ -315,6 +326,7 @@ export interface FileRouteTypes {
     | '/dashboard/user_/completed'
     | '/dashboard/user_/messages'
     | '/dashboard/user_/notifications'
+    | '/dashboard/user_/profile'
     | '/dashboard/user_/saved'
     | '/dashboard/user_/suggestions'
     | '/dashboard/user_/tailors/$tailorId'
@@ -406,6 +418,13 @@ declare module '@tanstack/react-router' {
       path: '/user/saved'
       fullPath: '/dashboard/user/saved'
       preLoaderRoute: typeof DashboardUserSavedRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/user_/profile': {
+      id: '/dashboard/user_/profile'
+      path: '/user/profile'
+      fullPath: '/dashboard/user/profile'
+      preLoaderRoute: typeof DashboardUserProfileRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/user_/notifications': {
@@ -518,6 +537,7 @@ interface DashboardRouteChildren {
   DashboardUserCompletedRoute: typeof DashboardUserCompletedRoute
   DashboardUserMessagesRoute: typeof DashboardUserMessagesRoute
   DashboardUserNotificationsRoute: typeof DashboardUserNotificationsRoute
+  DashboardUserProfileRoute: typeof DashboardUserProfileRoute
   DashboardUserSavedRoute: typeof DashboardUserSavedRoute
   DashboardUserSuggestionsRoute: typeof DashboardUserSuggestionsRoute
   DashboardUserTailorsTailorIdRoute: typeof DashboardUserTailorsTailorIdRoute
@@ -539,6 +559,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardUserCompletedRoute: DashboardUserCompletedRoute,
   DashboardUserMessagesRoute: DashboardUserMessagesRoute,
   DashboardUserNotificationsRoute: DashboardUserNotificationsRoute,
+  DashboardUserProfileRoute: DashboardUserProfileRoute,
   DashboardUserSavedRoute: DashboardUserSavedRoute,
   DashboardUserSuggestionsRoute: DashboardUserSuggestionsRoute,
   DashboardUserTailorsTailorIdRoute: DashboardUserTailorsTailorIdRoute,

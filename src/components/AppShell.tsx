@@ -16,7 +16,7 @@ const userNav: Item[] = [
   { to: "/dashboard/user/saved", label: "Saved tailors", icon: Heart },
   { to: "/dashboard/user/completed", label: "Completed", icon: CheckCircle2 },
   { to: "/dashboard/user/notifications", label: "Notifications", icon: Bell },
-  { to: "/dashboard/user", hash: "settings", label: "Profile settings", icon: Settings },
+  { to: "/dashboard/user/profile", label: "Profile settings", icon: Settings },
 ];
 
 const tailorNav: Item[] = [
@@ -36,10 +36,13 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
   const [name, setName] = useState(() => getSession()?.name || "Guest");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [unread, setUnread] = useState(0);
 
   useEffect(() => {
     let active = true;
+    let notifCh: ReturnType<typeof supabase.channel> | null = null;
+    let profCh: ReturnType<typeof supabase.channel> | null = null;
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!active) return;
@@ -49,6 +52,16 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
       }
       const s = await refreshSession();
       if (active && s?.name) setName(s.name);
+
+      const loadAvatar = async () => {
+        const { data } = await supabase.from("profiles").select("avatar_url").eq("id", user.id).maybeSingle();
+        if (active) setAvatarUrl((data as any)?.avatar_url || null);
+      };
+      void loadAvatar();
+      profCh = supabase
+        .channel("appshell_prof_" + user.id)
+        .on("postgres_changes", { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${user.id}` }, () => void loadAvatar())
+        .subscribe();
 
       if (role === "user") {
         const refreshUnread = async () => {
@@ -60,15 +73,19 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
           if (active) setUnread(count || 0);
         };
         void refreshUnread();
-        const ch = supabase
+        notifCh = supabase
           .channel("appshell_notif_" + user.id)
           .on("postgres_changes", { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, () => void refreshUnread())
           .subscribe();
-        return () => { void supabase.removeChannel(ch); };
       }
     })();
-    return () => { active = false; };
+    return () => {
+      active = false;
+      if (notifCh) void supabase.removeChannel(notifCh);
+      if (profCh) void supabase.removeChannel(profCh);
+    };
   }, [navigate, role]);
+
 
   const initial = (name || "G").trim()[0]?.toUpperCase() || "G";
   const themeAccent = role === "tailor" ? "bg-secondary text-secondary-foreground" : "bg-gradient-primary text-primary-foreground";
@@ -92,7 +109,9 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
               </span>
             </Link>
             <div className="mb-3 flex items-center gap-2 rounded-2xl bg-accent/60 px-3 py-2">
-              <div className={`grid h-8 w-8 place-items-center rounded-full font-display text-sm ${themeAccent}`}>{initial}</div>
+              <div className={`grid h-8 w-8 place-items-center overflow-hidden rounded-full font-display text-sm ${themeAccent}`}>
+                {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : initial}
+              </div>
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium">{name}</p>
                 <p className="text-[10px] text-muted-foreground">Signed in</p>
@@ -144,9 +163,9 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
                   <DropdownMenuTrigger asChild>
                     <button
                       aria-label="Open profile menu"
-                      className={`grid h-9 w-9 place-items-center rounded-full font-display ${themeAccent} focus:outline-none focus:ring-2 focus:ring-ring`}
+                      className={`grid h-9 w-9 place-items-center overflow-hidden rounded-full font-display ${themeAccent} focus:outline-none focus:ring-2 focus:ring-ring`}
                     >
-                      {initial}
+                      {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : initial}
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
@@ -168,7 +187,13 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <div className={`grid h-9 w-9 place-items-center rounded-full font-display ${themeAccent}`}>{initial}</div>
+                <Link
+                  to="/dashboard/user/profile"
+                  aria-label="Open profile"
+                  className={`grid h-9 w-9 place-items-center overflow-hidden rounded-full font-display ${themeAccent}`}
+                >
+                  {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : initial}
+                </Link>
               )}
             </div>
           </header>
