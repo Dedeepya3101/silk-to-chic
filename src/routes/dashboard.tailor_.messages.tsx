@@ -156,14 +156,17 @@ function TailorMessages() {
             <ul className="space-y-1">
               {threads.map(t => {
                 const last = (replies[t.id] || []).slice(-1)[0];
+                const lastTs = last ? new Date(last.created_at).getTime() : new Date(t.created_at).getTime();
+                const readTs = lastRead[t.id] || 0;
+                const unread = (replies[t.id] || []).filter(r => r.user_id !== me && new Date(r.created_at).getTime() > readTs).length;
                 return (
                   <li key={t.id}>
                     <button
                       onClick={() => setActiveId(t.id)}
                       className={`flex w-full items-center gap-3 rounded-2xl p-3 text-left transition ${activeId === t.id ? "bg-accent" : "hover:bg-accent/60"}`}
                     >
-                      {t.image_url ? (
-                        <img src={t.image_url} alt="" className="h-10 w-10 rounded-full object-cover" />
+                      {t.avatar_url ? (
+                        <img src={t.avatar_url} alt="" className="h-10 w-10 rounded-full object-cover" />
                       ) : (
                         <div className="grid h-10 w-10 place-items-center rounded-full bg-foreground text-background text-sm">{t.user_name?.[0]}</div>
                       )}
@@ -171,11 +174,18 @@ function TailorMessages() {
                         <p className="truncate text-sm font-medium">{t.user_name}</p>
                         <p className="truncate text-xs text-muted-foreground">{last?.message || t.silhouette || "Suggestion sent"}</p>
                       </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <span className="text-[10px] text-muted-foreground">{fmtTime(new Date(lastTs).toISOString())}</span>
+                        {unread > 0 && activeId !== t.id && (
+                          <span className="inline-block min-w-5 rounded-full bg-primary px-1.5 text-center text-[10px] font-medium text-primary-foreground">{unread}</span>
+                        )}
+                      </div>
                     </button>
                   </li>
                 );
               })}
             </ul>
+
           </aside>
           <section className="flex min-h-[60vh] flex-col rounded-3xl border border-border bg-card shadow-soft">
             {active ? (
