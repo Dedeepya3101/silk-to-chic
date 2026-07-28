@@ -17,6 +17,22 @@ function TailorCompleted() {
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
+  const [meId, setMeId] = useState<string | null>(null);
+
+  const load = async (uid: string) => {
+    const { data: comps } = await supabase.from("completed_projects").select("*").eq("tailor_id", uid).order("completion_date", { ascending: false });
+    const list = comps || [];
+    const reqIds = list.map(c => c.request_id);
+    const userIds = Array.from(new Set(list.map(c => c.user_id)));
+    const [{ data: ups }, { data: profs }] = await Promise.all([
+      reqIds.length ? supabase.from("saree_uploads").select("id, image_url, title").in("id", reqIds) : Promise.resolve({ data: [] as any[] }),
+      userIds.length ? supabase.from("profiles").select("id, display_name").in("id", userIds) : Promise.resolve({ data: [] as any[] }),
+    ]);
+    const um = new Map((ups || []).map((u: any) => [u.id, u]));
+    const pm = new Map((profs || []).map((p: any) => [p.id, p.display_name]));
+    setRows(list.map((c: any) => ({ ...c, image_url: um.get(c.request_id)?.image_url, title: um.get(c.request_id)?.title, user_name: pm.get(c.user_id) })));
+    setLoading(false);
+  };
 
   useEffect(() => {
     let alive = true;
@@ -28,21 +44,22 @@ function TailorCompleted() {
       setReady(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const { data: comps } = await supabase.from("completed_projects").select("*").eq("tailor_id", user.id).order("completion_date", { ascending: false });
-      const list = comps || [];
-      const reqIds = list.map(c => c.request_id);
-      const userIds = Array.from(new Set(list.map(c => c.user_id)));
-      const [{ data: ups }, { data: profs }] = await Promise.all([
-        reqIds.length ? supabase.from("saree_uploads").select("id, image_url, title").in("id", reqIds) : Promise.resolve({ data: [] as any[] }),
-        userIds.length ? supabase.from("profiles").select("id, display_name").in("id", userIds) : Promise.resolve({ data: [] as any[] }),
-      ]);
-      const um = new Map((ups || []).map((u: any) => [u.id, u]));
-      const pm = new Map((profs || []).map((p: any) => [p.id, p.display_name]));
-      setRows(list.map((c: any) => ({ ...c, image_url: um.get(c.request_id)?.image_url, title: um.get(c.request_id)?.title, user_name: pm.get(c.user_id) })));
-      setLoading(false);
+      setMeId(user.id);
+      await load(user.id);
     })();
     return () => { alive = false; };
   }, [navigate]);
+
+  useEffect(() => {
+    if (!ready || !meId) return;
+    const ch = supabase
+      .channel("tailor_completed_rt")
+      .on("postgres_changes", { event: "*", schema: "public", table: "completed_projects" }, () => void load(meId))
+      .on("postgres_changes", { event: "*", schema: "public", table: "saree_uploads" }, () => void load(meId))
+      .subscribe();
+    return () => { void supabase.removeChannel(ch); };
+  }, [ready, meId]);
+
 
   if (!ready) return <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">Loading…</div>;
 
