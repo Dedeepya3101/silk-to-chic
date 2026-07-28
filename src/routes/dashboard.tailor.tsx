@@ -50,18 +50,33 @@ function fmtDate(iso: string): string {
   return d.toLocaleDateString();
 }
 
+type StatSummary = { open: number; orders: number; completed: number; avgRating: number; reviewCount: number };
+type CompletedRow = { id: string; completion_date: string; request_id: string; image_url?: string; title?: string };
+type ConvoRow = { id: string; user_id: string; user_name: string; user_avatar?: string | null; last: string; time: string; unread: number };
+type ReviewRow = { id: string; rating: number; review_text: string | null; user_name: string; created_at: string };
+
 function TailorDashboard() {
   const [active, setActive] = useState<FeedItem | null>(null);
   const [filter, setFilter] = useState("All");
   const [saved, setSaved] = useState<string[]>([]);
-  const [name, setName] = useState("Rohini");
+  const [name, setName] = useState("");
+  const [meId, setMeId] = useState<string | null>(null);
   const [feed, setFeed] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<StatSummary>({ open: 0, orders: 0, completed: 0, avgRating: 0, reviewCount: 0 });
+  const [completed, setCompleted] = useState<CompletedRow[]>([]);
+  const [convos, setConvos] = useState<ConvoRow[]>([]);
+  const [reviews, setReviews] = useState<ReviewRow[]>([]);
 
   useEffect(() => {
-    const s = getSession();
-    if (s?.name) setName(s.name.split(" ")[0]);
+    (async () => {
+      const s = getSession();
+      if (s?.name) setName(s.name.split(" ")[0]);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) setMeId(user.id);
+    })();
   }, []);
+
 
   const loadFeed = async () => {
     const { data: uploads, error } = await supabase
