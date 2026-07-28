@@ -17,11 +17,25 @@ type Thread = {
   silhouette: string | null;
   created_at: string;
   user_name?: string;
+  avatar_url?: string | null;
   image_url?: string;
   saree_upload_id: string;
 };
 
 type Reply = { id: string; suggestion_id: string; user_id: string; message: string; created_at: string };
+
+function fmtTime(iso: string) {
+  const d = new Date(iso);
+  const diff = Date.now() - d.getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "now";
+  if (m < 60) return `${m}m`;
+  const h = Math.floor(m / 3600000);
+  if (h < 24) return `${h}h`;
+  const days = Math.floor(h / 24);
+  if (days < 7) return `${days}d`;
+  return d.toLocaleDateString();
+}
 
 function TailorMessages() {
   const navigate = useNavigate();
