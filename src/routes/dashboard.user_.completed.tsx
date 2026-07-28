@@ -36,6 +36,17 @@ function UserCompleted() {
     return () => { alive = false; };
   }, [navigate]);
 
+  useEffect(() => {
+    if (!ready) return;
+    const ch = supabase
+      .channel("user_completed_rt")
+      .on("postgres_changes", { event: "*", schema: "public", table: "completed_projects" }, () => void load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "saree_uploads" }, () => void load())
+      .subscribe();
+    return () => { void supabase.removeChannel(ch); };
+  }, [ready]);
+
+
   const load = async () => {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
