@@ -191,7 +191,7 @@ function TailorMessages() {
             {active ? (
               <>
                 <header className="flex items-center gap-3 border-b border-border p-4">
-                  {active.image_url && <img src={active.image_url} alt="" className="h-10 w-10 rounded-full object-cover" />}
+                  {active.avatar_url ? <img src={active.avatar_url} alt="" className="h-10 w-10 rounded-full object-cover" /> : <div className="grid h-10 w-10 place-items-center rounded-full bg-foreground text-background text-sm">{active.user_name?.[0]}</div>}
                   <div>
                     <p className="font-medium">{active.user_name}</p>
                     <p className="text-xs text-muted-foreground">{active.silhouette || "Suggestion"}</p>
