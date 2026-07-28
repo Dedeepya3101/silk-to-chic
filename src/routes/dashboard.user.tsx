@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
-import { Upload, Sparkles, MessageCircle, Heart, Bell, CheckCircle2, MapPin, Star, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Upload, Sparkles, MessageCircle, Heart, Bell, CheckCircle2, MapPin, Star, Loader2, Inbox, Scissors } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { getSession } from "@/lib/session";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,7 @@ import saree1 from "@/assets/saree-1.jpg";
 import saree2 from "@/assets/saree-2.jpg";
 import saree3 from "@/assets/saree-3.jpg";
 import transformAfter from "@/assets/transform-after.jpg";
+import { useRef } from "react";
 
 export const Route = createFileRoute("/dashboard/user")({
   head: () => ({ meta: [{ title: "User Dashboard — MatchO" }] }),
@@ -16,23 +17,80 @@ export const Route = createFileRoute("/dashboard/user")({
 });
 
 type SareeRow = { id: string; image_url: string; title: string | null; description: string | null; created_at: string; status?: string; tailor_marked_completed?: boolean; user_confirmed_completion?: boolean };
+type SuggestionRow = { id: string; silhouette: string | null; best_fit: string | null; created_at: string; tailor_id: string; saree_upload_id: string; tailor_name: string; tailor_avatar?: string | null; tailor_city?: string | null; image_url?: string };
+type SavedRow = { id: string; tailor_id: string; studio_name: string; profile_photo?: string | null; specialization?: string | null };
+type NotifRow = { id: string; title: string; message: string; created_at: string; is_read: boolean; link: string | null };
 
 function UserDashboard() {
   const [name, setName] = useState("there");
+  const [profile, setProfile] = useState<{ city: string | null; bio: string | null } | null>(null);
   const [uploads, setUploads] = useState<SareeRow[]>([]);
+  const [suggestions, setSuggestions] = useState<SuggestionRow[]>([]);
+  const [saved, setSaved] = useState<SavedRow[]>([]);
+  const [notifs, setNotifs] = useState<NotifRow[]>([]);
+  const [completedCount, setCompletedCount] = useState(0);
 
   useEffect(() => {
     const s = getSession();
     if (s?.name) setName(s.name.split(" ")[0]);
-    void loadUploads(setUploads);
+    void loadAll();
   }, []);
+
+  const loadAll = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const [{ data: ups }, { data: sugs }, { data: sav }, { data: nts }, { count: cc }, { data: prof }] = await Promise.all([
+      supabase.from("saree_uploads").select("id, image_url, title, description, created_at, status, tailor_marked_completed, user_confirmed_completion").eq("user_id", user.id).order("created_at", { ascending: false }),
+      supabase.from("suggestions").select("id, silhouette, best_fit, created_at, tailor_id, saree_upload_id").eq("user_id", user.id).order("created_at", { ascending: false }).limit(6),
+      supabase.from("saved_tailors").select("id, tailor_id").eq("user_id", user.id).limit(5),
+      supabase.from("notifications").select("id, title, message, created_at, is_read, link").eq("user_id", user.id).order("created_at", { ascending: false }).limit(6),
+      supabase.from("completed_projects").select("*", { count: "exact", head: true }).eq("user_id", user.id),
+      supabase.from("profiles").select("city, bio").eq("id", user.id).maybeSingle(),
+    ]);
+    setUploads((ups as SareeRow[]) || []);
+    setCompletedCount(cc || 0);
+    setProfile(prof as any);
+
+    const sugList = sugs || [];
+    const tIds = Array.from(new Set(sugList.map((x: any) => x.tailor_id)));
+    const upIds = Array.from(new Set(sugList.map((x: any) => x.saree_upload_id)));
+    const [{ data: tProfs }, { data: sUps }] = await Promise.all([
+      tIds.length ? supabase.from("profiles").select("id, display_name, avatar_url, city").in("id", tIds) : Promise.resolve({ data: [] as any[] }),
+      upIds.length ? supabase.from("saree_uploads").select("id, image_url").in("id", upIds) : Promise.resolve({ data: [] as any[] }),
+    ]);
+    const pm = new Map((tProfs || []).map((p: any) => [p.id, p]));
+    const um = new Map((sUps || []).map((u: any) => [u.id, u.image_url]));
+    setSuggestions(sugList.map((s: any) => {
+      const p = pm.get(s.tailor_id);
+      return { ...s, tailor_name: p?.display_name || "Tailor", tailor_avatar: p?.avatar_url, tailor_city: p?.city, image_url: um.get(s.saree_upload_id) };
+    }));
+
+    const savList = sav || [];
+    const savIds = savList.map((r: any) => r.tailor_id);
+    if (savIds.length) {
+      const [{ data: tp }, { data: bp }] = await Promise.all([
+        supabase.from("tailor_profiles").select("tailor_id, studio_name, profile_photo, specialization").in("tailor_id", savIds),
+        supabase.from("profiles").select("id, display_name, avatar_url").in("id", savIds),
+      ]);
+      const tpm = new Map((tp || []).map((r: any) => [r.tailor_id, r]));
+      const bpm = new Map((bp || []).map((r: any) => [r.id, r]));
+      setSaved(savList.map((r: any) => {
+        const t = tpm.get(r.tailor_id); const b = bpm.get(r.tailor_id);
+        return { id: r.id, tailor_id: r.tailor_id, studio_name: t?.studio_name || b?.display_name || "Tailor", profile_photo: t?.profile_photo || b?.avatar_url, specialization: t?.specialization };
+      }));
+    } else {
+      setSaved([]);
+    }
+
+    setNotifs((nts as NotifRow[]) || []);
+  };
 
   return (
     <AppShell role="user" title={`Hi ${name}, ready to reimagine?`}>
       <div className="grid gap-5 lg:grid-cols-3">
-        <UploadCard onUploaded={() => loadUploads(setUploads)} />
-        <StatTile icon={Sparkles} label="Active requests" value={String(uploads.length)} tone="primary" />
-        <StatTile icon={CheckCircle2} label="Completed transformations" value="0" tone="secondary" />
+        <UploadCard onUploaded={loadAll} />
+        <StatTile icon={Sparkles} label="Active requests" value={String(uploads.filter(u => u.status !== "completed").length)} tone="primary" />
+        <StatTile icon={CheckCircle2} label="Completed transformations" value={String(completedCount)} tone="secondary" />
       </div>
 
       <section className="mt-6 grid gap-5 lg:grid-cols-3">
@@ -61,10 +119,14 @@ function UserDashboard() {
             )}
           </Panel>
 
-          <Panel title="Tailor suggestions" action={<Link to="/messages" className="text-sm text-primary">Open chat →</Link>}>
-            <div className="space-y-4">
-              {SUGGESTIONS.map((s) => <SuggestionRow key={s.id} {...s} />)}
-            </div>
+          <Panel title="Tailor suggestions" action={<Link to="/dashboard/user/suggestions" className="text-sm text-primary">Open all →</Link>}>
+            {suggestions.length === 0 ? (
+              <EmptyMini icon={Inbox} text="Tailor redesign ideas will appear here." />
+            ) : (
+              <div className="space-y-4">
+                {suggestions.map(s => <SuggestionRow key={s.id} s={s} />)}
+              </div>
+            )}
           </Panel>
 
           <Panel title="Inspiration gallery">
@@ -79,41 +141,36 @@ function UserDashboard() {
         </div>
 
         <div className="space-y-5">
-          <Panel title="Saved tailors" id="saved">
-            <div className="space-y-3">
-              {SAVED.map((t) => <SavedTailor key={t.name} {...t} />)}
-            </div>
+          <Panel title="Saved tailors" id="saved" action={<Link to="/dashboard/user/saved" className="text-sm text-primary">View all →</Link>}>
+            {saved.length === 0 ? (
+              <EmptyMini icon={Heart} text="Save tailors from their profile to see them here." />
+            ) : (
+              <div className="space-y-3">
+                {saved.map((t) => <SavedTailor key={t.id} t={t} />)}
+              </div>
+            )}
           </Panel>
-          <Panel title="Notifications" id="notifications">
-            <ul className="space-y-3 text-sm">
-              <Notif icon={MessageCircle} text="Rohini sent a new sleeve idea." time="2m" />
-              <Notif icon={Heart} text="You saved Anjali Couture." time="1h" />
-              <Notif icon={Bell} text="Your pink saree got 3 new suggestions." time="3h" />
-            </ul>
+          <Panel title="Notifications" id="notifications" action={<Link to="/dashboard/user/notifications" className="text-sm text-primary">All →</Link>}>
+            {notifs.length === 0 ? (
+              <EmptyMini icon={Bell} text="You're all caught up." />
+            ) : (
+              <ul className="space-y-3 text-sm">
+                {notifs.map(n => <Notif key={n.id} n={n} />)}
+              </ul>
+            )}
           </Panel>
           <Panel title="Profile settings" id="settings">
             <div className="space-y-3 text-sm">
               <Row label="Name" value={name === "there" ? "Guest" : name} />
-              <Row label="City" value="Bengaluru" />
-              <Row label="Style preference" value="Indo-western, modern" />
-              <button className="w-full rounded-full bg-gradient-primary py-2.5 font-medium text-primary-foreground shadow-soft">Edit profile</button>
+              <Row label="City" value={profile?.city || "Not set"} />
+              <Row label="Bio" value={profile?.bio || "Not set"} />
+              <Link to="/dashboard/user/profile" className="block w-full rounded-full bg-gradient-primary py-2.5 text-center font-medium text-primary-foreground shadow-soft">Edit profile</Link>
             </div>
           </Panel>
         </div>
       </section>
     </AppShell>
   );
-}
-
-async function loadUploads(setUploads: (rows: SareeRow[]) => void) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
-  const { data } = await supabase
-    .from("saree_uploads")
-    .select("id, image_url, title, description, created_at, status, tailor_marked_completed, user_confirmed_completion")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
-  setUploads((data as SareeRow[]) || []);
 }
 
 const CATEGORIES = ["Lehenga", "Frock", "Kurta", "Gown", "Crop-top set", "Custom"];
@@ -134,17 +191,11 @@ function UploadCard({ onUploaded }: { onUploaded: () => void }) {
       if (!user) { toast.error("Please sign in"); return; }
       const ext = file.name.split(".").pop() || "jpg";
       const path = `${user.id}/${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("sarees").upload(path, file, {
-        cacheControl: "3600", upsert: false,
-      });
+      const { error: upErr } = await supabase.storage.from("sarees").upload(path, file, { cacheControl: "3600", upsert: false });
       if (upErr) throw upErr;
       const { data: pub } = supabase.storage.from("sarees").getPublicUrl(path);
       const { error: insErr } = await supabase.from("saree_uploads").insert({
-        user_id: user.id,
-        image_url: pub.publicUrl,
-        title: title || file.name,
-        description,
-        occasion: category,
+        user_id: user.id, image_url: pub.publicUrl, title: title || file.name, description, occasion: category,
       });
       if (insErr) throw insErr;
       toast.success("Saree uploaded — tailors will see it instantly");
@@ -164,26 +215,17 @@ function UploadCard({ onUploaded }: { onUploaded: () => void }) {
       <Upload className="h-6 w-6" />
       <h3 className="mt-4 font-display text-xl">Upload a saree</h3>
       <p className="mt-1 text-sm text-primary-foreground/80">Share a photo and details to invite nearby tailors.</p>
-      <input
-        value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title (e.g. Mom's pink Kanjivaram)"
-        className="mt-3 w-full rounded-xl bg-white/15 px-3 py-2 text-sm placeholder:text-primary-foreground/60 outline-none"
-      />
-      <input
-        value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What would you like it redesigned into?"
-        className="mt-2 w-full rounded-xl bg-white/15 px-3 py-2 text-sm placeholder:text-primary-foreground/60 outline-none"
-      />
-      <select
-        value={category} onChange={(e) => setCategory(e.target.value)}
-        className="mt-2 w-full rounded-xl bg-white/15 px-3 py-2 text-sm outline-none [&>option]:text-foreground"
-      >
+      <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title (e.g. Mom's pink Kanjivaram)"
+        className="mt-3 w-full rounded-xl bg-white/15 px-3 py-2 text-sm placeholder:text-primary-foreground/60 outline-none" />
+      <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What would you like it redesigned into?"
+        className="mt-2 w-full rounded-xl bg-white/15 px-3 py-2 text-sm placeholder:text-primary-foreground/60 outline-none" />
+      <select value={category} onChange={(e) => setCategory(e.target.value)}
+        className="mt-2 w-full rounded-xl bg-white/15 px-3 py-2 text-sm outline-none [&>option]:text-foreground">
         {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
       </select>
       <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
-      <button
-        disabled={busy}
-        onClick={() => fileRef.current?.click()}
-        className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm font-medium backdrop-blur hover:bg-white/30 disabled:opacity-60"
-      >
+      <button disabled={busy} onClick={() => fileRef.current?.click()}
+        className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm font-medium backdrop-blur hover:bg-white/30 disabled:opacity-60">
         {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
         {busy ? "Uploading…" : "Choose image & upload"}
       </button>
@@ -215,11 +257,20 @@ function Panel({ title, action, children, id }: { title: string; action?: React.
   );
 }
 
+function EmptyMini({ icon: Icon, text }: { icon: any; text: string }) {
+  return (
+    <div className="grid place-items-center rounded-2xl bg-accent/40 p-6 text-center">
+      <Icon className="h-6 w-6 text-muted-foreground" />
+      <p className="mt-2 text-sm text-muted-foreground">{text}</p>
+    </div>
+  );
+}
+
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between rounded-2xl bg-card px-3 py-2.5 shadow-soft">
       <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium">{value}</span>
+      <span className="max-w-[60%] truncate font-medium">{value}</span>
     </div>
   );
 }
@@ -234,50 +285,62 @@ function StatusBadge({ status }: { status: string }) {
   return <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] ${map[status] || "bg-accent"}`}>{label}</span>;
 }
 
-const SUGGESTIONS = [
-  { id: 1, tailor: "Rohini Tailoring", style: "Crop-top set with dupatta", img: saree2, distance: "1.2 km", rating: 4.9 },
-  { id: 2, tailor: "Anjali Couture", style: "A-line long frock, puff sleeves", img: saree1, distance: "2.8 km", rating: 4.7 },
-  { id: 3, tailor: "Vikram & Sons", style: "Indo-western gown, asymmetric hem", img: saree3, distance: "3.4 km", rating: 4.8 },
-];
-
-function SuggestionRow({ tailor, style, img, distance, rating }: typeof SUGGESTIONS[number]) {
+function SuggestionRow({ s }: { s: SuggestionRow }) {
   return (
     <div className="flex items-center gap-4 rounded-2xl bg-card p-3 shadow-soft transition hover:-translate-y-0.5">
-      <img src={img} alt="" className="h-14 w-14 rounded-2xl object-cover" />
+      {s.image_url ? (
+        <img src={s.image_url} alt="" className="h-14 w-14 rounded-2xl object-cover" />
+      ) : (
+        <div className="grid h-14 w-14 place-items-center rounded-2xl bg-accent text-muted-foreground"><Sparkles className="h-5 w-5" /></div>
+      )}
       <div className="min-w-0 flex-1">
-        <p className="truncate font-medium">{tailor}</p>
-        <p className="truncate text-sm text-muted-foreground">{style}</p>
-        <p className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground"><MapPin className="h-3 w-3" /> {distance} · <Star className="h-3 w-3 fill-gold text-gold" /> {rating}</p>
+        <p className="truncate font-medium">{s.tailor_name}</p>
+        <p className="truncate text-sm text-muted-foreground">{s.silhouette || s.best_fit || "Redesign idea"}</p>
+        {s.tailor_city && <p className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground"><MapPin className="h-3 w-3" /> {s.tailor_city}</p>}
       </div>
-      <Link to="/messages" className="rounded-full bg-gradient-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-soft">Chat</Link>
+      <Link to="/dashboard/user/messages" className="rounded-full bg-gradient-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-soft">Chat</Link>
     </div>
   );
 }
 
-const SAVED = [
-  { name: "Rohini Tailoring", spec: "Lehengas, gowns", rating: 4.9 },
-  { name: "Anjali Couture", spec: "Frocks, kurtas", rating: 4.7 },
-];
-
-function SavedTailor({ name, spec, rating }: typeof SAVED[number]) {
+function SavedTailor({ t }: { t: SavedRow }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl bg-card p-3 shadow-soft">
-      <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-primary font-display text-primary-foreground">{name[0]}</div>
-      <div className="flex-1">
-        <p className="text-sm font-medium">{name}</p>
-        <p className="text-xs text-muted-foreground">{spec}</p>
+    <Link to="/dashboard/user/tailors/$tailorId" params={{ tailorId: t.tailor_id }} className="flex items-center gap-3 rounded-2xl bg-card p-3 shadow-soft">
+      {t.profile_photo ? (
+        <img src={t.profile_photo} alt="" className="h-10 w-10 rounded-full object-cover" />
+      ) : (
+        <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-primary font-display text-primary-foreground">{t.studio_name[0]}</div>
+      )}
+      <div className="flex-1 min-w-0">
+        <p className="truncate text-sm font-medium">{t.studio_name}</p>
+        <p className="truncate text-xs text-muted-foreground">{t.specialization || "Tailor"}</p>
       </div>
-      <div className="flex items-center gap-1 text-xs text-gold"><Star className="h-3 w-3 fill-current" />{rating}</div>
-    </div>
+      <Scissors className="h-3.5 w-3.5 text-muted-foreground" />
+    </Link>
   );
 }
 
-function Notif({ icon: Icon, text, time }: { icon: any; text: string; time: string }) {
+function timeAgo(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "now";
+  if (m < 60) return `${m}m`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h`;
+  const d = Math.floor(h / 24);
+  return `${d}d`;
+}
+
+function Notif({ n }: { n: NotifRow }) {
+  const Icon = /reply/i.test(n.title) ? MessageCircle : /save/i.test(n.title) ? Heart : Bell;
   return (
     <li className="flex items-start gap-3">
       <span className="mt-0.5 grid h-8 w-8 place-items-center rounded-full bg-accent text-accent-foreground"><Icon className="h-4 w-4" /></span>
-      <span className="flex-1">{text}</span>
-      <span className="text-xs text-muted-foreground">{time}</span>
+      <span className="flex-1">
+        <span className="block font-medium">{n.title}</span>
+        <span className="block text-xs text-muted-foreground">{n.message}</span>
+      </span>
+      <span className="text-xs text-muted-foreground">{timeAgo(n.created_at)}</span>
     </li>
   );
 }
