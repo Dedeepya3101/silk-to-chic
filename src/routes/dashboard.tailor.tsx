@@ -113,16 +113,84 @@ function TailorDashboard() {
     setLoading(false);
   };
 
+  const loadStats = async (uid: string) => {
+    const [{ count: ordersCount }, { count: openCount }, { data: comps }, { data: revs }] = await Promise.all([
+      supabase.from("saree_uploads").select("*", { count: "exact", head: true }).eq("assigned_tailor_id", uid),
+      supabase.from("saree_uploads").select("*", { count: "exact", head: true }).eq("status", "open"),
+      supabase.from("completed_projects").select("id, completion_date, request_id").eq("tailor_id", uid).order("completion_date", { ascending: false }).limit(8),
+      supabase.from("reviews").select("id, rating, review_text, created_at, user_id").eq("tailor_id", uid).order("created_at", { ascending: false }).limit(20),
+    ]);
+    const compList = comps || [];
+    const compReqIds = compList.map((c: any) => c.request_id);
+    let compMerged: CompletedRow[] = [];
+    if (compReqIds.length) {
+      const { data: ups } = await supabase.from("saree_uploads").select("id, image_url, title").in("id", compReqIds);
+      const um = new Map((ups || []).map((u: any) => [u.id, u]));
+      compMerged = compList.map((c: any) => ({ id: c.id, completion_date: c.completion_date, request_id: c.request_id, image_url: um.get(c.request_id)?.image_url, title: um.get(c.request_id)?.title }));
+    }
+    setCompleted(compMerged);
+    const rList = revs || [];
+    const rIds = Array.from(new Set(rList.map((r: any) => r.user_id)));
+    const rProfs = rIds.length ? (await supabase.from("profiles").select("id, display_name").in("id", rIds)).data || [] : [];
+    const rpm = new Map(rProfs.map((p: any) => [p.id, p.display_name]));
+    setReviews(rList.map((r: any) => ({ id: r.id, rating: r.rating, review_text: r.review_text, created_at: r.created_at, user_name: rpm.get(r.user_id) || "Client" })));
+    const avg = rList.length ? rList.reduce((s: number, r: any) => s + r.rating, 0) / rList.length : 0;
+    setStats({ open: openCount || 0, orders: ordersCount || 0, completed: compList.length, avgRating: Math.round(avg * 10) / 10, reviewCount: rList.length });
+  };
+
+  const loadConvos = async (uid: string) => {
+    const { data: sugs } = await supabase
+      .from("suggestions")
+      .select("id, user_id, created_at")
+      .eq("tailor_id", uid)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    const list = sugs || [];
+    if (!list.length) { setConvos([]); return; }
+    const [{ data: profs }, { data: reps }] = await Promise.all([
+      supabase.from("profiles").select("id, display_name, avatar_url").in("id", Array.from(new Set(list.map((s: any) => s.user_id)))),
+      supabase.from("suggestion_replies").select("*").in("suggestion_id", list.map((s: any) => s.id)).order("created_at", { ascending: true }),
+    ]);
+    const pm = new Map((profs || []).map((p: any) => [p.id, p]));
+    const grouped: Record<string, any[]> = {};
+    (reps || []).forEach((r: any) => { (grouped[r.suggestion_id] ||= []).push(r); });
+    let lastRead: Record<string, number> = {};
+    try { lastRead = JSON.parse(localStorage.getItem(`matcho.msg.read.${uid}`) || "{}"); } catch {}
+    const rows: ConvoRow[] = list.map((s: any) => {
+      const last = grouped[s.id]?.slice(-1)[0];
+      const p = pm.get(s.user_id);
+      const readTs = lastRead[s.id] || 0;
+      const unread = (grouped[s.id] || []).filter((r: any) => r.user_id !== uid && new Date(r.created_at).getTime() > readTs).length;
+      return { id: s.id, user_id: s.user_id, user_name: p?.display_name || "Client", user_avatar: p?.avatar_url, last: last?.message || "Suggestion sent", time: timeAgo(last?.created_at || s.created_at), unread };
+    }).sort((a, b) => (b.unread - a.unread));
+    setConvos(rows.slice(0, 4));
+  };
+
   useEffect(() => {
     void loadFeed();
     const channel = supabase
       .channel("saree_uploads_feed")
       .on("postgres_changes", { event: "*", schema: "public", table: "saree_uploads" }, () => {
         void loadFeed();
+        if (meId) void loadStats(meId);
       })
       .subscribe();
     return () => { void supabase.removeChannel(channel); };
-  }, []);
+  }, [meId]);
+
+  useEffect(() => {
+    if (!meId) return;
+    void loadStats(meId);
+    void loadConvos(meId);
+    const ch = supabase
+      .channel("tailor_dash_rt")
+      .on("postgres_changes", { event: "*", schema: "public", table: "reviews" }, () => void loadStats(meId))
+      .on("postgres_changes", { event: "*", schema: "public", table: "completed_projects" }, () => void loadStats(meId))
+      .on("postgres_changes", { event: "*", schema: "public", table: "suggestion_replies" }, () => void loadConvos(meId))
+      .on("postgres_changes", { event: "*", schema: "public", table: "suggestions" }, () => void loadConvos(meId))
+      .subscribe();
+    return () => { void supabase.removeChannel(ch); };
+  }, [meId]);
 
   const filtered = useMemo(
     () => filter === "All" ? feed : feed.filter(f => f.style.toLowerCase() === filter.toLowerCase()),
@@ -130,12 +198,12 @@ function TailorDashboard() {
   );
 
   return (
-    <AppShell role="tailor" title={`Good morning, ${name}`}>
+    <AppShell role="tailor" title={name ? `Good morning, ${name}` : "Tailor Studio"}>
       <div className="grid gap-5 lg:grid-cols-4">
-        <ProfileCard name={name} />
-        <Stat icon={Sparkles} label="Open requests" value={loading ? "—" : String(feed.length)} sub="live from users" />
-        <Stat icon={CheckCircle2} label="Orders" value="32" sub="this month" />
-        <Stat icon={Star} label="Avg rating" value="4.9" sub="from 248 reviews" />
+        <ProfileCard name={name || "Studio"} />
+        <Stat icon={Sparkles} label="Open requests" value={loading ? "—" : String(stats.open)} sub="live from users" />
+        <Stat icon={CheckCircle2} label="Orders assigned" value={String(stats.orders)} sub={`${stats.completed} completed`} />
+        <Stat icon={Star} label="Avg rating" value={stats.reviewCount ? stats.avgRating.toFixed(1) : "—"} sub={stats.reviewCount ? `from ${stats.reviewCount} reviews` : "No reviews yet"} />
       </div>
 
       {/* Feed + filters */}
@@ -189,26 +257,38 @@ function TailorDashboard() {
       </section>
 
       <section className="mt-8 grid gap-5 lg:grid-cols-3">
-        <Analytics />
-        <Conversations />
-        <Reviews />
+        <Analytics ordersCount={stats.orders} completedCount={stats.completed} reviewCount={stats.reviewCount} />
+        <Conversations convos={convos} />
+        <Reviews reviews={reviews} avg={stats.avgRating} count={stats.reviewCount} />
       </section>
 
       <section id="completed" className="mt-8 scroll-mt-24">
-        <Panel title="Completed redesigns" subtitle="Your most recent work">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {[transformAfter, saree2, saree3, saree1, transformAfter, saree3, saree2, saree1].map((src, i) => (
-              <div key={i} className="group relative aspect-[3/4] overflow-hidden rounded-2xl shadow-soft">
-                <img src={src} alt="" loading="lazy" className="h-full w-full object-cover transition group-hover:scale-105" />
-                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/70 to-transparent p-3 text-[11px] text-white">
-                  <span>Order #{1024 + i}</span>
-                  <span className="inline-flex items-center gap-1"><Star className="h-3 w-3 fill-gold text-gold" /> 5.0</span>
+        <Panel title="Completed redesigns" subtitle="Your most recent work" action={<Link to="/dashboard/tailor/completed" className="text-xs text-primary">View all →</Link>}>
+          {completed.length === 0 ? (
+            <div className="grid place-items-center rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+              <CheckCircle2 className="h-6 w-6 text-muted-foreground" />
+              <p className="mt-2 text-sm text-muted-foreground">Completed projects will appear here once you and the client both confirm.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {completed.map((c) => (
+                <div key={c.id} className="group relative aspect-[3/4] overflow-hidden rounded-2xl shadow-soft bg-accent">
+                  {c.image_url && <img src={c.image_url} alt={c.title || ""} loading="lazy" className="h-full w-full object-cover transition group-hover:scale-105" />}
+                  <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/70 to-transparent p-3 text-[11px] text-white">
+                    <span className="truncate">{c.title || "Redesign"}</span>
+                    <span>{new Date(c.completion_date).toLocaleDateString()}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </Panel>
       </section>
+
+      <section id="profile" className="mt-8 scroll-mt-24">
+        <StudioProfile name={name || "Studio"} />
+      </section>
+
 
       <section id="profile" className="mt-8 scroll-mt-24">
         <StudioProfile name={name} />
