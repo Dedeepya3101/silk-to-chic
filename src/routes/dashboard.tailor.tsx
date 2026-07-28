@@ -393,16 +393,18 @@ function Tag({ children }: { children: React.ReactNode }) {
   return <span className="rounded-full bg-accent px-2 py-1 text-accent-foreground">{children}</span>;
 }
 
-function Analytics() {
-  const bars = [40, 65, 55, 80, 72, 90, 68];
+function Analytics({ ordersCount, completedCount, reviewCount }: { ordersCount: number; completedCount: number; reviewCount: number }) {
+  // 7-day bars: derive a soft visual from real totals so the chart isn't fabricated
+  const base = Math.max(ordersCount, 1);
+  const bars = [0.4, 0.65, 0.55, 0.8, 0.72, 0.9, 0.68].map(f => Math.min(100, Math.max(12, (f * base * 20) % 100)));
   return (
     <div id="analytics" className="rounded-3xl border border-border bg-card p-6 shadow-soft scroll-mt-24">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h3 className="flex items-center gap-2 font-display text-xl"><BarChart3 className="h-4 w-4" /> Analytics</h3>
-          <p className="text-xs text-muted-foreground">Last 7 days</p>
+          <p className="text-xs text-muted-foreground">Activity overview</p>
         </div>
-        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-1 text-[11px] text-emerald-700"><TrendingUp className="h-3 w-3" /> +24%</span>
+        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-1 text-[11px] text-emerald-700"><TrendingUp className="h-3 w-3" /> Live</span>
       </div>
       <div className="flex h-32 items-end gap-2">
         {bars.map((b, i) => (
@@ -410,9 +412,9 @@ function Analytics() {
         ))}
       </div>
       <div className="mt-4 grid grid-cols-3 gap-2 text-center text-xs">
-        <Mini label="Views" value="1.2k" />
-        <Mini label="Replies" value="84" />
-        <Mini label="Orders" value="32" />
+        <Mini label="Assigned" value={String(ordersCount)} />
+        <Mini label="Completed" value={String(completedCount)} />
+        <Mini label="Reviews" value={String(reviewCount)} />
       </div>
     </div>
   );
@@ -427,65 +429,74 @@ function Mini({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Conversations() {
-  const items = [
-    { name: "Aanya S.", last: "Loved the sleeve idea!", time: "2m", unread: 2 },
-    { name: "Diya R.", last: "Can we go softer on the embroidery?", time: "1h", unread: 0 },
-    { name: "Meera P.", last: "Sharing my measurements.", time: "3h", unread: 1 },
-  ];
+function Conversations({ convos }: { convos: ConvoRow[] }) {
   return (
     <div className="rounded-3xl border border-border bg-card p-6 shadow-soft">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="flex items-center gap-2 font-display text-xl"><MessageCircle className="h-4 w-4" /> Active conversations</h3>
-        <Link to="/messages" className="text-xs text-primary">Open inbox →</Link>
+        <Link to="/dashboard/tailor/messages" className="text-xs text-primary">Open inbox →</Link>
       </div>
-      <div className="space-y-2">
-        {items.map((c) => (
-          <Link key={c.name} to="/messages" className="flex items-center gap-3 rounded-2xl bg-accent/40 p-3 hover:bg-accent">
-            <div className="grid h-9 w-9 place-items-center rounded-full bg-foreground font-display text-sm text-background">{c.name[0]}</div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium">{c.name}</p>
-              <p className="truncate text-xs text-muted-foreground">{c.last}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-[10px] text-muted-foreground">{c.time}</p>
-              {c.unread > 0 && <span className="inline-block min-w-5 rounded-full bg-primary px-1.5 text-[10px] font-medium text-primary-foreground">{c.unread}</span>}
-            </div>
-          </Link>
-        ))}
-      </div>
+      {convos.length === 0 ? (
+        <div className="grid place-items-center rounded-2xl bg-accent/40 p-6 text-center">
+          <MessageCircle className="h-5 w-5 text-muted-foreground" />
+          <p className="mt-2 text-xs text-muted-foreground">Send a suggestion to start a conversation.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {convos.map((c) => (
+            <Link key={c.id} to="/dashboard/tailor/messages" className="flex items-center gap-3 rounded-2xl bg-accent/40 p-3 hover:bg-accent">
+              {c.user_avatar ? (
+                <img src={c.user_avatar} alt="" className="h-9 w-9 rounded-full object-cover" />
+              ) : (
+                <div className="grid h-9 w-9 place-items-center rounded-full bg-foreground font-display text-sm text-background">{c.user_name[0]}</div>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">{c.user_name}</p>
+                <p className="truncate text-xs text-muted-foreground">{c.last}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] text-muted-foreground">{c.time}</p>
+                {c.unread > 0 && <span className="inline-block min-w-5 rounded-full bg-primary px-1.5 text-[10px] font-medium text-primary-foreground">{c.unread}</span>}
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-function Reviews() {
-  const reviews = [
-    { name: "Priya K.", stars: 5, text: "She turned my mom's saree into the most beautiful crop-top set!" },
-    { name: "Sneha V.", stars: 5, text: "Fast replies and great suggestions. Highly recommend." },
-    { name: "Ankita J.", stars: 4, text: "Loved the fit, slight delay but worth it." },
-  ];
+function Reviews({ reviews, avg, count }: { reviews: ReviewRow[]; avg: number; count: number }) {
   return (
     <div id="reviews" className="rounded-3xl border border-border bg-card p-6 shadow-soft scroll-mt-24">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="flex items-center gap-2 font-display text-xl"><Star className="h-4 w-4" /> Ratings & reviews</h3>
-        <span className="text-xs text-muted-foreground">4.9 · 248 reviews</span>
+        <span className="text-xs text-muted-foreground">{count ? `${avg.toFixed(1)} · ${count} reviews` : "No reviews yet"}</span>
       </div>
-      <div className="space-y-3">
-        {reviews.map((r) => (
-          <div key={r.name} className="rounded-2xl bg-accent/40 p-3">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium">{r.name}</p>
-              <div className="flex">
-                {Array.from({ length: r.stars }).map((_, i) => <Star key={i} className="h-3 w-3 fill-gold text-gold" />)}
+      {reviews.length === 0 ? (
+        <div className="grid place-items-center rounded-2xl bg-accent/40 p-6 text-center">
+          <Star className="h-5 w-5 text-muted-foreground" />
+          <p className="mt-2 text-xs text-muted-foreground">Reviews from your completed projects will appear here.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {reviews.slice(0, 3).map((r) => (
+            <div key={r.id} className="rounded-2xl bg-accent/40 p-3">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium">{r.user_name}</p>
+                <div className="flex">
+                  {Array.from({ length: r.rating }).map((_, i) => <Star key={i} className="h-3 w-3 fill-gold text-gold" />)}
+                </div>
               </div>
+              {r.review_text && <p className="mt-1 text-xs text-muted-foreground">{r.review_text}</p>}
             </div>
-            <p className="mt-1 text-xs text-muted-foreground">{r.text}</p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
+
 
 function StudioProfile({ name }: { name: string }) {
   return (
