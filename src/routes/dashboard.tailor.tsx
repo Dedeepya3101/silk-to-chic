@@ -5,10 +5,7 @@ import { MapPin, Clock, Star, ShieldCheck, Sparkles, X, Send, CheckCircle2, BarC
 import { AppShell } from "@/components/AppShell";
 import { getSession } from "@/lib/session";
 import { supabase } from "@/integrations/supabase/client";
-import saree1 from "@/assets/saree-1.jpg";
-import saree2 from "@/assets/saree-2.jpg";
-import saree3 from "@/assets/saree-3.jpg";
-import transformAfter from "@/assets/transform-after.jpg";
+
 
 type FeedItem = {
   id: string;
