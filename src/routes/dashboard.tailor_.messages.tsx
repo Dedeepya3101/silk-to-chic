@@ -80,11 +80,15 @@ function TailorMessages() {
     const list = (sugs || []) as Thread[];
     const uids = Array.from(new Set(list.map(s => s.user_id)));
     const upids = Array.from(new Set(list.map(s => s.saree_upload_id)));
-    const [{ data: profs }, { data: ups }, { data: reps }] = await Promise.all([
+    const [{ data: profs }, { data: ups }, { data: reps }, { data: blks }] = await Promise.all([
       uids.length ? supabase.from("profiles").select("id, display_name, avatar_url").in("id", uids) : Promise.resolve({ data: [] as any[] }),
       upids.length ? supabase.from("saree_uploads").select("id, image_url").in("id", upids) : Promise.resolve({ data: [] as any[] }),
       list.length ? supabase.from("suggestion_replies").select("*").in("suggestion_id", list.map(s => s.id)).order("created_at", { ascending: true }) : Promise.resolve({ data: [] as any[] }),
+      supabase.from("blocks").select("blocker_id, blocked_id"),
     ]);
+    setBlockedByMe((blks || []).filter((b: any) => b.blocker_id === uid).map((b: any) => b.blocked_id));
+    setBlockedMe((blks || []).filter((b: any) => b.blocked_id === uid).map((b: any) => b.blocker_id));
+
     const pm = new Map((profs || []).map((p: any) => [p.id, p]));
     const um = new Map((ups || []).map((u: any) => [u.id, u.image_url]));
     const grouped: Record<string, Reply[]> = {};
