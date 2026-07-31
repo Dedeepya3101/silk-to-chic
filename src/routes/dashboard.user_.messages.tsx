@@ -82,11 +82,17 @@ function UserMessages() {
     const list = (sugs || []) as Thread[];
     const tids = Array.from(new Set(list.map(s => s.tailor_id)));
     const upids = Array.from(new Set(list.map(s => s.saree_upload_id)));
-    const [{ data: profs }, { data: ups }, { data: reps }] = await Promise.all([
+    const [{ data: profs }, { data: ups }, { data: reps }, { data: tprofs }, { data: blks }] = await Promise.all([
       tids.length ? supabase.from("profiles").select("id, display_name, avatar_url").in("id", tids) : Promise.resolve({ data: [] as any[] }),
       upids.length ? supabase.from("saree_uploads").select("id, image_url").in("id", upids) : Promise.resolve({ data: [] as any[] }),
       list.length ? supabase.from("suggestion_replies").select("*").in("suggestion_id", list.map(s => s.id)).order("created_at", { ascending: true }) : Promise.resolve({ data: [] as any[] }),
+      tids.length ? supabase.from("tailor_profiles").select("tailor_id, verified_tailor, identity_verified, portfolio_verified").in("tailor_id", tids) : Promise.resolve({ data: [] as any[] }),
+      supabase.from("blocks").select("blocker_id, blocked_id"),
     ]);
+    setVerif(Object.fromEntries((tprofs || []).map((t: any) => [t.tailor_id, t as Verification])));
+    setBlockedByMe((blks || []).filter((b: any) => b.blocker_id === uid).map((b: any) => b.blocked_id));
+    setBlockedMe((blks || []).filter((b: any) => b.blocked_id === uid).map((b: any) => b.blocker_id));
+
     const pm = new Map((profs || []).map((p: any) => [p.id, p]));
     const um = new Map((ups || []).map((u: any) => [u.id, u.image_url]));
     const grouped: Record<string, Reply[]> = {};
