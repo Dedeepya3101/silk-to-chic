@@ -151,6 +151,11 @@ function UserMessages() {
 
   const active = useMemo(() => threads.find(t => t.id === activeId), [threads, activeId]);
   const activeReplies = activeId ? (replies[activeId] || []) : [];
+  const iBlocked = !!active && blockedByMe.includes(active.tailor_id);
+  const theyBlocked = !!active && blockedMe.includes(active.tailor_id);
+  const isBlocked = iBlocked || theyBlocked;
+  const showWarning = hasSensitiveContent(draft);
+
 
   if (!ready) return <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">Loading…</div>;
 
