@@ -96,6 +96,8 @@ function TailorProfileView() {
               <div>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground">Studio</p>
                 <h2 className="font-display text-2xl">{name}</h2>
+                <VerifiedBadges v={profile} className="mt-1" />
+
                 {profile?.owner_name && <p className="text-sm text-muted-foreground">by {profile.owner_name}</p>}
                 <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
                   {profile?.location && <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" /> {profile.location}</span>}
