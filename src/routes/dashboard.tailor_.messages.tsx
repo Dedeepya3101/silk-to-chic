@@ -53,6 +53,9 @@ function TailorMessages() {
   const [sending, setSending] = useState(false);
   const [me, setMe] = useState<string | null>(null);
   const [lastRead, setLastRead] = useState<Record<string, number>>({});
+  const [blockedByMe, setBlockedByMe] = useState<string[]>([]);
+  const [blockedMe, setBlockedMe] = useState<string[]>([]);
+
 
   useEffect(() => {
     let alive = true;
