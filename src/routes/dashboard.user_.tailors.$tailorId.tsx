@@ -11,7 +11,7 @@ export const Route = createFileRoute("/dashboard/user_/tailors/$tailorId")({
   component: TailorProfileView,
 });
 
-type Profile = { profile_photo: string | null; studio_name: string | null; owner_name: string | null; experience_years: number | null; specialization: string | null; location: string | null; phone: string | null; phone_visibility: boolean; bio: string | null };
+type Profile = { profile_photo: string | null; studio_name: string | null; owner_name: string | null; experience_years: number | null; specialization: string | null; location: string | null; phone: string | null; phone_visibility: boolean; bio: string | null; verified_tailor?: boolean | null; identity_verified?: boolean | null; portfolio_verified?: boolean | null };
 type Portfolio = { id: string; before_image: string | null; after_image: string; title: string | null };
 type Review = { id: string; rating: number; review_text: string | null; created_at: string; user_id: string; user_name?: string };
 
