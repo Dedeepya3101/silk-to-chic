@@ -5,6 +5,8 @@ import { Loader2, MapPin, Star, Heart, Phone, Scissors, ImageIcon } from "lucide
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { refreshSession } from "@/lib/session";
+import { VerifiedBadges } from "@/components/ChatSafety";
+
 
 export const Route = createFileRoute("/dashboard/user_/tailors/$tailorId")({
   head: () => ({ meta: [{ title: "Tailor Profile — MatchO" }] }),
