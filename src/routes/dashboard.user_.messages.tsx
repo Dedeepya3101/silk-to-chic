@@ -138,8 +138,11 @@ function UserMessages() {
 
   const sendReply = async () => {
     if (!activeId || !me) return;
+    const other = threads.find(t => t.id === activeId)?.tailor_id;
+    if (other && (blockedByMe.includes(other) || blockedMe.includes(other))) return;
     const message = draft.trim();
     if (!message) return;
+
     setSending(true);
     const { error } = await supabase.from("suggestion_replies").insert({
       suggestion_id: activeId, user_id: me, message,
