@@ -133,6 +133,8 @@ function TailorMessages() {
 
   const sendReply = async () => {
     if (!activeId || !me) return;
+    const other = threads.find(t => t.id === activeId)?.user_id;
+    if (other && (blockedByMe.includes(other) || blockedMe.includes(other))) return;
     const message = draft.trim();
     if (!message) return;
     setSending(true);
@@ -148,6 +150,10 @@ function TailorMessages() {
 
   const active = threads.find(t => t.id === activeId);
   const activeReplies = activeId ? (replies[activeId] || []) : [];
+  const iBlocked = !!active && blockedByMe.includes(active.user_id);
+  const isBlocked = !!active && (iBlocked || blockedMe.includes(active.user_id));
+  const showWarning = hasSensitiveContent(draft);
+
 
   return (
     <AppShell role="tailor" title="Conversations">
