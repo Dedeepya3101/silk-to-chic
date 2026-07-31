@@ -54,6 +54,10 @@ function UserMessages() {
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [lastRead, setLastRead] = useState<Record<string, number>>({});
+  const [blockedByMe, setBlockedByMe] = useState<string[]>([]);
+  const [blockedMe, setBlockedMe] = useState<string[]>([]);
+  const [verif, setVerif] = useState<Record<string, Verification>>({});
+
 
   useEffect(() => {
     let alive = true;
