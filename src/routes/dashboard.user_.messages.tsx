@@ -5,6 +5,12 @@ import { Loader2, Inbox, Send, MessageCircle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { refreshSession } from "@/lib/session";
+import { hasSensitiveContent } from "@/lib/safety";
+import {
+  SafetyReminder, SafetyWarningBanner, VerifiedBadges, ConversationSafetyMenu,
+  BlockedComposerNotice, type Verification,
+} from "@/components/ChatSafety";
+
 
 export const Route = createFileRoute("/dashboard/user_/messages")({
   head: () => ({ meta: [{ title: "Messages — MatchO" }] }),
