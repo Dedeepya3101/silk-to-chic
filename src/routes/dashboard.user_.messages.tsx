@@ -217,11 +217,24 @@ function UserMessages() {
                   ) : (
                     <div className="grid h-11 w-11 place-items-center rounded-full bg-foreground text-background">{active.tailor_name?.[0]}</div>
                   )}
-                  <div>
-                    <p className="font-medium">{active.tailor_name}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="flex flex-wrap items-center gap-2 font-medium">
+                      {active.tailor_name}
+                      <VerifiedBadges v={verif[active.tailor_id]} />
+                    </p>
                     <p className="text-xs text-muted-foreground">{active.silhouette || "Suggestion"}</p>
                   </div>
+                  {me && (
+                    <ConversationSafetyMenu
+                      meId={me}
+                      otherUserId={active.tailor_id}
+                      suggestionId={active.id}
+                      blockedByMe={iBlocked}
+                      onBlockChange={(b) => setBlockedByMe(prev => b ? [...prev, active.tailor_id] : prev.filter(id => id !== active.tailor_id))}
+                    />
+                  )}
                 </header>
+                <SafetyReminder />
                 <div className="flex-1 space-y-2 overflow-y-auto p-4">
                   {activeReplies.length === 0 ? (
                     <div className="grid h-full place-items-center text-center">
@@ -237,6 +250,10 @@ function UserMessages() {
                     </div>
                   ))}
                 </div>
+                {showWarning && !isBlocked && <SafetyWarningBanner />}
+                {isBlocked ? (
+                  <BlockedComposerNotice />
+                ) : (
                 <div className="flex gap-2 border-t border-border p-4">
                   <input
                     value={draft}
@@ -254,6 +271,8 @@ function UserMessages() {
                     Send
                   </button>
                 </div>
+                )}
+
               </>
             ) : null}
           </section>
