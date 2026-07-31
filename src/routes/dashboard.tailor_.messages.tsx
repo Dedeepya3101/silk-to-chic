@@ -210,11 +210,21 @@ function TailorMessages() {
               <>
                 <header className="flex items-center gap-3 border-b border-border p-4">
                   {active.avatar_url ? <img src={active.avatar_url} alt="" className="h-10 w-10 rounded-full object-cover" /> : <div className="grid h-10 w-10 place-items-center rounded-full bg-foreground text-background text-sm">{active.user_name?.[0]}</div>}
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="font-medium">{active.user_name}</p>
                     <p className="text-xs text-muted-foreground">{active.silhouette || "Suggestion"}</p>
                   </div>
+                  {me && (
+                    <ConversationSafetyMenu
+                      meId={me}
+                      otherUserId={active.user_id}
+                      suggestionId={active.id}
+                      blockedByMe={iBlocked}
+                      onBlockChange={(b) => setBlockedByMe(prev => b ? [...prev, active.user_id] : prev.filter(id => id !== active.user_id))}
+                    />
+                  )}
                 </header>
+                <SafetyReminder />
                 <div className="flex-1 space-y-2 overflow-y-auto p-4">
                   {activeReplies.length === 0 ? (
                     <div className="grid h-full place-items-center text-center">
@@ -229,6 +239,10 @@ function TailorMessages() {
                     </div>
                   ))}
                 </div>
+                {showWarning && !isBlocked && <SafetyWarningBanner />}
+                {isBlocked ? (
+                  <BlockedComposerNotice />
+                ) : (
                 <div className="flex gap-2 border-t border-border p-4">
                   <input
                     value={draft}
@@ -246,6 +260,8 @@ function TailorMessages() {
                     Send
                   </button>
                 </div>
+                )}
+
               </>
             ) : null}
           </section>
