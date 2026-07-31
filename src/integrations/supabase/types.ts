@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      blocks: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       completed_projects: {
         Row: {
           completion_date: string
@@ -186,6 +207,36 @@ export type Database = {
           specialization?: string | null
           tailor_category?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      reports: {
+        Row: {
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          reported_user_id: string
+          reporter_id: string
+          suggestion_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason: string
+          reported_user_id: string
+          reporter_id: string
+          suggestion_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          reported_user_id?: string
+          reporter_id?: string
+          suggestion_id?: string | null
         }
         Relationships: []
       }
@@ -378,45 +429,54 @@ export type Database = {
           created_at: string
           experience_years: number | null
           id: string
+          identity_verified: boolean
           location: string | null
           owner_name: string | null
           phone: string | null
           phone_visibility: boolean
+          portfolio_verified: boolean
           profile_photo: string | null
           specialization: string | null
           studio_name: string | null
           tailor_id: string
           updated_at: string
+          verified_tailor: boolean
         }
         Insert: {
           bio?: string | null
           created_at?: string
           experience_years?: number | null
           id?: string
+          identity_verified?: boolean
           location?: string | null
           owner_name?: string | null
           phone?: string | null
           phone_visibility?: boolean
+          portfolio_verified?: boolean
           profile_photo?: string | null
           specialization?: string | null
           studio_name?: string | null
           tailor_id: string
           updated_at?: string
+          verified_tailor?: boolean
         }
         Update: {
           bio?: string | null
           created_at?: string
           experience_years?: number | null
           id?: string
+          identity_verified?: boolean
           location?: string | null
           owner_name?: string | null
           phone?: string | null
           phone_visibility?: boolean
+          portfolio_verified?: boolean
           profile_photo?: string | null
           specialization?: string | null
           studio_name?: string | null
           tailor_id?: string
           updated_at?: string
+          verified_tailor?: boolean
         }
         Relationships: []
       }

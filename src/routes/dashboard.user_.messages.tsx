@@ -5,6 +5,12 @@ import { Loader2, Inbox, Send, MessageCircle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { refreshSession } from "@/lib/session";
+import { hasSensitiveContent } from "@/lib/safety";
+import {
+  SafetyReminder, SafetyWarningBanner, VerifiedBadges, ConversationSafetyMenu,
+  BlockedComposerNotice, type Verification,
+} from "@/components/ChatSafety";
+
 
 export const Route = createFileRoute("/dashboard/user_/messages")({
   head: () => ({ meta: [{ title: "Messages — MatchO" }] }),
@@ -48,6 +54,10 @@ function UserMessages() {
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [lastRead, setLastRead] = useState<Record<string, number>>({});
+  const [blockedByMe, setBlockedByMe] = useState<string[]>([]);
+  const [blockedMe, setBlockedMe] = useState<string[]>([]);
+  const [verif, setVerif] = useState<Record<string, Verification>>({});
+
 
   useEffect(() => {
     let alive = true;
@@ -72,11 +82,17 @@ function UserMessages() {
     const list = (sugs || []) as Thread[];
     const tids = Array.from(new Set(list.map(s => s.tailor_id)));
     const upids = Array.from(new Set(list.map(s => s.saree_upload_id)));
-    const [{ data: profs }, { data: ups }, { data: reps }] = await Promise.all([
+    const [{ data: profs }, { data: ups }, { data: reps }, { data: tprofs }, { data: blks }] = await Promise.all([
       tids.length ? supabase.from("profiles").select("id, display_name, avatar_url").in("id", tids) : Promise.resolve({ data: [] as any[] }),
       upids.length ? supabase.from("saree_uploads").select("id, image_url").in("id", upids) : Promise.resolve({ data: [] as any[] }),
       list.length ? supabase.from("suggestion_replies").select("*").in("suggestion_id", list.map(s => s.id)).order("created_at", { ascending: true }) : Promise.resolve({ data: [] as any[] }),
+      tids.length ? supabase.from("tailor_profiles").select("tailor_id, verified_tailor, identity_verified, portfolio_verified").in("tailor_id", tids) : Promise.resolve({ data: [] as any[] }),
+      supabase.from("blocks").select("blocker_id, blocked_id"),
     ]);
+    setVerif(Object.fromEntries((tprofs || []).map((t: any) => [t.tailor_id, t as Verification])));
+    setBlockedByMe((blks || []).filter((b: any) => b.blocker_id === uid).map((b: any) => b.blocked_id));
+    setBlockedMe((blks || []).filter((b: any) => b.blocked_id === uid).map((b: any) => b.blocker_id));
+
     const pm = new Map((profs || []).map((p: any) => [p.id, p]));
     const um = new Map((ups || []).map((u: any) => [u.id, u.image_url]));
     const grouped: Record<string, Reply[]> = {};
@@ -122,8 +138,11 @@ function UserMessages() {
 
   const sendReply = async () => {
     if (!activeId || !me) return;
+    const other = threads.find(t => t.id === activeId)?.tailor_id;
+    if (other && (blockedByMe.includes(other) || blockedMe.includes(other))) return;
     const message = draft.trim();
     if (!message) return;
+
     setSending(true);
     const { error } = await supabase.from("suggestion_replies").insert({
       suggestion_id: activeId, user_id: me, message,
@@ -135,6 +154,11 @@ function UserMessages() {
 
   const active = useMemo(() => threads.find(t => t.id === activeId), [threads, activeId]);
   const activeReplies = activeId ? (replies[activeId] || []) : [];
+  const iBlocked = !!active && blockedByMe.includes(active.tailor_id);
+  const theyBlocked = !!active && blockedMe.includes(active.tailor_id);
+  const isBlocked = iBlocked || theyBlocked;
+  const showWarning = hasSensitiveContent(draft);
+
 
   if (!ready) return <div className="grid min-h-screen place-items-center text-sm text-muted-foreground">Loading…</div>;
 
@@ -196,11 +220,24 @@ function UserMessages() {
                   ) : (
                     <div className="grid h-11 w-11 place-items-center rounded-full bg-foreground text-background">{active.tailor_name?.[0]}</div>
                   )}
-                  <div>
-                    <p className="font-medium">{active.tailor_name}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="flex flex-wrap items-center gap-2 font-medium">
+                      {active.tailor_name}
+                      <VerifiedBadges v={verif[active.tailor_id]} />
+                    </p>
                     <p className="text-xs text-muted-foreground">{active.silhouette || "Suggestion"}</p>
                   </div>
+                  {me && (
+                    <ConversationSafetyMenu
+                      meId={me}
+                      otherUserId={active.tailor_id}
+                      suggestionId={active.id}
+                      blockedByMe={iBlocked}
+                      onBlockChange={(b) => setBlockedByMe(prev => b ? [...prev, active.tailor_id] : prev.filter(id => id !== active.tailor_id))}
+                    />
+                  )}
                 </header>
+                <SafetyReminder />
                 <div className="flex-1 space-y-2 overflow-y-auto p-4">
                   {activeReplies.length === 0 ? (
                     <div className="grid h-full place-items-center text-center">
@@ -216,6 +253,10 @@ function UserMessages() {
                     </div>
                   ))}
                 </div>
+                {showWarning && !isBlocked && <SafetyWarningBanner />}
+                {isBlocked ? (
+                  <BlockedComposerNotice />
+                ) : (
                 <div className="flex gap-2 border-t border-border p-4">
                   <input
                     value={draft}
@@ -233,6 +274,8 @@ function UserMessages() {
                     Send
                   </button>
                 </div>
+                )}
+
               </>
             ) : null}
           </section>

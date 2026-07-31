@@ -5,13 +5,15 @@ import { Loader2, MapPin, Star, Heart, Phone, Scissors, ImageIcon } from "lucide
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { refreshSession } from "@/lib/session";
+import { VerifiedBadges } from "@/components/ChatSafety";
+
 
 export const Route = createFileRoute("/dashboard/user_/tailors/$tailorId")({
   head: () => ({ meta: [{ title: "Tailor Profile — MatchO" }] }),
   component: TailorProfileView,
 });
 
-type Profile = { profile_photo: string | null; studio_name: string | null; owner_name: string | null; experience_years: number | null; specialization: string | null; location: string | null; phone: string | null; phone_visibility: boolean; bio: string | null };
+type Profile = { profile_photo: string | null; studio_name: string | null; owner_name: string | null; experience_years: number | null; specialization: string | null; location: string | null; phone: string | null; phone_visibility: boolean; bio: string | null; verified_tailor?: boolean | null; identity_verified?: boolean | null; portfolio_verified?: boolean | null };
 type Portfolio = { id: string; before_image: string | null; after_image: string; title: string | null };
 type Review = { id: string; rating: number; review_text: string | null; created_at: string; user_id: string; user_name?: string };
 
@@ -96,6 +98,8 @@ function TailorProfileView() {
               <div>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground">Studio</p>
                 <h2 className="font-display text-2xl">{name}</h2>
+                <VerifiedBadges v={profile} className="mt-1" />
+
                 {profile?.owner_name && <p className="text-sm text-muted-foreground">by {profile.owner_name}</p>}
                 <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
                   {profile?.location && <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" /> {profile.location}</span>}

@@ -5,6 +5,11 @@ import { Loader2, Inbox, Send, MessageCircle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { refreshSession } from "@/lib/session";
+import { hasSensitiveContent } from "@/lib/safety";
+import {
+  SafetyReminder, SafetyWarningBanner, ConversationSafetyMenu, BlockedComposerNotice,
+} from "@/components/ChatSafety";
+
 
 export const Route = createFileRoute("/dashboard/tailor_/messages")({
   head: () => ({ meta: [{ title: "Conversations — MatchO Tailor" }] }),
@@ -48,6 +53,9 @@ function TailorMessages() {
   const [sending, setSending] = useState(false);
   const [me, setMe] = useState<string | null>(null);
   const [lastRead, setLastRead] = useState<Record<string, number>>({});
+  const [blockedByMe, setBlockedByMe] = useState<string[]>([]);
+  const [blockedMe, setBlockedMe] = useState<string[]>([]);
+
 
   useEffect(() => {
     let alive = true;
@@ -72,11 +80,15 @@ function TailorMessages() {
     const list = (sugs || []) as Thread[];
     const uids = Array.from(new Set(list.map(s => s.user_id)));
     const upids = Array.from(new Set(list.map(s => s.saree_upload_id)));
-    const [{ data: profs }, { data: ups }, { data: reps }] = await Promise.all([
+    const [{ data: profs }, { data: ups }, { data: reps }, { data: blks }] = await Promise.all([
       uids.length ? supabase.from("profiles").select("id, display_name, avatar_url").in("id", uids) : Promise.resolve({ data: [] as any[] }),
       upids.length ? supabase.from("saree_uploads").select("id, image_url").in("id", upids) : Promise.resolve({ data: [] as any[] }),
       list.length ? supabase.from("suggestion_replies").select("*").in("suggestion_id", list.map(s => s.id)).order("created_at", { ascending: true }) : Promise.resolve({ data: [] as any[] }),
+      supabase.from("blocks").select("blocker_id, blocked_id"),
     ]);
+    setBlockedByMe((blks || []).filter((b: any) => b.blocker_id === uid).map((b: any) => b.blocked_id));
+    setBlockedMe((blks || []).filter((b: any) => b.blocked_id === uid).map((b: any) => b.blocker_id));
+
     const pm = new Map((profs || []).map((p: any) => [p.id, p]));
     const um = new Map((ups || []).map((u: any) => [u.id, u.image_url]));
     const grouped: Record<string, Reply[]> = {};
@@ -121,6 +133,8 @@ function TailorMessages() {
 
   const sendReply = async () => {
     if (!activeId || !me) return;
+    const other = threads.find(t => t.id === activeId)?.user_id;
+    if (other && (blockedByMe.includes(other) || blockedMe.includes(other))) return;
     const message = draft.trim();
     if (!message) return;
     setSending(true);
@@ -136,6 +150,10 @@ function TailorMessages() {
 
   const active = threads.find(t => t.id === activeId);
   const activeReplies = activeId ? (replies[activeId] || []) : [];
+  const iBlocked = !!active && blockedByMe.includes(active.user_id);
+  const isBlocked = !!active && (iBlocked || blockedMe.includes(active.user_id));
+  const showWarning = hasSensitiveContent(draft);
+
 
   return (
     <AppShell role="tailor" title="Conversations">
@@ -192,11 +210,21 @@ function TailorMessages() {
               <>
                 <header className="flex items-center gap-3 border-b border-border p-4">
                   {active.avatar_url ? <img src={active.avatar_url} alt="" className="h-10 w-10 rounded-full object-cover" /> : <div className="grid h-10 w-10 place-items-center rounded-full bg-foreground text-background text-sm">{active.user_name?.[0]}</div>}
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <p className="font-medium">{active.user_name}</p>
                     <p className="text-xs text-muted-foreground">{active.silhouette || "Suggestion"}</p>
                   </div>
+                  {me && (
+                    <ConversationSafetyMenu
+                      meId={me}
+                      otherUserId={active.user_id}
+                      suggestionId={active.id}
+                      blockedByMe={iBlocked}
+                      onBlockChange={(b) => setBlockedByMe(prev => b ? [...prev, active.user_id] : prev.filter(id => id !== active.user_id))}
+                    />
+                  )}
                 </header>
+                <SafetyReminder />
                 <div className="flex-1 space-y-2 overflow-y-auto p-4">
                   {activeReplies.length === 0 ? (
                     <div className="grid h-full place-items-center text-center">
@@ -211,6 +239,10 @@ function TailorMessages() {
                     </div>
                   ))}
                 </div>
+                {showWarning && !isBlocked && <SafetyWarningBanner />}
+                {isBlocked ? (
+                  <BlockedComposerNotice />
+                ) : (
                 <div className="flex gap-2 border-t border-border p-4">
                   <input
                     value={draft}
@@ -228,6 +260,8 @@ function TailorMessages() {
                     Send
                   </button>
                 </div>
+                )}
+
               </>
             ) : null}
           </section>
