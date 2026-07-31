@@ -5,6 +5,11 @@ import { Loader2, Inbox, Send, MessageCircle } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { refreshSession } from "@/lib/session";
+import { hasSensitiveContent } from "@/lib/safety";
+import {
+  SafetyReminder, SafetyWarningBanner, ConversationSafetyMenu, BlockedComposerNotice,
+} from "@/components/ChatSafety";
+
 
 export const Route = createFileRoute("/dashboard/tailor_/messages")({
   head: () => ({ meta: [{ title: "Conversations — MatchO Tailor" }] }),
