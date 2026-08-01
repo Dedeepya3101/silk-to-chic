@@ -18,6 +18,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardUserRouteImport } from './routes/dashboard.user'
 import { Route as DashboardTailorRouteImport } from './routes/dashboard.tailor'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as DashboardUserSuggestionsRouteImport } from './routes/dashboard.user_.suggestions'
 import { Route as DashboardUserSavedRouteImport } from './routes/dashboard.user_.saved'
 import { Route as DashboardUserProfileRouteImport } from './routes/dashboard.user_.profile'
@@ -79,6 +80,11 @@ const DashboardTailorRoute = DashboardTailorRouteImport.update({
   id: '/tailor',
   path: '/tailor',
   getParentRoute: () => DashboardRoute,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardUserSuggestionsRoute =
   DashboardUserSuggestionsRouteImport.update({
@@ -175,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/messages': typeof MessagesRoute
   '/register': typeof RegisterRoute
   '/tailor': typeof TailorRoute
+  '/admin/login': typeof AdminLoginRoute
   '/dashboard/tailor': typeof DashboardTailorRoute
   '/dashboard/user': typeof DashboardUserRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -201,6 +208,7 @@ export interface FileRoutesByTo {
   '/messages': typeof MessagesRoute
   '/register': typeof RegisterRoute
   '/tailor': typeof TailorRoute
+  '/admin/login': typeof AdminLoginRoute
   '/dashboard/tailor': typeof DashboardTailorRoute
   '/dashboard/user': typeof DashboardUserRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -229,6 +237,7 @@ export interface FileRoutesById {
   '/messages': typeof MessagesRoute
   '/register': typeof RegisterRoute
   '/tailor': typeof TailorRoute
+  '/admin/login': typeof AdminLoginRoute
   '/dashboard/tailor': typeof DashboardTailorRoute
   '/dashboard/user': typeof DashboardUserRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -258,6 +267,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/register'
     | '/tailor'
+    | '/admin/login'
     | '/dashboard/tailor'
     | '/dashboard/user'
     | '/dashboard/'
@@ -284,6 +294,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/register'
     | '/tailor'
+    | '/admin/login'
     | '/dashboard/tailor'
     | '/dashboard/user'
     | '/dashboard'
@@ -311,6 +322,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/register'
     | '/tailor'
+    | '/admin/login'
     | '/dashboard/tailor'
     | '/dashboard/user'
     | '/dashboard/'
@@ -339,6 +351,7 @@ export interface RootRouteChildren {
   MessagesRoute: typeof MessagesRoute
   RegisterRoute: typeof RegisterRoute
   TailorRoute: typeof TailorRoute
+  AdminLoginRoute: typeof AdminLoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -405,6 +418,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/tailor'
       preLoaderRoute: typeof DashboardTailorRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/dashboard/user_/suggestions': {
       id: '/dashboard/user_/suggestions'
@@ -576,6 +596,7 @@ const rootRouteChildren: RootRouteChildren = {
   MessagesRoute: MessagesRoute,
   RegisterRoute: RegisterRoute,
   TailorRoute: TailorRoute,
+  AdminLoginRoute: AdminLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
