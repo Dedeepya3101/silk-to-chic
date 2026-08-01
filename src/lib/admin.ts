@@ -23,7 +23,7 @@ export function useAdminGuard() {
         .from("user_roles")
         .select("role")
         .eq("user_id", user.id)
-        .eq("role", "admin" as never)
+        .filter("role", "eq", "admin")
         .maybeSingle();
       if (!active) return;
       if (!roleRow) {
