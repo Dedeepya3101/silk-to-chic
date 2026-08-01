@@ -14,24 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_settings: {
+        Row: {
+          auto_verify_tailors: boolean
+          contact_email: string
+          created_at: string
+          id: string
+          platform_name: string
+          report_categories: string[]
+          require_identity_verification: boolean
+          require_portfolio_verification: boolean
+          safety_notice: string
+          updated_at: string
+        }
+        Insert: {
+          auto_verify_tailors?: boolean
+          contact_email?: string
+          created_at?: string
+          id?: string
+          platform_name?: string
+          report_categories?: string[]
+          require_identity_verification?: boolean
+          require_portfolio_verification?: boolean
+          safety_notice?: string
+          updated_at?: string
+        }
+        Update: {
+          auto_verify_tailors?: boolean
+          contact_email?: string
+          created_at?: string
+          id?: string
+          platform_name?: string
+          report_categories?: string[]
+          require_identity_verification?: boolean
+          require_portfolio_verification?: boolean
+          safety_notice?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       blocks: {
         Row: {
           blocked_id: string
           blocker_id: string
           created_at: string
           id: string
+          unblocked_at: string | null
+          unblocked_by: string | null
         }
         Insert: {
           blocked_id: string
           blocker_id: string
           created_at?: string
           id?: string
+          unblocked_at?: string | null
+          unblocked_by?: string | null
         }
         Update: {
           blocked_id?: string
           blocker_id?: string
           created_at?: string
           id?: string
+          unblocked_at?: string | null
+          unblocked_by?: string | null
         }
         Relationships: []
       }
@@ -175,6 +220,8 @@ export type Database = {
           languages: string | null
           phone: string | null
           specialization: string | null
+          suspended: boolean
+          suspended_at: string | null
           tailor_category: string | null
           updated_at: string
         }
@@ -190,6 +237,8 @@ export type Database = {
           languages?: string | null
           phone?: string | null
           specialization?: string | null
+          suspended?: boolean
+          suspended_at?: string | null
           tailor_category?: string | null
           updated_at?: string
         }
@@ -205,6 +254,8 @@ export type Database = {
           languages?: string | null
           phone?: string | null
           specialization?: string | null
+          suspended?: boolean
+          suspended_at?: string | null
           tailor_category?: string | null
           updated_at?: string
         }
@@ -212,30 +263,42 @@ export type Database = {
       }
       reports: {
         Row: {
+          admin_notes: string | null
           created_at: string
           details: string | null
           id: string
           reason: string
           reported_user_id: string
           reporter_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
           suggestion_id: string | null
         }
         Insert: {
+          admin_notes?: string | null
           created_at?: string
           details?: string | null
           id?: string
           reason: string
           reported_user_id: string
           reporter_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
           suggestion_id?: string | null
         }
         Update: {
+          admin_notes?: string | null
           created_at?: string
           details?: string | null
           id?: string
           reason?: string
           reported_user_id?: string
           reporter_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
           suggestion_id?: string | null
         }
         Relationships: []
@@ -561,9 +624,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "user" | "tailor"
+      app_role: "user" | "tailor" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -691,7 +755,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["user", "tailor"],
+      app_role: ["user", "tailor", "admin"],
     },
   },
 } as const

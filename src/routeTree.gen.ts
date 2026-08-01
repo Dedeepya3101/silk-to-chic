@@ -18,6 +18,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardUserRouteImport } from './routes/dashboard.user'
 import { Route as DashboardTailorRouteImport } from './routes/dashboard.tailor'
+import { Route as DashboardAdminRouteImport } from './routes/dashboard.admin'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as DashboardUserSuggestionsRouteImport } from './routes/dashboard.user_.suggestions'
 import { Route as DashboardUserSavedRouteImport } from './routes/dashboard.user_.saved'
 import { Route as DashboardUserProfileRouteImport } from './routes/dashboard.user_.profile'
@@ -33,6 +35,14 @@ import { Route as DashboardTailorPortfolioRouteImport } from './routes/dashboard
 import { Route as DashboardTailorMessagesRouteImport } from './routes/dashboard.tailor_.messages'
 import { Route as DashboardTailorCompletedRouteImport } from './routes/dashboard.tailor_.completed'
 import { Route as DashboardTailorAssignedRouteImport } from './routes/dashboard.tailor_.assigned'
+import { Route as DashboardAdminVerificationRouteImport } from './routes/dashboard.admin_.verification'
+import { Route as DashboardAdminUsersRouteImport } from './routes/dashboard.admin_.users'
+import { Route as DashboardAdminTailorsRouteImport } from './routes/dashboard.admin_.tailors'
+import { Route as DashboardAdminSettingsRouteImport } from './routes/dashboard.admin_.settings'
+import { Route as DashboardAdminReportsRouteImport } from './routes/dashboard.admin_.reports'
+import { Route as DashboardAdminNotificationsRouteImport } from './routes/dashboard.admin_.notifications'
+import { Route as DashboardAdminBlocksRouteImport } from './routes/dashboard.admin_.blocks'
+import { Route as DashboardAdminAnalyticsRouteImport } from './routes/dashboard.admin_.analytics'
 import { Route as DashboardUserTailorsTailorIdRouteImport } from './routes/dashboard.user_.tailors.$tailorId'
 
 const TailorRoute = TailorRouteImport.update({
@@ -79,6 +89,16 @@ const DashboardTailorRoute = DashboardTailorRouteImport.update({
   id: '/tailor',
   path: '/tailor',
   getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAdminRoute = DashboardAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardUserSuggestionsRoute =
   DashboardUserSuggestionsRouteImport.update({
@@ -161,6 +181,48 @@ const DashboardTailorAssignedRoute = DashboardTailorAssignedRouteImport.update({
   path: '/tailor/assigned',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardAdminVerificationRoute =
+  DashboardAdminVerificationRouteImport.update({
+    id: '/admin_/verification',
+    path: '/admin/verification',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+const DashboardAdminUsersRoute = DashboardAdminUsersRouteImport.update({
+  id: '/admin_/users',
+  path: '/admin/users',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAdminTailorsRoute = DashboardAdminTailorsRouteImport.update({
+  id: '/admin_/tailors',
+  path: '/admin/tailors',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAdminSettingsRoute = DashboardAdminSettingsRouteImport.update({
+  id: '/admin_/settings',
+  path: '/admin/settings',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAdminReportsRoute = DashboardAdminReportsRouteImport.update({
+  id: '/admin_/reports',
+  path: '/admin/reports',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAdminNotificationsRoute =
+  DashboardAdminNotificationsRouteImport.update({
+    id: '/admin_/notifications',
+    path: '/admin/notifications',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+const DashboardAdminBlocksRoute = DashboardAdminBlocksRouteImport.update({
+  id: '/admin_/blocks',
+  path: '/admin/blocks',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAdminAnalyticsRoute = DashboardAdminAnalyticsRouteImport.update({
+  id: '/admin_/analytics',
+  path: '/admin/analytics',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardUserTailorsTailorIdRoute =
   DashboardUserTailorsTailorIdRouteImport.update({
     id: '/user_/tailors/$tailorId',
@@ -175,9 +237,19 @@ export interface FileRoutesByFullPath {
   '/messages': typeof MessagesRoute
   '/register': typeof RegisterRoute
   '/tailor': typeof TailorRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/dashboard/admin': typeof DashboardAdminRoute
   '/dashboard/tailor': typeof DashboardTailorRoute
   '/dashboard/user': typeof DashboardUserRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/admin/analytics': typeof DashboardAdminAnalyticsRoute
+  '/dashboard/admin/blocks': typeof DashboardAdminBlocksRoute
+  '/dashboard/admin/notifications': typeof DashboardAdminNotificationsRoute
+  '/dashboard/admin/reports': typeof DashboardAdminReportsRoute
+  '/dashboard/admin/settings': typeof DashboardAdminSettingsRoute
+  '/dashboard/admin/tailors': typeof DashboardAdminTailorsRoute
+  '/dashboard/admin/users': typeof DashboardAdminUsersRoute
+  '/dashboard/admin/verification': typeof DashboardAdminVerificationRoute
   '/dashboard/tailor/assigned': typeof DashboardTailorAssignedRoute
   '/dashboard/tailor/completed': typeof DashboardTailorCompletedRoute
   '/dashboard/tailor/messages': typeof DashboardTailorMessagesRoute
@@ -201,9 +273,19 @@ export interface FileRoutesByTo {
   '/messages': typeof MessagesRoute
   '/register': typeof RegisterRoute
   '/tailor': typeof TailorRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/dashboard/admin': typeof DashboardAdminRoute
   '/dashboard/tailor': typeof DashboardTailorRoute
   '/dashboard/user': typeof DashboardUserRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/admin/analytics': typeof DashboardAdminAnalyticsRoute
+  '/dashboard/admin/blocks': typeof DashboardAdminBlocksRoute
+  '/dashboard/admin/notifications': typeof DashboardAdminNotificationsRoute
+  '/dashboard/admin/reports': typeof DashboardAdminReportsRoute
+  '/dashboard/admin/settings': typeof DashboardAdminSettingsRoute
+  '/dashboard/admin/tailors': typeof DashboardAdminTailorsRoute
+  '/dashboard/admin/users': typeof DashboardAdminUsersRoute
+  '/dashboard/admin/verification': typeof DashboardAdminVerificationRoute
   '/dashboard/tailor/assigned': typeof DashboardTailorAssignedRoute
   '/dashboard/tailor/completed': typeof DashboardTailorCompletedRoute
   '/dashboard/tailor/messages': typeof DashboardTailorMessagesRoute
@@ -229,9 +311,19 @@ export interface FileRoutesById {
   '/messages': typeof MessagesRoute
   '/register': typeof RegisterRoute
   '/tailor': typeof TailorRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/dashboard/admin': typeof DashboardAdminRoute
   '/dashboard/tailor': typeof DashboardTailorRoute
   '/dashboard/user': typeof DashboardUserRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/admin_/analytics': typeof DashboardAdminAnalyticsRoute
+  '/dashboard/admin_/blocks': typeof DashboardAdminBlocksRoute
+  '/dashboard/admin_/notifications': typeof DashboardAdminNotificationsRoute
+  '/dashboard/admin_/reports': typeof DashboardAdminReportsRoute
+  '/dashboard/admin_/settings': typeof DashboardAdminSettingsRoute
+  '/dashboard/admin_/tailors': typeof DashboardAdminTailorsRoute
+  '/dashboard/admin_/users': typeof DashboardAdminUsersRoute
+  '/dashboard/admin_/verification': typeof DashboardAdminVerificationRoute
   '/dashboard/tailor_/assigned': typeof DashboardTailorAssignedRoute
   '/dashboard/tailor_/completed': typeof DashboardTailorCompletedRoute
   '/dashboard/tailor_/messages': typeof DashboardTailorMessagesRoute
@@ -258,9 +350,19 @@ export interface FileRouteTypes {
     | '/messages'
     | '/register'
     | '/tailor'
+    | '/admin/login'
+    | '/dashboard/admin'
     | '/dashboard/tailor'
     | '/dashboard/user'
     | '/dashboard/'
+    | '/dashboard/admin/analytics'
+    | '/dashboard/admin/blocks'
+    | '/dashboard/admin/notifications'
+    | '/dashboard/admin/reports'
+    | '/dashboard/admin/settings'
+    | '/dashboard/admin/tailors'
+    | '/dashboard/admin/users'
+    | '/dashboard/admin/verification'
     | '/dashboard/tailor/assigned'
     | '/dashboard/tailor/completed'
     | '/dashboard/tailor/messages'
@@ -284,9 +386,19 @@ export interface FileRouteTypes {
     | '/messages'
     | '/register'
     | '/tailor'
+    | '/admin/login'
+    | '/dashboard/admin'
     | '/dashboard/tailor'
     | '/dashboard/user'
     | '/dashboard'
+    | '/dashboard/admin/analytics'
+    | '/dashboard/admin/blocks'
+    | '/dashboard/admin/notifications'
+    | '/dashboard/admin/reports'
+    | '/dashboard/admin/settings'
+    | '/dashboard/admin/tailors'
+    | '/dashboard/admin/users'
+    | '/dashboard/admin/verification'
     | '/dashboard/tailor/assigned'
     | '/dashboard/tailor/completed'
     | '/dashboard/tailor/messages'
@@ -311,9 +423,19 @@ export interface FileRouteTypes {
     | '/messages'
     | '/register'
     | '/tailor'
+    | '/admin/login'
+    | '/dashboard/admin'
     | '/dashboard/tailor'
     | '/dashboard/user'
     | '/dashboard/'
+    | '/dashboard/admin_/analytics'
+    | '/dashboard/admin_/blocks'
+    | '/dashboard/admin_/notifications'
+    | '/dashboard/admin_/reports'
+    | '/dashboard/admin_/settings'
+    | '/dashboard/admin_/tailors'
+    | '/dashboard/admin_/users'
+    | '/dashboard/admin_/verification'
     | '/dashboard/tailor_/assigned'
     | '/dashboard/tailor_/completed'
     | '/dashboard/tailor_/messages'
@@ -339,6 +461,7 @@ export interface RootRouteChildren {
   MessagesRoute: typeof MessagesRoute
   RegisterRoute: typeof RegisterRoute
   TailorRoute: typeof TailorRoute
+  AdminLoginRoute: typeof AdminLoginRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -405,6 +528,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/tailor'
       preLoaderRoute: typeof DashboardTailorRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/admin': {
+      id: '/dashboard/admin'
+      path: '/admin'
+      fullPath: '/dashboard/admin'
+      preLoaderRoute: typeof DashboardAdminRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/dashboard/user_/suggestions': {
       id: '/dashboard/user_/suggestions'
@@ -511,6 +648,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardTailorAssignedRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/admin_/verification': {
+      id: '/dashboard/admin_/verification'
+      path: '/admin/verification'
+      fullPath: '/dashboard/admin/verification'
+      preLoaderRoute: typeof DashboardAdminVerificationRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/admin_/users': {
+      id: '/dashboard/admin_/users'
+      path: '/admin/users'
+      fullPath: '/dashboard/admin/users'
+      preLoaderRoute: typeof DashboardAdminUsersRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/admin_/tailors': {
+      id: '/dashboard/admin_/tailors'
+      path: '/admin/tailors'
+      fullPath: '/dashboard/admin/tailors'
+      preLoaderRoute: typeof DashboardAdminTailorsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/admin_/settings': {
+      id: '/dashboard/admin_/settings'
+      path: '/admin/settings'
+      fullPath: '/dashboard/admin/settings'
+      preLoaderRoute: typeof DashboardAdminSettingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/admin_/reports': {
+      id: '/dashboard/admin_/reports'
+      path: '/admin/reports'
+      fullPath: '/dashboard/admin/reports'
+      preLoaderRoute: typeof DashboardAdminReportsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/admin_/notifications': {
+      id: '/dashboard/admin_/notifications'
+      path: '/admin/notifications'
+      fullPath: '/dashboard/admin/notifications'
+      preLoaderRoute: typeof DashboardAdminNotificationsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/admin_/blocks': {
+      id: '/dashboard/admin_/blocks'
+      path: '/admin/blocks'
+      fullPath: '/dashboard/admin/blocks'
+      preLoaderRoute: typeof DashboardAdminBlocksRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/admin_/analytics': {
+      id: '/dashboard/admin_/analytics'
+      path: '/admin/analytics'
+      fullPath: '/dashboard/admin/analytics'
+      preLoaderRoute: typeof DashboardAdminAnalyticsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/user_/tailors/$tailorId': {
       id: '/dashboard/user_/tailors/$tailorId'
       path: '/user/tailors/$tailorId'
@@ -522,9 +715,18 @@ declare module '@tanstack/react-router' {
 }
 
 interface DashboardRouteChildren {
+  DashboardAdminRoute: typeof DashboardAdminRoute
   DashboardTailorRoute: typeof DashboardTailorRoute
   DashboardUserRoute: typeof DashboardUserRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardAdminAnalyticsRoute: typeof DashboardAdminAnalyticsRoute
+  DashboardAdminBlocksRoute: typeof DashboardAdminBlocksRoute
+  DashboardAdminNotificationsRoute: typeof DashboardAdminNotificationsRoute
+  DashboardAdminReportsRoute: typeof DashboardAdminReportsRoute
+  DashboardAdminSettingsRoute: typeof DashboardAdminSettingsRoute
+  DashboardAdminTailorsRoute: typeof DashboardAdminTailorsRoute
+  DashboardAdminUsersRoute: typeof DashboardAdminUsersRoute
+  DashboardAdminVerificationRoute: typeof DashboardAdminVerificationRoute
   DashboardTailorAssignedRoute: typeof DashboardTailorAssignedRoute
   DashboardTailorCompletedRoute: typeof DashboardTailorCompletedRoute
   DashboardTailorMessagesRoute: typeof DashboardTailorMessagesRoute
@@ -544,9 +746,18 @@ interface DashboardRouteChildren {
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardAdminRoute: DashboardAdminRoute,
   DashboardTailorRoute: DashboardTailorRoute,
   DashboardUserRoute: DashboardUserRoute,
   DashboardIndexRoute: DashboardIndexRoute,
+  DashboardAdminAnalyticsRoute: DashboardAdminAnalyticsRoute,
+  DashboardAdminBlocksRoute: DashboardAdminBlocksRoute,
+  DashboardAdminNotificationsRoute: DashboardAdminNotificationsRoute,
+  DashboardAdminReportsRoute: DashboardAdminReportsRoute,
+  DashboardAdminSettingsRoute: DashboardAdminSettingsRoute,
+  DashboardAdminTailorsRoute: DashboardAdminTailorsRoute,
+  DashboardAdminUsersRoute: DashboardAdminUsersRoute,
+  DashboardAdminVerificationRoute: DashboardAdminVerificationRoute,
   DashboardTailorAssignedRoute: DashboardTailorAssignedRoute,
   DashboardTailorCompletedRoute: DashboardTailorCompletedRoute,
   DashboardTailorMessagesRoute: DashboardTailorMessagesRoute,
@@ -576,6 +787,7 @@ const rootRouteChildren: RootRouteChildren = {
   MessagesRoute: MessagesRoute,
   RegisterRoute: RegisterRoute,
   TailorRoute: TailorRoute,
+  AdminLoginRoute: AdminLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
