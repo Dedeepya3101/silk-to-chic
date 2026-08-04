@@ -42,15 +42,19 @@ export async function refreshSession(): Promise<Session | null> {
     clearSession();
     return null;
   }
-  const [{ data: profile }, { data: roleRow }] = await Promise.all([
+  const [{ data: profile }, { data: roleRows }] = await Promise.all([
     supabase.from("profiles").select("display_name, email").eq("id", user.id).maybeSingle(),
-    supabase.from("user_roles").select("role").eq("user_id", user.id).maybeSingle(),
+    supabase.from("user_roles").select("role").eq("user_id", user.id),
   ]);
+  // An account may hold several roles (e.g. tailor + admin). The user/tailor
+  // dashboards always resolve to the marketplace role, never to "admin".
+  const roles = (roleRows || []).map((r) => r.role as string);
+  const marketplaceRole: Role = roles.includes("tailor") ? "tailor" : "user";
   const session: Session = {
     id: user.id,
     name: profile?.display_name || nameFromEmail(user.email || ""),
     email: profile?.email || user.email || undefined,
-    role: (roleRow?.role as Role) || "user",
+    role: marketplaceRole,
   };
   setSession(session);
   return session;
