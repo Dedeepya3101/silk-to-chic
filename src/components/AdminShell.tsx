@@ -1,7 +1,7 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   ShieldCheck, LayoutDashboard, Flag, Ban, BadgeCheck, Users, Scissors,
-  BarChart3, Bell, Settings, LogOut,
+  BarChart3, Bell, Settings, LogOut, Gavel,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { clearSession } from "@/lib/session";
@@ -12,6 +12,7 @@ const nav = [
   { to: "/dashboard/admin/reports", label: "Reports", icon: Flag },
   { to: "/dashboard/admin/blocks", label: "Blocks", icon: Ban },
   { to: "/dashboard/admin/verification", label: "Verification", icon: BadgeCheck },
+  { to: "/dashboard/admin/appeals", label: "Appeals", icon: Gavel },
   { to: "/dashboard/admin/users", label: "Users", icon: Users },
   { to: "/dashboard/admin/tailors", label: "Tailors", icon: Scissors },
   { to: "/dashboard/admin/analytics", label: "Analytics", icon: BarChart3 },
