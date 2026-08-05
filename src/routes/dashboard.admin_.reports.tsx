@@ -30,7 +30,6 @@ function AdminReports() {
   const [names, setNames] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<"all" | ReportStatus>("all");
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState<Row | null>(null);
 
   const load = async () => {
     const { data } = await supabase.from("reports").select("*").order("created_at", { ascending: false });
@@ -62,7 +61,6 @@ function AdminReports() {
     if (error) { toast.error(error.message); return; }
     toast.success(`Report marked ${REPORT_STATUS_LABEL[status]}`);
     setRows((r) => r.map((x) => (x.id === id ? { ...x, status } : x)));
-    setOpen((o) => (o && o.id === id ? { ...o, status } : o));
   };
 
   const shown = filter === "all" ? rows : rows.filter((r) => r.status === filter);
