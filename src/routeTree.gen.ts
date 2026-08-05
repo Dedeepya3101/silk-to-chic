@@ -44,6 +44,7 @@ import { Route as DashboardAdminNotificationsRouteImport } from './routes/dashbo
 import { Route as DashboardAdminBlocksRouteImport } from './routes/dashboard.admin_.blocks'
 import { Route as DashboardAdminAnalyticsRouteImport } from './routes/dashboard.admin_.analytics'
 import { Route as DashboardUserTailorsTailorIdRouteImport } from './routes/dashboard.user_.tailors.$tailorId'
+import { Route as DashboardAdminReportsReportIdRouteImport } from './routes/dashboard.admin_.reports_.$reportId'
 
 const TailorRoute = TailorRouteImport.update({
   id: '/tailor',
@@ -229,6 +230,12 @@ const DashboardUserTailorsTailorIdRoute =
     path: '/user/tailors/$tailorId',
     getParentRoute: () => DashboardRoute,
   } as any)
+const DashboardAdminReportsReportIdRoute =
+  DashboardAdminReportsReportIdRouteImport.update({
+    id: '/admin_/reports_/$reportId',
+    path: '/admin/reports/$reportId',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -265,6 +272,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/user/profile': typeof DashboardUserProfileRoute
   '/dashboard/user/saved': typeof DashboardUserSavedRoute
   '/dashboard/user/suggestions': typeof DashboardUserSuggestionsRoute
+  '/dashboard/admin/reports/$reportId': typeof DashboardAdminReportsReportIdRoute
   '/dashboard/user/tailors/$tailorId': typeof DashboardUserTailorsTailorIdRoute
 }
 export interface FileRoutesByTo {
@@ -301,6 +309,7 @@ export interface FileRoutesByTo {
   '/dashboard/user/profile': typeof DashboardUserProfileRoute
   '/dashboard/user/saved': typeof DashboardUserSavedRoute
   '/dashboard/user/suggestions': typeof DashboardUserSuggestionsRoute
+  '/dashboard/admin/reports/$reportId': typeof DashboardAdminReportsReportIdRoute
   '/dashboard/user/tailors/$tailorId': typeof DashboardUserTailorsTailorIdRoute
 }
 export interface FileRoutesById {
@@ -339,6 +348,7 @@ export interface FileRoutesById {
   '/dashboard/user_/profile': typeof DashboardUserProfileRoute
   '/dashboard/user_/saved': typeof DashboardUserSavedRoute
   '/dashboard/user_/suggestions': typeof DashboardUserSuggestionsRoute
+  '/dashboard/admin_/reports_/$reportId': typeof DashboardAdminReportsReportIdRoute
   '/dashboard/user_/tailors/$tailorId': typeof DashboardUserTailorsTailorIdRoute
 }
 export interface FileRouteTypes {
@@ -378,6 +388,7 @@ export interface FileRouteTypes {
     | '/dashboard/user/profile'
     | '/dashboard/user/saved'
     | '/dashboard/user/suggestions'
+    | '/dashboard/admin/reports/$reportId'
     | '/dashboard/user/tailors/$tailorId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -414,6 +425,7 @@ export interface FileRouteTypes {
     | '/dashboard/user/profile'
     | '/dashboard/user/saved'
     | '/dashboard/user/suggestions'
+    | '/dashboard/admin/reports/$reportId'
     | '/dashboard/user/tailors/$tailorId'
   id:
     | '__root__'
@@ -451,6 +463,7 @@ export interface FileRouteTypes {
     | '/dashboard/user_/profile'
     | '/dashboard/user_/saved'
     | '/dashboard/user_/suggestions'
+    | '/dashboard/admin_/reports_/$reportId'
     | '/dashboard/user_/tailors/$tailorId'
   fileRoutesById: FileRoutesById
 }
@@ -711,6 +724,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardUserTailorsTailorIdRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/admin_/reports_/$reportId': {
+      id: '/dashboard/admin_/reports_/$reportId'
+      path: '/admin/reports/$reportId'
+      fullPath: '/dashboard/admin/reports/$reportId'
+      preLoaderRoute: typeof DashboardAdminReportsReportIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
@@ -742,6 +762,7 @@ interface DashboardRouteChildren {
   DashboardUserProfileRoute: typeof DashboardUserProfileRoute
   DashboardUserSavedRoute: typeof DashboardUserSavedRoute
   DashboardUserSuggestionsRoute: typeof DashboardUserSuggestionsRoute
+  DashboardAdminReportsReportIdRoute: typeof DashboardAdminReportsReportIdRoute
   DashboardUserTailorsTailorIdRoute: typeof DashboardUserTailorsTailorIdRoute
 }
 
@@ -773,6 +794,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardUserProfileRoute: DashboardUserProfileRoute,
   DashboardUserSavedRoute: DashboardUserSavedRoute,
   DashboardUserSuggestionsRoute: DashboardUserSuggestionsRoute,
+  DashboardAdminReportsReportIdRoute: DashboardAdminReportsReportIdRoute,
   DashboardUserTailorsTailorIdRoute: DashboardUserTailorsTailorIdRoute,
 }
 
