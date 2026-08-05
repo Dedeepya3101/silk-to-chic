@@ -53,6 +53,56 @@ export type Database = {
         }
         Relationships: []
       }
+      appeals: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          explanation: string | null
+          id: string
+          message: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          suspension_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          message: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          suspension_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          message?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          suspension_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appeals_suspension_id_fkey"
+            columns: ["suspension_id"]
+            isOneToOne: false
+            referencedRelation: "suspensions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blocks: {
         Row: {
           blocked_id: string
@@ -147,6 +197,44 @@ export type Database = {
           },
         ]
       }
+      moderation_actions: {
+        Row: {
+          action: string
+          admin_id: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          report_id: string | null
+          target_user_id: string
+        }
+        Insert: {
+          action: string
+          admin_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          report_id?: string | null
+          target_user_id: string
+        }
+        Update: {
+          action?: string
+          admin_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          report_id?: string | null
+          target_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderation_actions_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string
@@ -222,6 +310,9 @@ export type Database = {
           specialization: string | null
           suspended: boolean
           suspended_at: string | null
+          suspended_by: string | null
+          suspended_until: string | null
+          suspension_reason: string | null
           tailor_category: string | null
           updated_at: string
         }
@@ -239,6 +330,9 @@ export type Database = {
           specialization?: string | null
           suspended?: boolean
           suspended_at?: string | null
+          suspended_by?: string | null
+          suspended_until?: string | null
+          suspension_reason?: string | null
           tailor_category?: string | null
           updated_at?: string
         }
@@ -256,6 +350,9 @@ export type Database = {
           specialization?: string | null
           suspended?: boolean
           suspended_at?: string | null
+          suspended_by?: string | null
+          suspended_until?: string | null
+          suspension_reason?: string | null
           tailor_category?: string | null
           updated_at?: string
         }
@@ -486,6 +583,48 @@ export type Database = {
           },
         ]
       }
+      suspensions: {
+        Row: {
+          admin_id: string | null
+          created_at: string
+          details: string | null
+          duration: string
+          ends_at: string | null
+          id: string
+          lifted_at: string | null
+          lifted_by: string | null
+          reason: string
+          starts_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_id?: string | null
+          created_at?: string
+          details?: string | null
+          duration?: string
+          ends_at?: string | null
+          id?: string
+          lifted_at?: string | null
+          lifted_by?: string | null
+          reason: string
+          starts_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_id?: string | null
+          created_at?: string
+          details?: string | null
+          duration?: string
+          ends_at?: string | null
+          id?: string
+          lifted_at?: string | null
+          lifted_by?: string | null
+          reason?: string
+          starts_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tailor_profiles: {
         Row: {
           bio: string | null
@@ -499,10 +638,16 @@ export type Database = {
           phone_visibility: boolean
           portfolio_verified: boolean
           profile_photo: string | null
+          rejection_reason: string | null
           specialization: string | null
           studio_name: string | null
           tailor_id: string
           updated_at: string
+          verification_documents: string[]
+          verification_notes: string | null
+          verification_status: string
+          verified_at: string | null
+          verified_by: string | null
           verified_tailor: boolean
         }
         Insert: {
@@ -517,10 +662,16 @@ export type Database = {
           phone_visibility?: boolean
           portfolio_verified?: boolean
           profile_photo?: string | null
+          rejection_reason?: string | null
           specialization?: string | null
           studio_name?: string | null
           tailor_id: string
           updated_at?: string
+          verification_documents?: string[]
+          verification_notes?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
           verified_tailor?: boolean
         }
         Update: {
@@ -535,10 +686,16 @@ export type Database = {
           phone_visibility?: boolean
           portfolio_verified?: boolean
           profile_photo?: string | null
+          rejection_reason?: string | null
           specialization?: string | null
           studio_name?: string | null
           tailor_id?: string
           updated_at?: string
+          verification_documents?: string[]
+          verification_notes?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          verified_by?: string | null
           verified_tailor?: boolean
         }
         Relationships: []
@@ -625,6 +782,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_suspended: { Args: { _uid: string }; Returns: boolean }
     }
     Enums: {
       app_role: "user" | "tailor" | "admin"
