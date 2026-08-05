@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,7 +30,6 @@ function AdminReports() {
   const [names, setNames] = useState<Record<string, string>>({});
   const [filter, setFilter] = useState<"all" | ReportStatus>("all");
   const [loading, setLoading] = useState(true);
-  const [open, setOpen] = useState<Row | null>(null);
 
   const load = async () => {
     const { data } = await supabase.from("reports").select("*").order("created_at", { ascending: false });
@@ -62,7 +61,6 @@ function AdminReports() {
     if (error) { toast.error(error.message); return; }
     toast.success(`Report marked ${REPORT_STATUS_LABEL[status]}`);
     setRows((r) => r.map((x) => (x.id === id ? { ...x, status } : x)));
-    setOpen((o) => (o && o.id === id ? { ...o, status } : o));
   };
 
   const shown = filter === "all" ? rows : rows.filter((r) => r.status === filter);
@@ -100,8 +98,10 @@ function AdminReports() {
               </td>
               <td className="px-4 py-3">
                 <div className="flex flex-wrap gap-1.5">
-                  <button onClick={() => setOpen(r)} className="rounded-full border border-border px-3 py-1 text-xs hover:bg-accent">View</button>
-                  <button onClick={() => setStatus(r.id, "under_review")} className="rounded-full border border-border px-3 py-1 text-xs hover:bg-accent">Review</button>
+                  <Link to="/dashboard/admin/reports/$reportId" params={{ reportId: r.id }}
+                    className="rounded-full border border-border px-3 py-1 text-xs hover:bg-accent">View</Link>
+                  <Link to="/dashboard/admin/reports/$reportId" params={{ reportId: r.id }}
+                    className="rounded-full border border-border px-3 py-1 text-xs hover:bg-accent">Review</Link>
                   <button onClick={() => setStatus(r.id, "resolved")} className="rounded-full border border-border px-3 py-1 text-xs hover:bg-accent">Resolve</button>
                   <button onClick={() => setStatus(r.id, "dismissed")} className="rounded-full border border-border px-3 py-1 text-xs hover:bg-accent">Dismiss</button>
                 </div>
@@ -109,30 +109,7 @@ function AdminReports() {
             </tr>
           ))}
       </AdminTable>
-
-      {open && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-foreground/40 p-4" onClick={() => setOpen(null)}>
-          <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-float" onClick={(e) => e.stopPropagation()}>
-            <h2 className="font-display text-2xl">Report {open.id.slice(0, 8)}</h2>
-            <dl className="mt-4 space-y-2 text-sm">
-              <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Reporter</dt><dd>{names[open.reporter_id] || "—"}</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Reported</dt><dd>{names[open.reported_user_id] || "—"}</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Reason</dt><dd>{open.reason}</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Submitted</dt><dd>{formatDateTime(open.created_at)}</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Conversation</dt><dd>{open.suggestion_id ? open.suggestion_id.slice(0, 8) : "Not linked"}</dd></div>
-              <div className="flex justify-between gap-4"><dt className="text-muted-foreground">Status</dt><dd>{REPORT_STATUS_LABEL[(open.status as ReportStatus)] || open.status}</dd></div>
-            </dl>
-            {open.details && (
-              <p className="mt-4 rounded-2xl bg-accent/60 p-3 text-sm">{open.details}</p>
-            )}
-            <div className="mt-6 flex flex-wrap justify-end gap-2">
-              <button onClick={() => setStatus(open.id, "under_review")} className="rounded-full border border-border px-4 py-2 text-sm hover:bg-accent">Under review</button>
-              <button onClick={() => setStatus(open.id, "dismissed")} className="rounded-full border border-border px-4 py-2 text-sm hover:bg-accent">Dismiss</button>
-              <button onClick={() => setStatus(open.id, "resolved")} className="rounded-full bg-foreground px-4 py-2 text-sm text-background">Resolve</button>
-            </div>
-          </div>
-        </div>
-      )}
     </AdminShell>
   );
 }
+

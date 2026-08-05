@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Sparkles, LayoutDashboard, Upload, MessageCircle, Heart, Bell, Settings, Inbox, Scissors, Star, LogOut, BarChart3, CheckCircle2, UserCircle, Image as ImageIcon, ClipboardList, User as UserIcon, Store } from "lucide-react";
 import { getSession, refreshSession, signOut, type Role } from "@/lib/session";
 import { supabase } from "@/integrations/supabase/client";
+import { suspensionActive } from "@/lib/moderation";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 type Item = { to: string; hash?: string; label: string; icon: React.ComponentType<{ className?: string }> };
@@ -50,6 +51,14 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
         navigate({ to: "/login", replace: true });
         return;
       }
+      const { data: sp } = await supabase
+        .from("profiles").select("suspended, suspended_until").eq("id", user.id).maybeSingle();
+      if (!active) return;
+      if (suspensionActive((sp || {}) as any)) {
+        navigate({ to: "/suspended", replace: true });
+        return;
+      }
+
       const s = await refreshSession();
       if (active && s?.name) setName(s.name);
 

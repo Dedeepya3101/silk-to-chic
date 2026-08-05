@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TailorRouteImport } from './routes/tailor'
+import { Route as SuspendedRouteImport } from './routes/suspended'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as LoginRouteImport } from './routes/login'
@@ -42,12 +43,19 @@ import { Route as DashboardAdminSettingsRouteImport } from './routes/dashboard.a
 import { Route as DashboardAdminReportsRouteImport } from './routes/dashboard.admin_.reports'
 import { Route as DashboardAdminNotificationsRouteImport } from './routes/dashboard.admin_.notifications'
 import { Route as DashboardAdminBlocksRouteImport } from './routes/dashboard.admin_.blocks'
+import { Route as DashboardAdminAppealsRouteImport } from './routes/dashboard.admin_.appeals'
 import { Route as DashboardAdminAnalyticsRouteImport } from './routes/dashboard.admin_.analytics'
 import { Route as DashboardUserTailorsTailorIdRouteImport } from './routes/dashboard.user_.tailors.$tailorId'
+import { Route as DashboardAdminReportsReportIdRouteImport } from './routes/dashboard.admin_.reports_.$reportId'
 
 const TailorRoute = TailorRouteImport.update({
   id: '/tailor',
   path: '/tailor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SuspendedRoute = SuspendedRouteImport.update({
+  id: '/suspended',
+  path: '/suspended',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -218,6 +226,11 @@ const DashboardAdminBlocksRoute = DashboardAdminBlocksRouteImport.update({
   path: '/admin/blocks',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardAdminAppealsRoute = DashboardAdminAppealsRouteImport.update({
+  id: '/admin_/appeals',
+  path: '/admin/appeals',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const DashboardAdminAnalyticsRoute = DashboardAdminAnalyticsRouteImport.update({
   id: '/admin_/analytics',
   path: '/admin/analytics',
@@ -229,6 +242,12 @@ const DashboardUserTailorsTailorIdRoute =
     path: '/user/tailors/$tailorId',
     getParentRoute: () => DashboardRoute,
   } as any)
+const DashboardAdminReportsReportIdRoute =
+  DashboardAdminReportsReportIdRouteImport.update({
+    id: '/admin_/reports_/$reportId',
+    path: '/admin/reports/$reportId',
+    getParentRoute: () => DashboardRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -236,6 +255,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
   '/register': typeof RegisterRoute
+  '/suspended': typeof SuspendedRoute
   '/tailor': typeof TailorRoute
   '/admin/login': typeof AdminLoginRoute
   '/dashboard/admin': typeof DashboardAdminRoute
@@ -243,6 +263,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/user': typeof DashboardUserRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/admin/analytics': typeof DashboardAdminAnalyticsRoute
+  '/dashboard/admin/appeals': typeof DashboardAdminAppealsRoute
   '/dashboard/admin/blocks': typeof DashboardAdminBlocksRoute
   '/dashboard/admin/notifications': typeof DashboardAdminNotificationsRoute
   '/dashboard/admin/reports': typeof DashboardAdminReportsRoute
@@ -265,6 +286,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/user/profile': typeof DashboardUserProfileRoute
   '/dashboard/user/saved': typeof DashboardUserSavedRoute
   '/dashboard/user/suggestions': typeof DashboardUserSuggestionsRoute
+  '/dashboard/admin/reports/$reportId': typeof DashboardAdminReportsReportIdRoute
   '/dashboard/user/tailors/$tailorId': typeof DashboardUserTailorsTailorIdRoute
 }
 export interface FileRoutesByTo {
@@ -272,6 +294,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
   '/register': typeof RegisterRoute
+  '/suspended': typeof SuspendedRoute
   '/tailor': typeof TailorRoute
   '/admin/login': typeof AdminLoginRoute
   '/dashboard/admin': typeof DashboardAdminRoute
@@ -279,6 +302,7 @@ export interface FileRoutesByTo {
   '/dashboard/user': typeof DashboardUserRoute
   '/dashboard': typeof DashboardIndexRoute
   '/dashboard/admin/analytics': typeof DashboardAdminAnalyticsRoute
+  '/dashboard/admin/appeals': typeof DashboardAdminAppealsRoute
   '/dashboard/admin/blocks': typeof DashboardAdminBlocksRoute
   '/dashboard/admin/notifications': typeof DashboardAdminNotificationsRoute
   '/dashboard/admin/reports': typeof DashboardAdminReportsRoute
@@ -301,6 +325,7 @@ export interface FileRoutesByTo {
   '/dashboard/user/profile': typeof DashboardUserProfileRoute
   '/dashboard/user/saved': typeof DashboardUserSavedRoute
   '/dashboard/user/suggestions': typeof DashboardUserSuggestionsRoute
+  '/dashboard/admin/reports/$reportId': typeof DashboardAdminReportsReportIdRoute
   '/dashboard/user/tailors/$tailorId': typeof DashboardUserTailorsTailorIdRoute
 }
 export interface FileRoutesById {
@@ -310,6 +335,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/messages': typeof MessagesRoute
   '/register': typeof RegisterRoute
+  '/suspended': typeof SuspendedRoute
   '/tailor': typeof TailorRoute
   '/admin/login': typeof AdminLoginRoute
   '/dashboard/admin': typeof DashboardAdminRoute
@@ -317,6 +343,7 @@ export interface FileRoutesById {
   '/dashboard/user': typeof DashboardUserRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/admin_/analytics': typeof DashboardAdminAnalyticsRoute
+  '/dashboard/admin_/appeals': typeof DashboardAdminAppealsRoute
   '/dashboard/admin_/blocks': typeof DashboardAdminBlocksRoute
   '/dashboard/admin_/notifications': typeof DashboardAdminNotificationsRoute
   '/dashboard/admin_/reports': typeof DashboardAdminReportsRoute
@@ -339,6 +366,7 @@ export interface FileRoutesById {
   '/dashboard/user_/profile': typeof DashboardUserProfileRoute
   '/dashboard/user_/saved': typeof DashboardUserSavedRoute
   '/dashboard/user_/suggestions': typeof DashboardUserSuggestionsRoute
+  '/dashboard/admin_/reports_/$reportId': typeof DashboardAdminReportsReportIdRoute
   '/dashboard/user_/tailors/$tailorId': typeof DashboardUserTailorsTailorIdRoute
 }
 export interface FileRouteTypes {
@@ -349,6 +377,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/messages'
     | '/register'
+    | '/suspended'
     | '/tailor'
     | '/admin/login'
     | '/dashboard/admin'
@@ -356,6 +385,7 @@ export interface FileRouteTypes {
     | '/dashboard/user'
     | '/dashboard/'
     | '/dashboard/admin/analytics'
+    | '/dashboard/admin/appeals'
     | '/dashboard/admin/blocks'
     | '/dashboard/admin/notifications'
     | '/dashboard/admin/reports'
@@ -378,6 +408,7 @@ export interface FileRouteTypes {
     | '/dashboard/user/profile'
     | '/dashboard/user/saved'
     | '/dashboard/user/suggestions'
+    | '/dashboard/admin/reports/$reportId'
     | '/dashboard/user/tailors/$tailorId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -385,6 +416,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/messages'
     | '/register'
+    | '/suspended'
     | '/tailor'
     | '/admin/login'
     | '/dashboard/admin'
@@ -392,6 +424,7 @@ export interface FileRouteTypes {
     | '/dashboard/user'
     | '/dashboard'
     | '/dashboard/admin/analytics'
+    | '/dashboard/admin/appeals'
     | '/dashboard/admin/blocks'
     | '/dashboard/admin/notifications'
     | '/dashboard/admin/reports'
@@ -414,6 +447,7 @@ export interface FileRouteTypes {
     | '/dashboard/user/profile'
     | '/dashboard/user/saved'
     | '/dashboard/user/suggestions'
+    | '/dashboard/admin/reports/$reportId'
     | '/dashboard/user/tailors/$tailorId'
   id:
     | '__root__'
@@ -422,6 +456,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/messages'
     | '/register'
+    | '/suspended'
     | '/tailor'
     | '/admin/login'
     | '/dashboard/admin'
@@ -429,6 +464,7 @@ export interface FileRouteTypes {
     | '/dashboard/user'
     | '/dashboard/'
     | '/dashboard/admin_/analytics'
+    | '/dashboard/admin_/appeals'
     | '/dashboard/admin_/blocks'
     | '/dashboard/admin_/notifications'
     | '/dashboard/admin_/reports'
@@ -451,6 +487,7 @@ export interface FileRouteTypes {
     | '/dashboard/user_/profile'
     | '/dashboard/user_/saved'
     | '/dashboard/user_/suggestions'
+    | '/dashboard/admin_/reports_/$reportId'
     | '/dashboard/user_/tailors/$tailorId'
   fileRoutesById: FileRoutesById
 }
@@ -460,6 +497,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MessagesRoute: typeof MessagesRoute
   RegisterRoute: typeof RegisterRoute
+  SuspendedRoute: typeof SuspendedRoute
   TailorRoute: typeof TailorRoute
   AdminLoginRoute: typeof AdminLoginRoute
 }
@@ -471,6 +509,13 @@ declare module '@tanstack/react-router' {
       path: '/tailor'
       fullPath: '/tailor'
       preLoaderRoute: typeof TailorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/suspended': {
+      id: '/suspended'
+      path: '/suspended'
+      fullPath: '/suspended'
+      preLoaderRoute: typeof SuspendedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -697,6 +742,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAdminBlocksRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/admin_/appeals': {
+      id: '/dashboard/admin_/appeals'
+      path: '/admin/appeals'
+      fullPath: '/dashboard/admin/appeals'
+      preLoaderRoute: typeof DashboardAdminAppealsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/dashboard/admin_/analytics': {
       id: '/dashboard/admin_/analytics'
       path: '/admin/analytics'
@@ -711,6 +763,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardUserTailorsTailorIdRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/admin_/reports_/$reportId': {
+      id: '/dashboard/admin_/reports_/$reportId'
+      path: '/admin/reports/$reportId'
+      fullPath: '/dashboard/admin/reports/$reportId'
+      preLoaderRoute: typeof DashboardAdminReportsReportIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
   }
 }
 
@@ -720,6 +779,7 @@ interface DashboardRouteChildren {
   DashboardUserRoute: typeof DashboardUserRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   DashboardAdminAnalyticsRoute: typeof DashboardAdminAnalyticsRoute
+  DashboardAdminAppealsRoute: typeof DashboardAdminAppealsRoute
   DashboardAdminBlocksRoute: typeof DashboardAdminBlocksRoute
   DashboardAdminNotificationsRoute: typeof DashboardAdminNotificationsRoute
   DashboardAdminReportsRoute: typeof DashboardAdminReportsRoute
@@ -742,6 +802,7 @@ interface DashboardRouteChildren {
   DashboardUserProfileRoute: typeof DashboardUserProfileRoute
   DashboardUserSavedRoute: typeof DashboardUserSavedRoute
   DashboardUserSuggestionsRoute: typeof DashboardUserSuggestionsRoute
+  DashboardAdminReportsReportIdRoute: typeof DashboardAdminReportsReportIdRoute
   DashboardUserTailorsTailorIdRoute: typeof DashboardUserTailorsTailorIdRoute
 }
 
@@ -751,6 +812,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardUserRoute: DashboardUserRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   DashboardAdminAnalyticsRoute: DashboardAdminAnalyticsRoute,
+  DashboardAdminAppealsRoute: DashboardAdminAppealsRoute,
   DashboardAdminBlocksRoute: DashboardAdminBlocksRoute,
   DashboardAdminNotificationsRoute: DashboardAdminNotificationsRoute,
   DashboardAdminReportsRoute: DashboardAdminReportsRoute,
@@ -773,6 +835,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardUserProfileRoute: DashboardUserProfileRoute,
   DashboardUserSavedRoute: DashboardUserSavedRoute,
   DashboardUserSuggestionsRoute: DashboardUserSuggestionsRoute,
+  DashboardAdminReportsReportIdRoute: DashboardAdminReportsReportIdRoute,
   DashboardUserTailorsTailorIdRoute: DashboardUserTailorsTailorIdRoute,
 }
 
@@ -786,19 +849,10 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MessagesRoute: MessagesRoute,
   RegisterRoute: RegisterRoute,
+  SuspendedRoute: SuspendedRoute,
   TailorRoute: TailorRoute,
   AdminLoginRoute: AdminLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
