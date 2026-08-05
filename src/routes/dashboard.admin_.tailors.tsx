@@ -4,6 +4,12 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminShell, AdminTable, EmptyRow } from "@/components/AdminShell";
 import { VerifiedBadges } from "@/components/ChatSafety";
+import { SuspendDialog } from "@/components/SuspendDialog";
+import { useAdminGuard, formatDateTime } from "@/lib/admin";
+import {
+  suspendAccount, liftSuspension, logModerationAction, suspensionActive,
+  remainingTime, durationLabel, type DurationKey,
+} from "@/lib/moderation";
 
 export const Route = createFileRoute("/dashboard/admin_/tailors")({
   head: () => ({
@@ -23,12 +29,15 @@ export const Route = createFileRoute("/dashboard/admin_/tailors")({
 type Row = {
   id: string; name: string; city: string | null; avatar: string | null;
   portfolioCount: number; portfolio: string[]; suggestions: number; completed: number;
-  rating: number | null; suspended: boolean;
+  rating: number | null; suspended: boolean; suspended_until: string | null; suspension_reason: string | null;
   verified_tailor: boolean; identity_verified: boolean; portfolio_verified: boolean;
 };
 
 function AdminTailors() {
+  const { admin } = useAdminGuard();
   const [rows, setRows] = useState<Row[]>([]);
+  const [history, setHistory] = useState<any[]>([]);
+  const [suspendTarget, setSuspendTarget] = useState<Row | null>(null);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState<Row | null>(null);
 
@@ -45,6 +54,8 @@ function AdminTailors() {
         supabase.from("completed_projects").select("tailor_id").in("tailor_id", ids),
         supabase.from("reviews").select("tailor_id, rating").in("tailor_id", ids),
       ]);
+    const { data: susp } = await supabase.from("suspensions").select("*").in("user_id", ids).order("created_at", { ascending: false });
+    setHistory((susp || []) as any[]);
 
     const list: Row[] = ids.map((id) => {
       const p: any = (profiles || []).find((x: any) => x.id === id);
@@ -61,7 +72,9 @@ function AdminTailors() {
         suggestions: (suggestions || []).filter((s) => s.tailor_id === id).length,
         completed: (completions || []).filter((c) => c.tailor_id === id).length,
         rating: rs.length ? Math.round((rs.reduce((a, b) => a + b, 0) / rs.length) * 10) / 10 : null,
-        suspended: !!p?.suspended,
+        suspended: suspensionActive(p || {}),
+        suspended_until: p?.suspended_until ?? null,
+        suspension_reason: p?.suspension_reason ?? null,
         verified_tailor: !!tp?.verified_tailor,
         identity_verified: !!tp?.identity_verified,
         portfolio_verified: !!tp?.portfolio_verified,
@@ -74,15 +87,27 @@ function AdminTailors() {
 
   useEffect(() => { void load(); }, []);
 
-  const setSuspended = async (row: Row, suspended: boolean) => {
-    const { error } = await supabase
-      .from("profiles")
-      .update({ suspended, suspended_at: suspended ? new Date().toISOString() : null } as never)
-      .eq("id", row.id);
-    if (error) { toast.error(error.message); return; }
-    toast.success(suspended ? `${row.name} suspended` : `${row.name} reactivated`);
-    setRows((r) => r.map((x) => (x.id === row.id ? { ...x, suspended } : x)));
-    setOpen((o) => (o && o.id === row.id ? { ...o, suspended } : o));
+  const doSuspend = async (row: Row, opts: { duration: DurationKey; reason: string; details: string }) => {
+    if (!admin) return;
+    const err = await suspendAccount({
+      userId: row.id, adminId: admin.id, reason: opts.reason, details: opts.details, duration: opts.duration,
+    });
+    if (err) { toast.error(err.message); return; }
+    await logModerationAction({
+      targetUserId: row.id, adminId: admin.id, action: "suspension",
+      notes: `${opts.reason} · ${durationLabel(opts.duration)}`,
+    });
+    toast.success(`${row.name} suspended`);
+    void load();
+  };
+
+  const reactivate = async (row: Row) => {
+    if (!admin) return;
+    const err = await liftSuspension(row.id, admin.id);
+    if (err) { toast.error(err.message); return; }
+    await logModerationAction({ targetUserId: row.id, adminId: admin.id, action: "suspension_lifted" });
+    toast.success(`${row.name} reactivated`);
+    void load();
   };
 
   return (
@@ -111,8 +136,8 @@ function AdminTailors() {
                 <div className="flex flex-wrap gap-1.5">
                   <button onClick={() => setOpen(r)} className="rounded-full border border-border px-3 py-1 text-xs hover:bg-accent">View</button>
                   {r.suspended
-                    ? <button onClick={() => setSuspended(r, false)} className="rounded-full border border-border px-3 py-1 text-xs hover:bg-accent">Reactivate</button>
-                    : <button onClick={() => setSuspended(r, true)} className="rounded-full border border-border px-3 py-1 text-xs hover:bg-accent">Suspend</button>}
+                    ? <button onClick={() => void reactivate(r)} className="rounded-full border border-border px-3 py-1 text-xs hover:bg-accent">Lift suspension</button>
+                    : <button onClick={() => setSuspendTarget(r)} className="rounded-full border border-border px-3 py-1 text-xs hover:bg-accent">Suspend</button>}
                 </div>
               </td>
             </tr>
@@ -140,15 +165,37 @@ function AdminTailors() {
                   <img key={i} src={src} alt={`${open.name} portfolio ${i + 1}`} loading="lazy" className="h-20 w-20 rounded-xl object-cover" />
                 ))}
             </div>
+            <h3 className="mt-5 text-sm font-medium">Suspension history</h3>
+            <div className="mt-2 space-y-2">
+              {open.suspended && (
+                <p className="text-xs text-destructive">Currently suspended · {open.suspension_reason || "Policy violation"} · {remainingTime(open.suspended_until)}</p>
+              )}
+              {history.filter((h) => h.user_id === open.id).length === 0
+                ? <p className="text-xs text-muted-foreground">No suspensions on record.</p>
+                : history.filter((h) => h.user_id === open.id).map((h) => (
+                  <div key={h.id} className="rounded-2xl bg-accent/50 px-3 py-2 text-xs">
+                    {h.reason} · {durationLabel(h.duration)} · {formatDateTime(h.created_at)}{h.lifted_at ? " · lifted" : ""}
+                  </div>
+                ))}
+            </div>
             <div className="mt-6 flex justify-end gap-2">
               <button onClick={() => setOpen(null)} className="rounded-full border border-border px-4 py-2 text-sm hover:bg-accent">Close</button>
-              <button onClick={() => setSuspended(open, !open.suspended)} className="rounded-full bg-foreground px-4 py-2 text-sm text-background">
+              <button
+                onClick={() => (open.suspended ? void reactivate(open) : setSuspendTarget(open))}
+                className="rounded-full bg-foreground px-4 py-2 text-sm text-background"
+              >
                 {open.suspended ? "Reactivate" : "Suspend"}
               </button>
             </div>
           </div>
         </div>
       )}
+      <SuspendDialog
+        open={!!suspendTarget}
+        onOpenChange={(v) => { if (!v) setSuspendTarget(null); }}
+        memberName={suspendTarget?.name || "this tailor"}
+        onConfirm={async (opts) => { if (suspendTarget) await doSuspend(suspendTarget, opts); }}
+      />
     </AdminShell>
   );
 }
