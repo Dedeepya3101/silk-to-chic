@@ -3,7 +3,12 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminShell, AdminTable, EmptyRow } from "@/components/AdminShell";
-import { formatDate } from "@/lib/admin";
+import { SuspendDialog } from "@/components/SuspendDialog";
+import { formatDate, formatDateTime, useAdminGuard } from "@/lib/admin";
+import {
+  suspendAccount, liftSuspension, logModerationAction, suspensionActive,
+  remainingTime, durationLabel, type DurationKey,
+} from "@/lib/moderation";
 
 export const Route = createFileRoute("/dashboard/admin_/users")({
   head: () => ({
@@ -23,10 +28,19 @@ export const Route = createFileRoute("/dashboard/admin_/users")({
 type Row = {
   id: string; name: string; email: string | null; created_at: string;
   requests: number; completed: number; suspended: boolean; avatar: string | null; city: string | null;
+  suspended_until: string | null; suspension_reason: string | null;
+};
+
+type SuspensionRow = {
+  id: string; user_id: string; reason: string; details: string | null;
+  duration: string; created_at: string; ends_at: string | null; lifted_at: string | null;
 };
 
 function AdminUsers() {
+  const { admin } = useAdminGuard();
   const [rows, setRows] = useState<Row[]>([]);
+  const [history, setHistory] = useState<SuspensionRow[]>([]);
+  const [suspendTarget, setSuspendTarget] = useState<Row | null>(null);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [open, setOpen] = useState<Row | null>(null);
@@ -35,11 +49,13 @@ function AdminUsers() {
     const { data: roles } = await supabase.from("user_roles").select("user_id").filter("role", "eq", "user");
     const ids = (roles || []).map((r) => r.user_id);
     if (!ids.length) { setRows([]); setLoading(false); return; }
-    const [{ data: profiles }, { data: uploads }, { data: completions }] = await Promise.all([
+    const [{ data: profiles }, { data: uploads }, { data: completions }, { data: susp }] = await Promise.all([
       supabase.from("profiles").select("*").in("id", ids),
       supabase.from("saree_uploads").select("user_id, status").in("user_id", ids),
       supabase.from("completed_projects").select("user_id").in("user_id", ids),
+      supabase.from("suspensions").select("*").in("user_id", ids).order("created_at", { ascending: false }),
     ]);
+    setHistory((susp || []) as unknown as SuspensionRow[]);
     const list: Row[] = (profiles || []).map((p: any) => ({
       id: p.id,
       name: p.display_name || p.email || p.id.slice(0, 8),
@@ -47,7 +63,9 @@ function AdminUsers() {
       created_at: p.created_at,
       city: p.city,
       avatar: p.avatar_url,
-      suspended: !!p.suspended,
+      suspended: suspensionActive(p),
+      suspended_until: p.suspended_until ?? null,
+      suspension_reason: p.suspension_reason ?? null,
       requests: (uploads || []).filter((u) => u.user_id === p.id).length,
       completed: (completions || []).filter((c) => c.user_id === p.id).length,
     }));
@@ -58,15 +76,27 @@ function AdminUsers() {
 
   useEffect(() => { void load(); }, []);
 
-  const setSuspended = async (row: Row, suspended: boolean) => {
-    const { error } = await supabase
-      .from("profiles")
-      .update({ suspended, suspended_at: suspended ? new Date().toISOString() : null } as never)
-      .eq("id", row.id);
-    if (error) { toast.error(error.message); return; }
-    toast.success(suspended ? `${row.name} suspended` : `${row.name} reactivated`);
-    setRows((r) => r.map((x) => (x.id === row.id ? { ...x, suspended } : x)));
-    setOpen((o) => (o && o.id === row.id ? { ...o, suspended } : o));
+  const doSuspend = async (row: Row, opts: { duration: DurationKey; reason: string; details: string }) => {
+    if (!admin) return;
+    const err = await suspendAccount({
+      userId: row.id, adminId: admin.id, reason: opts.reason, details: opts.details, duration: opts.duration,
+    });
+    if (err) { toast.error(err.message); return; }
+    await logModerationAction({
+      targetUserId: row.id, adminId: admin.id, action: "suspension",
+      notes: `${opts.reason} · ${durationLabel(opts.duration)}`,
+    });
+    toast.success(`${row.name} suspended`);
+    void load();
+  };
+
+  const reactivate = async (row: Row) => {
+    if (!admin) return;
+    const err = await liftSuspension(row.id, admin.id);
+    if (err) { toast.error(err.message); return; }
+    await logModerationAction({ targetUserId: row.id, adminId: admin.id, action: "suspension_lifted" });
+    toast.success(`${row.name} reactivated`);
+    void load();
   };
 
   const shown = rows.filter((r) =>
@@ -97,8 +127,8 @@ function AdminUsers() {
                 <div className="flex flex-wrap gap-1.5">
                   <button onClick={() => setOpen(r)} className="rounded-full border border-border px-3 py-1 text-xs hover:bg-accent">View profile</button>
                   {r.suspended
-                    ? <button onClick={() => setSuspended(r, false)} className="rounded-full border border-border px-3 py-1 text-xs hover:bg-accent">Reactivate</button>
-                    : <button onClick={() => setSuspended(r, true)} className="rounded-full border border-border px-3 py-1 text-xs hover:bg-accent">Suspend</button>}
+                    ? <button onClick={() => void reactivate(r)} className="rounded-full border border-border px-3 py-1 text-xs hover:bg-accent">Lift suspension</button>
+                    : <button onClick={() => setSuspendTarget(r)} className="rounded-full border border-border px-3 py-1 text-xs hover:bg-accent">Suspend</button>}
                 </div>
               </td>
             </tr>
@@ -122,17 +152,39 @@ function AdminUsers() {
               <div className="flex justify-between"><dt className="text-muted-foreground">Joined</dt><dd>{formatDate(open.created_at)}</dd></div>
               <div className="flex justify-between"><dt className="text-muted-foreground">Requests submitted</dt><dd>{open.requests}</dd></div>
               <div className="flex justify-between"><dt className="text-muted-foreground">Completed requests</dt><dd>{open.completed}</dd></div>
-              <div className="flex justify-between"><dt className="text-muted-foreground">Status</dt><dd>{open.suspended ? "Suspended" : "Active"}</dd></div>
+              <div className="flex justify-between"><dt className="text-muted-foreground">Status</dt><dd>{open.suspended ? `Suspended · ${remainingTime(open.suspended_until)}` : "Active"}</dd></div>
+              {open.suspension_reason && <div className="flex justify-between"><dt className="text-muted-foreground">Reason</dt><dd>{open.suspension_reason}</dd></div>}
             </dl>
+            <h3 className="mt-5 text-sm font-medium">Suspension history</h3>
+            <div className="mt-2 space-y-2">
+              {history.filter((h) => h.user_id === open.id).length === 0
+                ? <p className="text-xs text-muted-foreground">No suspensions on record.</p>
+                : history.filter((h) => h.user_id === open.id).map((h) => (
+                  <div key={h.id} className="rounded-2xl bg-accent/50 px-3 py-2 text-xs">
+                    {h.reason} · {durationLabel(h.duration)} · {formatDateTime(h.created_at)}
+                    {h.lifted_at ? " · lifted" : ""}
+                    {h.details ? ` · ${h.details}` : ""}
+                  </div>
+                ))}
+            </div>
             <div className="mt-6 flex justify-end gap-2">
               <button onClick={() => setOpen(null)} className="rounded-full border border-border px-4 py-2 text-sm hover:bg-accent">Close</button>
-              <button onClick={() => setSuspended(open, !open.suspended)} className="rounded-full bg-foreground px-4 py-2 text-sm text-background">
+              <button
+                onClick={() => (open.suspended ? void reactivate(open) : setSuspendTarget(open))}
+                className="rounded-full bg-foreground px-4 py-2 text-sm text-background"
+              >
                 {open.suspended ? "Reactivate" : "Suspend"}
               </button>
             </div>
           </div>
         </div>
       )}
+      <SuspendDialog
+        open={!!suspendTarget}
+        onOpenChange={(v) => { if (!v) setSuspendTarget(null); }}
+        memberName={suspendTarget?.name || "this member"}
+        onConfirm={async (opts) => { if (suspendTarget) await doSuspend(suspendTarget, opts); }}
+      />
     </AdminShell>
   );
 }
