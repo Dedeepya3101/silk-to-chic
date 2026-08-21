@@ -53,6 +53,97 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_chat_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_style_ideas: {
+        Row: {
+          created_at: string
+          id: string
+          ideas: Json
+          saree_upload_id: string
+          selected_idea: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ideas?: Json
+          saree_upload_id: string
+          selected_idea?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ideas?: Json
+          saree_upload_id?: string
+          selected_idea?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_style_ideas_saree_upload_id_fkey"
+            columns: ["saree_upload_id"]
+            isOneToOne: false
+            referencedRelation: "saree_uploads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_tailor_matches: {
+        Row: {
+          created_at: string
+          id: string
+          matches: Json
+          saree_upload_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          matches?: Json
+          saree_upload_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          matches?: Json
+          saree_upload_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_tailor_matches_saree_upload_id_fkey"
+            columns: ["saree_upload_id"]
+            isOneToOne: false
+            referencedRelation: "saree_uploads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appeals: {
         Row: {
           admin_notes: string | null
@@ -400,6 +491,41 @@ export type Database = {
         }
         Relationships: []
       }
+      request_status_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          from_status: string | null
+          id: string
+          saree_upload_id: string
+          to_status: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          saree_upload_id: string
+          to_status: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          from_status?: string | null
+          id?: string
+          saree_upload_id?: string
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "request_status_history_saree_upload_id_fkey"
+            columns: ["saree_upload_id"]
+            isOneToOne: false
+            referencedRelation: "saree_uploads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reviews: {
         Row: {
           created_at: string
@@ -440,7 +566,9 @@ export type Database = {
       }
       saree_uploads: {
         Row: {
+          ai_style_note: string | null
           assigned_tailor_id: string | null
+          cancelled_at: string | null
           created_at: string
           description: string | null
           id: string
@@ -454,7 +582,9 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ai_style_note?: string | null
           assigned_tailor_id?: string | null
+          cancelled_at?: string | null
           created_at?: string
           description?: string | null
           id?: string
@@ -468,7 +598,9 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ai_style_note?: string | null
           assigned_tailor_id?: string | null
+          cancelled_at?: string | null
           created_at?: string
           description?: string | null
           id?: string
