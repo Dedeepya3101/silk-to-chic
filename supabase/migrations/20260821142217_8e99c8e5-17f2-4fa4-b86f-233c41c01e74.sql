@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.log_request_status_change() FROM PUBLIC, anon, authenticated;
