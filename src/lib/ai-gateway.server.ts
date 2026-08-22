@@ -7,9 +7,17 @@ const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 export const AI_MODEL = "google/gemini-3.7-flash";
 
 export type AiMessage = {
-  role: "system" | "user" | "assistant";
-  content: string | Array<Record<string, unknown>>;
+  role: "system" | "user" | "assistant" | "tool";
+  content: string | Array<Record<string, unknown>> | null;
+  tool_calls?: Array<{ id: string; type: "function"; function: { name: string; arguments: string } }>;
+  tool_call_id?: string;
 };
+
+export type AiToolDef = {
+  type: "function";
+  function: { name: string; description: string; parameters: Record<string, unknown> };
+};
+
 
 export class AiError extends Error {
   status: number;
@@ -74,4 +82,49 @@ export async function callAiJson<T>(messages: AiMessage[]): Promise<T> {
     }
     throw new AiError(502, "MatchO AI returned an unexpected response. Please try again.");
   }
+}
+
+/**
+ * Chat completion with tool calling. Returns the raw assistant message so the
+ * orchestrator can execute tools and continue the loop.
+ */
+export async function callAiWithTools(
+  messages: AiMessage[],
+  tools: AiToolDef[],
+  opts?: { temperature?: number },
+): Promise<{
+  content: string;
+  tool_calls: Array<{ id: string; type: "function"; function: { name: string; arguments: string } }>;
+}> {
+  const key = process.env["LOVABLE_API_KEY"];
+  if (!key) throw new AiError(401, friendly(401, ""));
+
+  const res = await fetch(GATEWAY_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Lovable-API-Key": key },
+    body: JSON.stringify({
+      model: AI_MODEL,
+      messages,
+      tools,
+      tool_choice: "auto",
+      temperature: opts?.temperature ?? 0.5,
+    }),
+  });
+
+  if (!res.ok) {
+    let message = "";
+    try {
+      const body = (await res.json()) as { error?: { message?: string }; message?: string };
+      message = body?.error?.message || body?.message || "";
+    } catch {
+      /* ignore */
+    }
+    throw new AiError(res.status, friendly(res.status, message));
+  }
+
+  const data = (await res.json()) as {
+    choices?: Array<{ message?: { content?: string; tool_calls?: never[] } }>;
+  };
+  const msg = data.choices?.[0]?.message;
+  return { content: msg?.content ?? "", tool_calls: (msg?.tool_calls as never[]) ?? [] };
 }
