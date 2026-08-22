@@ -77,6 +77,30 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_events: {
+        Row: {
+          created_at: string
+          event: string
+          id: string
+          props: Json
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event: string
+          id?: string
+          props?: Json
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event?: string
+          id?: string
+          props?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_style_ideas: {
         Row: {
           created_at: string
@@ -143,6 +167,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      ai_tool_runs: {
+        Row: {
+          agent: string
+          args: Json
+          created_at: string
+          error: string | null
+          id: string
+          ok: boolean
+          tool: string
+          user_id: string
+        }
+        Insert: {
+          agent: string
+          args?: Json
+          created_at?: string
+          error?: string | null
+          id?: string
+          ok?: boolean
+          tool: string
+          user_id: string
+        }
+        Update: {
+          agent?: string
+          args?: Json
+          created_at?: string
+          error?: string | null
+          id?: string
+          ok?: boolean
+          tool?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       appeals: {
         Row: {
