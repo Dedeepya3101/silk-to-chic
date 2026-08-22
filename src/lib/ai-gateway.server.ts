@@ -7,9 +7,17 @@ const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 export const AI_MODEL = "google/gemini-3.7-flash";
 
 export type AiMessage = {
-  role: "system" | "user" | "assistant";
-  content: string | Array<Record<string, unknown>>;
+  role: "system" | "user" | "assistant" | "tool";
+  content: string | Array<Record<string, unknown>> | null;
+  tool_calls?: Array<{ id: string; type: "function"; function: { name: string; arguments: string } }>;
+  tool_call_id?: string;
 };
+
+export type AiToolDef = {
+  type: "function";
+  function: { name: string; description: string; parameters: Record<string, unknown> };
+};
+
 
 export class AiError extends Error {
   status: number;
