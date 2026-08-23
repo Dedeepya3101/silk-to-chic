@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { PendingAction, StyleCard, AgentTurn } from "./agents.server";
+import type { AiMessage } from "./ai-gateway.server";
 import type { ScoredTailor } from "./matching";
 
 export type { PendingAction, StyleCard, AgentTurn };
@@ -57,7 +58,7 @@ export const assistantTurn = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<AssistantTurnResult> => {
     const { supabase, userId } = context;
     const agents = await import("./agents.server");
-    const { callAiWithTools, type AiMessage } = await import("./ai-gateway.server");
+    const { callAiWithTools } = await import("./ai-gateway.server");
 
     // history
     const { data: hist } = await supabase
@@ -88,7 +89,7 @@ export const assistantTurn = createServerFn({ method: "POST" })
       { role: "system", content: SYSTEM + sareeContext },
       ...history.map((h) => ({ role: h.role === "assistant" ? "assistant" : "user", content: h.content })),
       { role: "user", content: data.message },
-    ] as (typeof AiMessage extends never ? never : AiMessage)[];
+    ] as AiMessage[];
 
     const state: { styles: StyleCard[]; tailors: ScoredTailor[]; pending: PendingAction | null } = {
       styles: [],
