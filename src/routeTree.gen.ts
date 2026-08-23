@@ -27,6 +27,7 @@ import { Route as DashboardUserProfileRouteImport } from './routes/dashboard.use
 import { Route as DashboardUserNotificationsRouteImport } from './routes/dashboard.user_.notifications'
 import { Route as DashboardUserMessagesRouteImport } from './routes/dashboard.user_.messages'
 import { Route as DashboardUserCompletedRouteImport } from './routes/dashboard.user_.completed'
+import { Route as DashboardUserAssistantRouteImport } from './routes/dashboard.user_.assistant'
 import { Route as DashboardTailorStudioProfileRouteImport } from './routes/dashboard.tailor_.studio-profile'
 import { Route as DashboardTailorSettingsRouteImport } from './routes/dashboard.tailor_.settings'
 import { Route as DashboardTailorReviewsRouteImport } from './routes/dashboard.tailor_.reviews'
@@ -138,6 +139,11 @@ const DashboardUserMessagesRoute = DashboardUserMessagesRouteImport.update({
 const DashboardUserCompletedRoute = DashboardUserCompletedRouteImport.update({
   id: '/user_/completed',
   path: '/user/completed',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardUserAssistantRoute = DashboardUserAssistantRouteImport.update({
+  id: '/user_/assistant',
+  path: '/user/assistant',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardTailorStudioProfileRoute =
@@ -280,6 +286,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/tailor/reviews': typeof DashboardTailorReviewsRoute
   '/dashboard/tailor/settings': typeof DashboardTailorSettingsRoute
   '/dashboard/tailor/studio-profile': typeof DashboardTailorStudioProfileRoute
+  '/dashboard/user/assistant': typeof DashboardUserAssistantRoute
   '/dashboard/user/completed': typeof DashboardUserCompletedRoute
   '/dashboard/user/messages': typeof DashboardUserMessagesRoute
   '/dashboard/user/notifications': typeof DashboardUserNotificationsRoute
@@ -319,6 +326,7 @@ export interface FileRoutesByTo {
   '/dashboard/tailor/reviews': typeof DashboardTailorReviewsRoute
   '/dashboard/tailor/settings': typeof DashboardTailorSettingsRoute
   '/dashboard/tailor/studio-profile': typeof DashboardTailorStudioProfileRoute
+  '/dashboard/user/assistant': typeof DashboardUserAssistantRoute
   '/dashboard/user/completed': typeof DashboardUserCompletedRoute
   '/dashboard/user/messages': typeof DashboardUserMessagesRoute
   '/dashboard/user/notifications': typeof DashboardUserNotificationsRoute
@@ -360,6 +368,7 @@ export interface FileRoutesById {
   '/dashboard/tailor_/reviews': typeof DashboardTailorReviewsRoute
   '/dashboard/tailor_/settings': typeof DashboardTailorSettingsRoute
   '/dashboard/tailor_/studio-profile': typeof DashboardTailorStudioProfileRoute
+  '/dashboard/user_/assistant': typeof DashboardUserAssistantRoute
   '/dashboard/user_/completed': typeof DashboardUserCompletedRoute
   '/dashboard/user_/messages': typeof DashboardUserMessagesRoute
   '/dashboard/user_/notifications': typeof DashboardUserNotificationsRoute
@@ -402,6 +411,7 @@ export interface FileRouteTypes {
     | '/dashboard/tailor/reviews'
     | '/dashboard/tailor/settings'
     | '/dashboard/tailor/studio-profile'
+    | '/dashboard/user/assistant'
     | '/dashboard/user/completed'
     | '/dashboard/user/messages'
     | '/dashboard/user/notifications'
@@ -441,6 +451,7 @@ export interface FileRouteTypes {
     | '/dashboard/tailor/reviews'
     | '/dashboard/tailor/settings'
     | '/dashboard/tailor/studio-profile'
+    | '/dashboard/user/assistant'
     | '/dashboard/user/completed'
     | '/dashboard/user/messages'
     | '/dashboard/user/notifications'
@@ -481,6 +492,7 @@ export interface FileRouteTypes {
     | '/dashboard/tailor_/reviews'
     | '/dashboard/tailor_/settings'
     | '/dashboard/tailor_/studio-profile'
+    | '/dashboard/user_/assistant'
     | '/dashboard/user_/completed'
     | '/dashboard/user_/messages'
     | '/dashboard/user_/notifications'
@@ -628,6 +640,13 @@ declare module '@tanstack/react-router' {
       path: '/user/completed'
       fullPath: '/dashboard/user/completed'
       preLoaderRoute: typeof DashboardUserCompletedRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/user_/assistant': {
+      id: '/dashboard/user_/assistant'
+      path: '/user/assistant'
+      fullPath: '/dashboard/user/assistant'
+      preLoaderRoute: typeof DashboardUserAssistantRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/tailor_/studio-profile': {
@@ -796,6 +815,7 @@ interface DashboardRouteChildren {
   DashboardTailorReviewsRoute: typeof DashboardTailorReviewsRoute
   DashboardTailorSettingsRoute: typeof DashboardTailorSettingsRoute
   DashboardTailorStudioProfileRoute: typeof DashboardTailorStudioProfileRoute
+  DashboardUserAssistantRoute: typeof DashboardUserAssistantRoute
   DashboardUserCompletedRoute: typeof DashboardUserCompletedRoute
   DashboardUserMessagesRoute: typeof DashboardUserMessagesRoute
   DashboardUserNotificationsRoute: typeof DashboardUserNotificationsRoute
@@ -829,6 +849,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardTailorReviewsRoute: DashboardTailorReviewsRoute,
   DashboardTailorSettingsRoute: DashboardTailorSettingsRoute,
   DashboardTailorStudioProfileRoute: DashboardTailorStudioProfileRoute,
+  DashboardUserAssistantRoute: DashboardUserAssistantRoute,
   DashboardUserCompletedRoute: DashboardUserCompletedRoute,
   DashboardUserMessagesRoute: DashboardUserMessagesRoute,
   DashboardUserNotificationsRoute: DashboardUserNotificationsRoute,

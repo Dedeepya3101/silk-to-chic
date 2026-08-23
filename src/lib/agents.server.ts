@@ -132,16 +132,18 @@ export async function runStyleAgent(
   userId: string,
   input: { saree_upload_id?: string | null; description?: string | null; occasion?: string | null; budget?: string | null; preferences?: string | null },
 ): Promise<StyleCard[]> {
-  let upload: { id: string; image_url: string; title: string | null; description: string | null; occasion: string | null } | null = null;
+  type SareeBrief = { id: string; image_url: string; title: string | null; description: string | null; occasion: string | null };
+  let upload: SareeBrief | null = null;
   if (input.saree_upload_id) {
     const { data } = await db
       .from("saree_uploads")
       .select("id, image_url, title, description, occasion")
       .eq("id", input.saree_upload_id)
       .eq("user_id", userId)
-      .maybeSingle();
-    upload = data as never;
+      .maybeSingle<SareeBrief>();
+    upload = data ?? null;
   }
+
 
   const { data: profile } = await db.from("profiles").select("city").eq("id", userId).maybeSingle();
 
