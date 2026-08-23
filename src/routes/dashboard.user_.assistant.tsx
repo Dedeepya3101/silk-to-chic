@@ -8,7 +8,7 @@ import { assistantTurn, confirmAction, loadAssistantHistory, clearAssistantHisto
 import type { PendingAction, StyleCard } from "@/lib/agents.server";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/dashboard/user/assistant")({
+export const Route = createFileRoute("/dashboard/user_/assistant")({
   head: () => ({
     meta: [
       { title: "MatchO AI Style Assistant — Saree Styling & Tailor Matching" },
