@@ -119,15 +119,13 @@ async function loadCandidates(db: Db): Promise<TailorCandidate[]> {
     db.from("completed_projects").select("tailor_id").in("tailor_id", ids),
   ]);
 
-  const pm = new Map(((profs || []) as Record<string, never>[]).map((p) => [p["id"] as unknown as string, p]));
+  const pm = new Map((profs || []).map((p) => [p.id, p]));
   return ids
-    .filter((id) => !(pm.get(id) as { suspended?: boolean } | undefined)?.suspended)
+    .filter((id) => !pm.get(id)?.suspended)
     .map((id) => {
       const t = studioMap.get(id);
-      const p = pm.get(id) as unknown as {
-        display_name?: string | null; city?: string | null; tailor_category?: string | null;
-        languages?: string | null; experience_years?: number | null; specialization?: string | null;
-      } | undefined;
+      const p = pm.get(id);
+
       const rs = (reviews || []).filter((r) => r.tailor_id === id);
       const pf = (portfolio || []).filter((r) => r.tailor_id === id);
       return {
