@@ -13,6 +13,8 @@ const userNav: Item[] = [
   { to: "/dashboard/user", hash: "upload", label: "Upload saree", icon: Upload },
   { to: "/dashboard/user", hash: "requests", label: "Active requests", icon: Sparkles },
   { to: "/dashboard/user/assistant", label: "AI Assistant", icon: Bot },
+  { to: "/dashboard/user/suggestions", label: "Suggestions", icon: Scissors },
+
 
   { to: "/dashboard/user/messages", label: "Messages", icon: MessageCircle },
   { to: "/dashboard/user/saved", label: "Saved tailors", icon: Heart },
