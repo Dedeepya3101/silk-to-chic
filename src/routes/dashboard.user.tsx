@@ -156,7 +156,7 @@ function UserDashboard() {
             </p>
             <Link
               to="/dashboard/user/assistant"
-              search={uploads[0] ? { saree: uploads[0].id } : {}}
+              search={{ saree: uploads[0]?.id }}
               className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-gradient-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-soft"
             >
               <Sparkles className="h-4 w-4" /> Open AI Assistant
