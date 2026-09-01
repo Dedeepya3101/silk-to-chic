@@ -10,12 +10,13 @@
  */
 export const MATCH_WEIGHTS = {
   location: 22, // same city / nearby city as the member
-  specialization: 22, // specialization matches the requested outfit type
+  specialization: 20, // specialization / category matches the requested outfit type
   portfolio: 12, // portfolio depth + relevance of portfolio titles
   rating: 18, // average rating quality
-  reviewVolume: 8, // how much review evidence exists
+  reviewVolume: 6, // how much review evidence exists
   completed: 10, // previously completed transformations on MatchO
   verification: 8, // verified tailor / identity + portfolio verified
+  experience: 4, // years of stitching experience recorded on MatchO
 } as const;
 
 export const MAX_MATCH_SCORE = Object.values(MATCH_WEIGHTS).reduce((a, b) => a + b, 0);
@@ -26,6 +27,8 @@ export type TailorCandidate = {
   studio: string | null;
   city: string | null;
   specialization: string | null;
+  tailor_category?: string | null;
+  languages?: string | null;
   experience_years: number | null;
   verified: boolean;
   identity_verified?: boolean;
@@ -43,6 +46,7 @@ export type ScoredTailor = TailorCandidate & {
   breakdown: Record<keyof typeof MATCH_WEIGHTS, number>;
   reasons: string[];
 };
+
 
 const norm = (s: string | null | undefined) => (s || "").toLowerCase().trim();
 
