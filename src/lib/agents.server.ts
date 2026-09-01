@@ -82,48 +82,76 @@ async function logTool(db: Db, userId: string, agent: string, tool: string, args
 /* ------------------------------------------------------------- data access */
 
 async function loadCandidates(db: Db): Promise<TailorCandidate[]> {
-  const { data: tps } = await db
-    .from("tailor_profiles")
-    .select(
-      "tailor_id, studio_name, specialization, location, experience_years, verified_tailor, identity_verified, portfolio_verified, verification_status",
-    );
-  const rows = (tps || []).filter((t) => t.verification_status !== "rejected");
-  if (!rows.length) return [];
+  type Tp = {
+    tailor_id: string;
+    studio_name: string | null;
+    specialization: string | null;
+    location: string | null;
+    experience_years: number | null;
+    verified_tailor: boolean | null;
+    identity_verified: boolean | null;
+    portfolio_verified: boolean | null;
+    verification_status: string | null;
+  };
+  const [{ data: tps }, { data: roleRows }] = await Promise.all([
+    db
+      .from("tailor_profiles")
+      .select(
+        "tailor_id, studio_name, specialization, location, experience_years, verified_tailor, identity_verified, portfolio_verified, verification_status",
+      ),
+    db.from("user_roles").select("user_id").eq("role", "tailor"),
+  ]);
 
-  const ids = rows.map((t) => t.tailor_id);
+  const studios = ((tps || []) as Tp[]).filter((t) => t.verification_status !== "rejected");
+  const studioMap = new Map(studios.map((t) => [t.tailor_id, t]));
+
+  // Tailors who signed up but have not completed a studio profile yet are still
+  // real MatchO tailors — include them with whatever data exists on `profiles`.
+  const ids = Array.from(
+    new Set([...studios.map((t) => t.tailor_id), ...((roleRows || []) as { user_id: string }[]).map((r) => r.user_id)]),
+  );
+  if (!ids.length) return [];
+
   const [{ data: profs }, { data: reviews }, { data: portfolio }, { data: completed }] = await Promise.all([
-    db.from("profiles").select("id, display_name, city, suspended").in("id", ids),
+    db.from("profiles").select("id, display_name, city, suspended, tailor_category, languages, experience_years, specialization").in("id", ids),
     db.from("reviews").select("tailor_id, rating").in("tailor_id", ids),
     db.from("portfolio_items").select("tailor_id, title, after_image").in("tailor_id", ids),
     db.from("completed_projects").select("tailor_id").in("tailor_id", ids),
   ]);
 
-  const pm = new Map((profs || []).map((p) => [p.id, p]));
-  return rows
-    .filter((t) => !pm.get(t.tailor_id)?.suspended)
-    .map((t) => {
-      const p = pm.get(t.tailor_id);
-      const rs = (reviews || []).filter((r) => r.tailor_id === t.tailor_id);
-      const pf = (portfolio || []).filter((r) => r.tailor_id === t.tailor_id);
+  const pm = new Map(((profs || []) as Record<string, never>[]).map((p) => [p["id"] as unknown as string, p]));
+  return ids
+    .filter((id) => !(pm.get(id) as { suspended?: boolean } | undefined)?.suspended)
+    .map((id) => {
+      const t = studioMap.get(id);
+      const p = pm.get(id) as unknown as {
+        display_name?: string | null; city?: string | null; tailor_category?: string | null;
+        languages?: string | null; experience_years?: number | null; specialization?: string | null;
+      } | undefined;
+      const rs = (reviews || []).filter((r) => r.tailor_id === id);
+      const pf = (portfolio || []).filter((r) => r.tailor_id === id);
       return {
-        tailor_id: t.tailor_id,
+        tailor_id: id,
         name: p?.display_name || "Tailor",
-        studio: t.studio_name,
-        city: t.location || p?.city || null,
-        specialization: t.specialization,
-        experience_years: t.experience_years,
-        verified: !!t.verified_tailor,
-        identity_verified: !!t.identity_verified,
-        portfolio_verified: !!t.portfolio_verified,
+        studio: t?.studio_name ?? null,
+        city: t?.location || p?.city || null,
+        specialization: t?.specialization || p?.specialization || null,
+        tailor_category: p?.tailor_category ?? null,
+        languages: p?.languages ?? null,
+        experience_years: t?.experience_years ?? p?.experience_years ?? null,
+        verified: !!t?.verified_tailor,
+        identity_verified: !!t?.identity_verified,
+        portfolio_verified: !!t?.portfolio_verified,
         avg_rating: rs.length ? Number((rs.reduce((a, r) => a + (r.rating || 0), 0) / rs.length).toFixed(2)) : null,
         review_count: rs.length,
-        completed_projects: (completed || []).filter((r) => r.tailor_id === t.tailor_id).length,
+        completed_projects: (completed || []).filter((r) => r.tailor_id === id).length,
         portfolio_items: pf.length,
         portfolio_titles: pf.map((r) => r.title).filter(Boolean).slice(0, 5) as string[],
         portfolio_images: pf.map((r) => r.after_image).filter(Boolean).slice(0, 3) as string[],
       } satisfies TailorCandidate;
     });
 }
+
 
 /* ------------------------------------------- Agent A: Saree Style Agent */
 
