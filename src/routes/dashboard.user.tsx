@@ -109,6 +109,14 @@ function UserDashboard() {
                         <StatusBadge status={u.status || "open"} />
                       </div>
                       <p className="line-clamp-2 text-sm text-muted-foreground">{u.description}</p>
+                      <Link
+                        to="/dashboard/user/assistant"
+                        search={{ saree: u.id }}
+                        className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-xs text-accent-foreground hover:bg-accent/70"
+                      >
+                        <Sparkles className="h-3 w-3" /> Ask AI about this saree
+                      </Link>
+
                       {u.status === "in_progress" && u.tailor_marked_completed && !u.user_confirmed_completion && (
                         <p className="mt-2 text-xs text-primary">Tailor marked complete — confirm in Suggestions.</p>
                       )}
@@ -141,7 +149,21 @@ function UserDashboard() {
         </div>
 
         <div className="space-y-5">
+          <div className="glass rounded-3xl p-5 shadow-soft">
+            <h2 className="font-display text-lg">MatchO AI Assistant</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Get style ideas for your saree and real tailor matches — you confirm before anything happens.
+            </p>
+            <Link
+              to="/dashboard/user/assistant"
+              search={{ saree: uploads[0]?.id }}
+              className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-gradient-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-soft"
+            >
+              <Sparkles className="h-4 w-4" /> Open AI Assistant
+            </Link>
+          </div>
           <Panel title="Saved tailors" id="saved" action={<Link to="/dashboard/user/saved" className="text-sm text-primary">View all →</Link>}>
+
             {saved.length === 0 ? (
               <EmptyMini icon={Heart} text="Save tailors from their profile to see them here." />
             ) : (

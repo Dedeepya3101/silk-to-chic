@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Sparkles, LayoutDashboard, Upload, MessageCircle, Heart, Bell, Settings, Inbox, Scissors, Star, LogOut, BarChart3, CheckCircle2, UserCircle, Image as ImageIcon, ClipboardList, User as UserIcon, Store } from "lucide-react";
+import { Sparkles, LayoutDashboard, Upload, MessageCircle, Heart, Bell, Settings, Inbox, Scissors, Star, LogOut, BarChart3, CheckCircle2, UserCircle, Image as ImageIcon, ClipboardList, User as UserIcon, Store, Bot } from "lucide-react";
 import { getSession, refreshSession, signOut, type Role } from "@/lib/session";
 import { supabase } from "@/integrations/supabase/client";
 import { suspensionActive } from "@/lib/moderation";
@@ -12,7 +12,10 @@ const userNav: Item[] = [
   { to: "/dashboard/user", label: "Overview", icon: LayoutDashboard },
   { to: "/dashboard/user", hash: "upload", label: "Upload saree", icon: Upload },
   { to: "/dashboard/user", hash: "requests", label: "Active requests", icon: Sparkles },
+  { to: "/dashboard/user/assistant", label: "AI Assistant", icon: Bot },
   { to: "/dashboard/user/suggestions", label: "Suggestions", icon: Scissors },
+
+
   { to: "/dashboard/user/messages", label: "Messages", icon: MessageCircle },
   { to: "/dashboard/user/saved", label: "Saved tailors", icon: Heart },
   { to: "/dashboard/user/completed", label: "Completed", icon: CheckCircle2 },
