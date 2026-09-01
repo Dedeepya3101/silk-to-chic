@@ -61,27 +61,39 @@ function AssistantPage() {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !active) return;
-      const { data } = await supabase
+      const { data, error: loadErr } = await supabase
         .from("saree_uploads")
         .select("id, title, image_url, description, occasion, status")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
       if (!active) return;
+      if (loadErr) {
+        console.error("[assistant] failed to load sarees", loadErr);
+        toast.error("We couldn't load your sarees right now.");
+      }
       const list = (data || []) as Saree[];
       setSarees(list);
-      setSelected((cur) => cur || list[0]?.id || null);
+      // Only ever select a saree that belongs to this member (RLS already scopes
+      // the query, so an unknown/deleted id simply isn't in the list).
+      if (saree && !list.some((s) => s.id === saree)) {
+        setSareeMissing(true);
+        setSelected(list[0]?.id || null);
+      } else {
+        setSelected((cur) => cur || list[0]?.id || null);
+      }
       try {
         const res = await loadHistory({});
         if (active) {
           setBubbles(res.messages.map((m) => ({ id: m.id, role: m.role, content: m.content })));
         }
-      } catch {
-        /* history is optional */
+      } catch (e) {
+        console.error("[assistant] history unavailable", e);
       }
       if (active) setBooting(false);
     })();
     return () => { active = false; };
-  }, [loadHistory]);
+  }, [loadHistory, saree]);
+
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [bubbles, busy, pending]);
   useEffect(() => { if (!busy) taRef.current?.focus(); }, [busy]);
