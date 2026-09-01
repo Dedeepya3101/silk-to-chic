@@ -80,16 +80,17 @@ export function scoreTailor(
     location = 0.25;
   }
 
-  // Specialization vs requested outfit type / style keywords.
-  const spec = norm(t.specialization);
+  // Specialization / category vs requested outfit type / style keywords.
+  const spec = norm([t.specialization, t.tailor_category].filter(Boolean).join(" "));
+  const specLabel = t.specialization || t.tailor_category;
   let specialization = 0;
   if (spec) {
     if (outfit && (spec.includes(outfit) || outfit.includes(spec))) {
       specialization = 1;
-      reasons.push(`Specialises in ${t.specialization}`);
+      reasons.push(`Specialises in ${specLabel}`);
     } else {
       specialization = textMatch(spec, keywords) * 0.8;
-      if (specialization > 0.3) reasons.push(`Specialisation (${t.specialization}) fits your style brief`);
+      if (specialization > 0.3) reasons.push(`Specialisation (${specLabel}) fits your style brief`);
     }
   }
 
@@ -119,6 +120,14 @@ export function scoreTailor(
   else if (t.identity_verified || t.portfolio_verified) verification = 0.5;
   if (t.verified) reasons.push("Verified tailor on MatchO");
 
+  // Experience — 8+ recorded years is full credit.
+  const experience = Math.min(1, Math.max(0, (t.experience_years || 0) / 8));
+  if ((t.experience_years || 0) >= 3) {
+    reasons.push(`${t.experience_years} years of tailoring experience`);
+  }
+
+  if (t.languages) reasons.push(`Speaks ${t.languages}`);
+
   const breakdown = {
     location: location * MATCH_WEIGHTS.location,
     specialization: specialization * MATCH_WEIGHTS.specialization,
@@ -127,7 +136,9 @@ export function scoreTailor(
     reviewVolume: reviewVolume * MATCH_WEIGHTS.reviewVolume,
     completed: completed * MATCH_WEIGHTS.completed,
     verification: verification * MATCH_WEIGHTS.verification,
+    experience: experience * MATCH_WEIGHTS.experience,
   };
+
 
   const score = Math.round(Object.values(breakdown).reduce((a, b) => a + b, 0));
   return { ...t, score, breakdown, reasons };
