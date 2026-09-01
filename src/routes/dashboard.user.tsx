@@ -109,6 +109,14 @@ function UserDashboard() {
                         <StatusBadge status={u.status || "open"} />
                       </div>
                       <p className="line-clamp-2 text-sm text-muted-foreground">{u.description}</p>
+                      <Link
+                        to="/dashboard/user/assistant"
+                        search={{ saree: u.id }}
+                        className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-xs text-accent-foreground hover:bg-accent/70"
+                      >
+                        <Sparkles className="h-3 w-3" /> Ask AI about this saree
+                      </Link>
+
                       {u.status === "in_progress" && u.tailor_marked_completed && !u.user_confirmed_completion && (
                         <p className="mt-2 text-xs text-primary">Tailor marked complete — confirm in Suggestions.</p>
                       )}
