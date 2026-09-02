@@ -540,6 +540,33 @@ export async function executeAction(db: Db, userId: string, action: PendingActio
     .eq("id", action.saree_upload_id)
     .eq("user_id", userId);
   if (error) throw new Error(error.message);
+
+  // Persist the full selected design against the saree, reusing ai_style_ideas.
+  const { data: existing } = await db
+    .from("ai_style_ideas")
+    .select("id")
+    .eq("saree_upload_id", action.saree_upload_id)
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle<{ id: string }>();
+  if (existing?.id) {
+    const { error: upErr } = await db
+      .from("ai_style_ideas")
+      .update({ selected_idea: action.style as never } as never)
+      .eq("id", existing.id);
+    if (upErr) throw new Error(upErr.message);
+  } else {
+    const { error: insErr } = await db.from("ai_style_ideas").insert({
+      saree_upload_id: action.saree_upload_id,
+      user_id: userId,
+      ideas: [action.style] as never,
+      selected_idea: action.style as never,
+    } as never);
+    if (insErr) throw new Error(insErr.message);
+  }
+
   await logEvent(db, userId, "style_selected", { saree_upload_id: action.saree_upload_id, style: action.style.style_name });
   return "Style brief attached to your request — tailors will see it with your saree.";
+
 }
