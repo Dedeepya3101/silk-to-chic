@@ -53,6 +53,7 @@ function AssistantPage() {
   const [lastMessage, setLastMessage] = useState<string | null>(null);
   const [pending, setPending] = useState<PendingAction | null>(null);
   const [confirming, setConfirming] = useState(false);
+  const [sareeMissing, setSareeMissing] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
 
