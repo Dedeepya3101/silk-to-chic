@@ -54,6 +54,9 @@ function AssistantPage() {
   const [pending, setPending] = useState<PendingAction | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [sareeMissing, setSareeMissing] = useState(false);
+  const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
+  const [savingStyle, setSavingStyle] = useState<string | null>(null);
+
   const endRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
 
@@ -132,6 +135,7 @@ function AssistantPage() {
       const res = await confirm({ data: { action: pending } });
       toast.success(res.message);
       setBubbles((b) => [...b, { id: `c-${Date.now()}`, role: "assistant", content: res.message }]);
+      if (pending.kind === "select_style") setSelectedStyle(pending.style.style_name);
       setPending(null);
     } catch (e) {
       toast.error((e as Error)?.message || "Could not complete that action.");
@@ -140,7 +144,54 @@ function AssistantPage() {
     }
   };
 
+  // Load any design already selected for this saree so it stays selected after refresh.
+  useEffect(() => {
+    let live = true;
+    if (!selected) { setSelectedStyle(null); return; }
+    (async () => {
+      const { data, error: selErr } = await supabase
+        .from("ai_style_ideas")
+        .select("selected_idea, created_at")
+        .eq("saree_upload_id", selected)
+        .not("selected_idea", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (!live) return;
+      if (selErr) { console.error("[assistant] could not load selected design", selErr); return; }
+      const idea = (data?.selected_idea ?? null) as { style_name?: string } | null;
+      setSelectedStyle(idea?.style_name ?? null);
+    })();
+    return () => { live = false; };
+  }, [selected]);
+
+  const pickStyle = useCallback(async (style: StyleCard) => {
+    if (!selected) { toast.error("Pick a saree first so we can save this design to it."); return; }
+    if (savingStyle) return;
+    setSavingStyle(style.style_name);
+    try {
+      const res = await confirm({
+        data: {
+          action: {
+            kind: "select_style" as const,
+            saree_upload_id: selected,
+            style,
+            label: `Select "${style.style_name}" for this saree`,
+          },
+        },
+      });
+      setSelectedStyle(style.style_name);
+      toast.success(res.message);
+    } catch (e) {
+      console.error("[assistant] failed to save selected design", e);
+      toast.error("We couldn't save that design. Please try again.");
+    } finally {
+      setSavingStyle(null);
+    }
+  }, [confirm, savingStyle, selected]);
+
   const active = sarees.find((s) => s.id === selected) || null;
+
 
   return (
     <AppShell role="user" title="MatchO AI Style Assistant">
