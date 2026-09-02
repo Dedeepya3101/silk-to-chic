@@ -54,6 +54,9 @@ function AssistantPage() {
   const [pending, setPending] = useState<PendingAction | null>(null);
   const [confirming, setConfirming] = useState(false);
   const [sareeMissing, setSareeMissing] = useState(false);
+  const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
+  const [savingStyle, setSavingStyle] = useState<string | null>(null);
+
   const endRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
 
