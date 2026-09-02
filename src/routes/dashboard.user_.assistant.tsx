@@ -249,6 +249,11 @@ function AssistantPage() {
         <aside className="space-y-4">
           <div className="glass rounded-3xl p-5 shadow-soft">
             <h2 className="font-display text-lg">Your saree</h2>
+            {sareeMissing && (
+              <p className="mt-3 rounded-2xl border border-primary/30 bg-accent/40 p-3 text-xs text-muted-foreground">
+                That saree isn't available — showing your latest upload instead
+              </p>
+            )}
             {sarees.length === 0 ? (
               <div className="mt-3 rounded-2xl bg-accent/40 p-4 text-center text-sm text-muted-foreground">
                 No sarees uploaded yet.
