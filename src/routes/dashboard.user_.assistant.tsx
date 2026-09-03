@@ -102,6 +102,8 @@ function AssistantPage() {
 
   const endRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const restoredScroll = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -126,12 +128,14 @@ function AssistantPage() {
         setSareeMissing(true);
         setSelected(list[0]?.id || null);
       } else {
-        setSelected((cur) => cur || list[0]?.id || null);
+        setSelected((cur) => (cur && list.some((s) => s.id === cur) ? cur : list[0]?.id || null));
       }
       try {
         const res = await loadHistory({});
         if (active) {
-          setBubbles(res.messages.map((m) => ({ id: m.id, role: m.role, content: m.content })));
+          const history = res.messages.map((m) => ({ id: m.id, role: m.role, content: m.content })) as Bubble[];
+          // Keep the cards generated in this session attached to the restored history.
+          setBubbles((cur) => mergeHistory(history, readCache()?.bubbles ?? cur));
         }
       } catch (e) {
         console.error("[assistant] history unavailable", e);
@@ -141,9 +145,35 @@ function AssistantPage() {
     return () => { active = false; };
   }, [loadHistory, saree]);
 
+  // Persist conversation + context so Back from a tailor profile restores it.
+  useEffect(() => {
+    if (booting) return;
+    writeCache({ bubbles, selected });
+  }, [bubbles, selected, booting]);
 
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [bubbles, busy, pending]);
+  // Restore scroll position once after a Back navigation; otherwise follow the latest message.
+  useEffect(() => {
+    if (booting) return;
+    const cached = readCache();
+    if (!restoredScroll.current && cached?.scrollTop && scrollRef.current) {
+      restoredScroll.current = true;
+      scrollRef.current.scrollTop = cached.scrollTop;
+      return;
+    }
+    restoredScroll.current = true;
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [bubbles, busy, pending, booting]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onScroll = () => writeCache({ scrollTop: el.scrollTop });
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [booting]);
+
   useEffect(() => { if (!busy) taRef.current?.focus(); }, [busy]);
+
 
   const send = useCallback(async (text: string) => {
     const message = text.trim();
