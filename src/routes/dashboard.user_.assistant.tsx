@@ -86,8 +86,9 @@ function AssistantPage() {
   const clearHistory = useServerFn(clearAssistantHistory);
 
   const [sarees, setSarees] = useState<Saree[]>([]);
-  const [selected, setSelected] = useState<string | null>(saree ?? null);
-  const [bubbles, setBubbles] = useState<Bubble[]>([]);
+  const [selected, setSelected] = useState<string | null>(() => saree ?? readCache()?.selected ?? null);
+  const [bubbles, setBubbles] = useState<Bubble[]>(() => readCache()?.bubbles ?? []);
+
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [booting, setBooting] = useState(true);
