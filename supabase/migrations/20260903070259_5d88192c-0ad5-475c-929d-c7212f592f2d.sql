@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.notify_user_on_suggestion() FROM PUBLIC, anon, authenticated;
