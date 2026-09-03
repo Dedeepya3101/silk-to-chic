@@ -423,7 +423,7 @@ function AssistantPage() {
             </ul>
             {bubbles.length > 0 && (
               <button
-                onClick={async () => { await clearHistory({}); setBubbles([]); setPending(null); }}
+                onClick={async () => { await clearHistory({}); clearCache(); setBubbles([]); setPending(null); }}
                 className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-card px-3 py-1.5 text-xs shadow-soft">
                 <Trash2 className="h-3 w-3" /> Clear conversation
               </button>
