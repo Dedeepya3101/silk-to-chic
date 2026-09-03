@@ -91,7 +91,7 @@ function AssistantPage() {
 
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
-  const [booting, setBooting] = useState(true);
+  const [booting, setBooting] = useState(() => (readCache()?.bubbles?.length ?? 0) === 0);
   const [error, setError] = useState<string | null>(null);
   const [lastMessage, setLastMessage] = useState<string | null>(null);
   const [pending, setPending] = useState<PendingAction | null>(null);
