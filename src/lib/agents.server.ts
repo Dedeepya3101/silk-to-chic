@@ -517,16 +517,55 @@ export async function runTool(
 
 export async function executeAction(db: Db, userId: string, action: PendingAction): Promise<string> {
   if (action.kind === "send_message") {
-    const { error } = await db.from("messages").insert({
-      sender_id: userId,
-      recipient_id: action.tailor_id,
-      saree_upload_id: action.saree_upload_id,
-      content: action.content,
+    // Reuse the existing conversation system (suggestions thread + suggestion_replies).
+    let sareeId = action.saree_upload_id;
+    if (!sareeId) {
+      const { data: latest } = await db
+        .from("saree_uploads")
+        .select("id")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle<{ id: string }>();
+      sareeId = latest?.id ?? null;
+    }
+    if (!sareeId) throw new Error("Upload a saree first so the tailor knows what you'd like redesigned.");
+
+    const { data: thread } = await db
+      .from("suggestions")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("tailor_id", action.tailor_id)
+      .eq("saree_upload_id", sareeId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle<{ id: string }>();
+
+    let threadId = thread?.id;
+    if (!threadId) {
+      const { data: created, error: createErr } = await db
+        .from("suggestions")
+        .insert({
+          user_id: userId,
+          tailor_id: action.tailor_id,
+          saree_upload_id: sareeId,
+        } as never)
+        .select("id")
+        .single<{ id: string }>();
+      if (createErr) throw new Error(createErr.message);
+      threadId = created.id;
+    }
+
+    const { error } = await db.from("suggestion_replies").insert({
+      suggestion_id: threadId,
+      user_id: userId,
+      message: action.content,
     } as never);
     if (error) throw new Error(error.message);
     await logEvent(db, userId, "message_started", { tailor_id: action.tailor_id });
     return "Message sent — you'll find the conversation under Messages.";
   }
+
   if (action.kind === "save_tailor") {
     const { error } = await db.from("saved_tailors").insert({ user_id: userId, tailor_id: action.tailor_id } as never);
     if (error && !/duplicate/i.test(error.message)) throw new Error(error.message);
