@@ -36,6 +36,48 @@ const QUICK = [
   "Find me a suitable tailor",
 ];
 
+// Session-scoped cache so the assistant (including generated style/tailor cards)
+// survives navigating to a tailor profile and pressing Back.
+const CACHE_KEY = "matcho:assistant:cache";
+type CacheShape = { bubbles: Bubble[]; selected: string | null; scrollTop: number };
+
+function readCache(): CacheShape | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.sessionStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as CacheShape;
+    return Array.isArray(parsed?.bubbles) ? parsed : null;
+  } catch { return null; }
+}
+
+function writeCache(next: Partial<CacheShape>) {
+  if (typeof window === "undefined") return;
+  try {
+    const cur = readCache() ?? { bubbles: [], selected: null, scrollTop: 0 };
+    window.sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ...cur, ...next }));
+  } catch { /* storage unavailable — cards simply won't persist */ }
+}
+
+function clearCache() {
+  if (typeof window === "undefined") return;
+  try { window.sessionStorage.removeItem(CACHE_KEY); } catch { /* ignore */ }
+}
+
+// Re-attach cached style/tailor cards to the persisted server history by
+// matching role + content in order (server rows have different ids).
+function mergeHistory(history: Bubble[], cached: Bubble[]): Bubble[] {
+  if (!cached.length) return history;
+  let i = 0;
+  return history.map((h) => {
+    while (i < cached.length && !(cached[i]!.role === h.role && cached[i]!.content === h.content)) i++;
+    const match = cached[i];
+    if (match) { i++; return { ...h, styles: match.styles, tailors: match.tailors }; }
+    return h;
+  });
+}
+
+
 function AssistantPage() {
   const { saree } = Route.useSearch();
   const turn = useServerFn(assistantTurn);
@@ -44,11 +86,12 @@ function AssistantPage() {
   const clearHistory = useServerFn(clearAssistantHistory);
 
   const [sarees, setSarees] = useState<Saree[]>([]);
-  const [selected, setSelected] = useState<string | null>(saree ?? null);
-  const [bubbles, setBubbles] = useState<Bubble[]>([]);
+  const [selected, setSelected] = useState<string | null>(() => saree ?? readCache()?.selected ?? null);
+  const [bubbles, setBubbles] = useState<Bubble[]>(() => readCache()?.bubbles ?? []);
+
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
-  const [booting, setBooting] = useState(true);
+  const [booting, setBooting] = useState(() => (readCache()?.bubbles?.length ?? 0) === 0);
   const [error, setError] = useState<string | null>(null);
   const [lastMessage, setLastMessage] = useState<string | null>(null);
   const [pending, setPending] = useState<PendingAction | null>(null);
@@ -59,6 +102,8 @@ function AssistantPage() {
 
   const endRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const restoredScroll = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -83,12 +128,14 @@ function AssistantPage() {
         setSareeMissing(true);
         setSelected(list[0]?.id || null);
       } else {
-        setSelected((cur) => cur || list[0]?.id || null);
+        setSelected((cur) => (cur && list.some((s) => s.id === cur) ? cur : list[0]?.id || null));
       }
       try {
         const res = await loadHistory({});
         if (active) {
-          setBubbles(res.messages.map((m) => ({ id: m.id, role: m.role, content: m.content })));
+          const history = res.messages.map((m) => ({ id: m.id, role: m.role, content: m.content })) as Bubble[];
+          // Keep the cards generated in this session attached to the restored history.
+          setBubbles((cur) => mergeHistory(history, readCache()?.bubbles ?? cur));
         }
       } catch (e) {
         console.error("[assistant] history unavailable", e);
@@ -98,9 +145,35 @@ function AssistantPage() {
     return () => { active = false; };
   }, [loadHistory, saree]);
 
+  // Persist conversation + context so Back from a tailor profile restores it.
+  useEffect(() => {
+    if (booting) return;
+    writeCache({ bubbles, selected });
+  }, [bubbles, selected, booting]);
 
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [bubbles, busy, pending]);
+  // Restore scroll position once after a Back navigation; otherwise follow the latest message.
+  useEffect(() => {
+    if (booting) return;
+    const cached = readCache();
+    if (!restoredScroll.current && cached?.scrollTop && scrollRef.current) {
+      restoredScroll.current = true;
+      scrollRef.current.scrollTop = cached.scrollTop;
+      return;
+    }
+    restoredScroll.current = true;
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [bubbles, busy, pending, booting]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const onScroll = () => writeCache({ scrollTop: el.scrollTop });
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [booting]);
+
   useEffect(() => { if (!busy) taRef.current?.focus(); }, [busy]);
+
 
   const send = useCallback(async (text: string) => {
     const message = text.trim();
@@ -202,7 +275,7 @@ function AssistantPage() {
       <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
         {/* Chat */}
         <div className="glass flex min-h-[60vh] flex-col rounded-3xl p-4 shadow-soft sm:p-6">
-          <div className="flex-1 space-y-4 overflow-y-auto pr-1">
+          <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto pr-1">
             {booting ? (
               <div className="grid h-40 place-items-center text-muted-foreground">
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -350,7 +423,7 @@ function AssistantPage() {
             </ul>
             {bubbles.length > 0 && (
               <button
-                onClick={async () => { await clearHistory({}); setBubbles([]); setPending(null); }}
+                onClick={async () => { await clearHistory({}); clearCache(); setBubbles([]); setPending(null); }}
                 className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-card px-3 py-1.5 text-xs shadow-soft">
                 <Trash2 className="h-3 w-3" /> Clear conversation
               </button>
