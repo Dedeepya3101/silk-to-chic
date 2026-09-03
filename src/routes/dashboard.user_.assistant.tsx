@@ -36,6 +36,48 @@ const QUICK = [
   "Find me a suitable tailor",
 ];
 
+// Session-scoped cache so the assistant (including generated style/tailor cards)
+// survives navigating to a tailor profile and pressing Back.
+const CACHE_KEY = "matcho:assistant:cache";
+type CacheShape = { bubbles: Bubble[]; selected: string | null; scrollTop: number };
+
+function readCache(): CacheShape | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.sessionStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as CacheShape;
+    return Array.isArray(parsed?.bubbles) ? parsed : null;
+  } catch { return null; }
+}
+
+function writeCache(next: Partial<CacheShape>) {
+  if (typeof window === "undefined") return;
+  try {
+    const cur = readCache() ?? { bubbles: [], selected: null, scrollTop: 0 };
+    window.sessionStorage.setItem(CACHE_KEY, JSON.stringify({ ...cur, ...next }));
+  } catch { /* storage unavailable — cards simply won't persist */ }
+}
+
+function clearCache() {
+  if (typeof window === "undefined") return;
+  try { window.sessionStorage.removeItem(CACHE_KEY); } catch { /* ignore */ }
+}
+
+// Re-attach cached style/tailor cards to the persisted server history by
+// matching role + content in order (server rows have different ids).
+function mergeHistory(history: Bubble[], cached: Bubble[]): Bubble[] {
+  if (!cached.length) return history;
+  let i = 0;
+  return history.map((h) => {
+    while (i < cached.length && !(cached[i]!.role === h.role && cached[i]!.content === h.content)) i++;
+    const match = cached[i];
+    if (match) { i++; return { ...h, styles: match.styles, tailors: match.tailors }; }
+    return h;
+  });
+}
+
+
 function AssistantPage() {
   const { saree } = Route.useSearch();
   const turn = useServerFn(assistantTurn);
