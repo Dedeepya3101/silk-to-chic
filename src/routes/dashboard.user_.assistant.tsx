@@ -275,7 +275,7 @@ function AssistantPage() {
       <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
         {/* Chat */}
         <div className="glass flex min-h-[60vh] flex-col rounded-3xl p-4 shadow-soft sm:p-6">
-          <div className="flex-1 space-y-4 overflow-y-auto pr-1">
+          <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto pr-1">
             {booting ? (
               <div className="grid h-40 place-items-center text-muted-foreground">
                 <Loader2 className="h-5 w-5 animate-spin" />
