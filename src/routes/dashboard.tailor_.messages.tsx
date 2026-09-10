@@ -12,9 +12,8 @@ import {
 
 
 export const Route = createFileRoute("/dashboard/tailor_/messages")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    thread: typeof search.thread === "string" ? search.thread : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { thread?: string } =>
+    typeof search.thread === "string" && search.thread ? { thread: search.thread } : {},
   head: () => ({ meta: [{ title: "Conversations — MatchO Tailor" }] }),
   component: TailorMessages,
 });
