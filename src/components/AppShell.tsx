@@ -75,21 +75,33 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
         .on("postgres_changes", { event: "UPDATE", schema: "public", table: "profiles", filter: `id=eq.${user.id}` }, () => void loadAvatar())
         .subscribe();
 
-      if (role === "user") {
-        const refreshUnread = async () => {
-          const { count } = await supabase
-            .from("notifications")
-            .select("id", { count: "exact", head: true })
-            .eq("user_id", user.id)
-            .eq("is_read", false);
-          if (active) setUnread(count || 0);
-        };
-        void refreshUnread();
-        notifCh = supabase
-          .channel("appshell_notif_" + user.id)
-          .on("postgres_changes", { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, () => void refreshUnread())
-          .subscribe();
-      }
+      setMeId(user.id);
+      const refreshUnread = async () => {
+        const { count } = await supabase
+          .from("notifications")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .eq("is_read", false);
+        if (active) setUnread(count || 0);
+      };
+      const refreshList = async () => {
+        const { data } = await supabase
+          .from("notifications")
+          .select("id, title, message, link, is_read, created_at")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(20);
+        if (active) setNotifs((data as Notif[]) || []);
+      };
+      void refreshUnread();
+      if (role === "tailor") void refreshList();
+      notifCh = supabase
+        .channel("appshell_notif_" + user.id)
+        .on("postgres_changes", { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, () => {
+          void refreshUnread();
+          if (role === "tailor") void refreshList();
+        })
+        .subscribe();
     })();
     return () => {
       active = false;
