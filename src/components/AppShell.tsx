@@ -8,6 +8,19 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 
 type Item = { to: string; hash?: string; label: string; icon: React.ComponentType<{ className?: string }> };
 
+type Notif = { id: string; title: string; message: string; link: string | null; is_read: boolean; created_at: string };
+
+function timeAgo(iso: string) {
+  const m = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+  if (m < 1) return "now";
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 7) return `${d}d ago`;
+  return new Date(iso).toLocaleDateString();
+}
+
 const userNav: Item[] = [
   { to: "/dashboard/user", label: "Overview", icon: LayoutDashboard },
   { to: "/dashboard/user", hash: "upload", label: "Upload saree", icon: Upload },
@@ -42,6 +55,9 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
   const [name, setName] = useState(() => getSession()?.name || "Guest");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [unread, setUnread] = useState(0);
+  const [notifs, setNotifs] = useState<Notif[]>([]);
+  const [meId, setMeId] = useState<string | null>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
