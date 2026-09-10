@@ -130,6 +130,26 @@ export function AppShell({ role, children, title }: { role: Role; children: Reac
   const initial = (name || "G").trim()[0]?.toUpperCase() || "G";
   const themeAccent = role === "tailor" ? "bg-secondary text-secondary-foreground" : "bg-gradient-primary text-primary-foreground";
 
+  const markAllRead = async () => {
+    if (!meId) return;
+    await supabase.from("notifications").update({ is_read: true }).eq("user_id", meId).eq("is_read", false);
+    setNotifs(prev => prev.map(n => ({ ...n, is_read: true })));
+    setUnread(0);
+  };
+
+  const openNotif = async (n: Notif) => {
+    if (!n.is_read) {
+      await supabase.from("notifications").update({ is_read: true }).eq("id", n.id);
+      setNotifs(prev => prev.map(x => x.id === n.id ? { ...x, is_read: true } : x));
+      setUnread(u => Math.max(0, u - 1));
+    }
+    setPanelOpen(false);
+    if (!n.link) return;
+    const [path, qs] = n.link.split("?");
+    const search = qs ? Object.fromEntries(new URLSearchParams(qs)) : undefined;
+    navigate({ to: path as any, search: search as any });
+  };
+
   const handleSignOut = async () => {
     await signOut();
     navigate({ to: "/" });
