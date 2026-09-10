@@ -12,6 +12,9 @@ import {
 
 
 export const Route = createFileRoute("/dashboard/tailor_/messages")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    thread: typeof search.thread === "string" ? search.thread : undefined,
+  }),
   head: () => ({ meta: [{ title: "Conversations — MatchO Tailor" }] }),
   component: TailorMessages,
 });
@@ -44,6 +47,7 @@ function fmtTime(iso: string) {
 
 function TailorMessages() {
   const navigate = useNavigate();
+  const { thread: threadParam } = Route.useSearch();
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(true);
   const [threads, setThreads] = useState<Thread[]>([]);
@@ -104,7 +108,8 @@ function TailorMessages() {
     });
     setThreads(merged);
     setReplies(grouped);
-    if (!activeId && merged.length) setActiveId(merged[0].id);
+    if (threadParam && merged.some(t => t.id === threadParam)) setActiveId(threadParam);
+    else if (!activeId && merged.length) setActiveId(merged[0].id);
     setLoading(false);
   };
 
@@ -117,7 +122,7 @@ function TailorMessages() {
       .on("postgres_changes", { event: "*", schema: "public", table: "suggestions" }, () => void load(me))
       .subscribe();
     return () => { void supabase.removeChannel(ch); };
-  }, [ready, me]);
+  }, [ready, me, threadParam]);
 
   useEffect(() => {
     if (!activeId || !me) return;
