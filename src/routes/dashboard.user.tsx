@@ -5,10 +5,6 @@ import { AppShell } from "@/components/AppShell";
 import { getSession } from "@/lib/session";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import saree1 from "@/assets/saree-1.jpg";
-import saree2 from "@/assets/saree-2.jpg";
-import saree3 from "@/assets/saree-3.jpg";
-import transformAfter from "@/assets/transform-after.jpg";
 import { useRef } from "react";
 
 export const Route = createFileRoute("/dashboard/user")({
@@ -29,6 +25,12 @@ function UserDashboard() {
   const [saved, setSaved] = useState<SavedRow[]>([]);
   const [notifs, setNotifs] = useState<NotifRow[]>([]);
   const [completedCount, setCompletedCount] = useState(0);
+
+  // Inspiration gallery: only the authenticated user's own saree images.
+  const galleryImages = uploads
+    .filter((u) => !!u.image_url)
+    .slice(0, 6)
+    .map((u) => ({ src: u.image_url, alt: u.title || "Your saree" }));
 
   useEffect(() => {
     const s = getSession();
@@ -138,13 +140,22 @@ function UserDashboard() {
           </Panel>
 
           <Panel title="Inspiration gallery">
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {[transformAfter, saree2, saree3, saree1, transformAfter, saree2].map((src, i) => (
-                <div key={i} className="aspect-square overflow-hidden rounded-2xl shadow-soft">
-                  <img src={src} alt="" loading="lazy" className="h-full w-full object-cover transition hover:scale-105" />
-                </div>
-              ))}
-            </div>
+            {galleryImages.length === 0 ? (
+              <EmptyMini icon={Sparkles} text="Your uploaded sarees will appear here." />
+            ) : (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, i) => {
+                  const img = galleryImages[i];
+                  return img ? (
+                    <div key={i} className="aspect-square overflow-hidden rounded-2xl shadow-soft">
+                      <img src={img.src} alt={img.alt} loading="lazy" className="h-full w-full object-cover transition hover:scale-105" />
+                    </div>
+                  ) : (
+                    <div key={i} className="aspect-square overflow-hidden rounded-2xl bg-muted/40 shadow-soft" />
+                  );
+                })}
+              </div>
+            )}
           </Panel>
         </div>
 
