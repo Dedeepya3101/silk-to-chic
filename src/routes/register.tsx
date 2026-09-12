@@ -19,13 +19,16 @@ function RegisterPage() {
   const [city, setCity] = useState("");
   const [specialization, setSpecialization] = useState("");
   const [loading, setLoading] = useState(false);
+  const [duplicate, setDuplicate] = useState(false);
+  const [checkEmail, setCheckEmail] = useState(false);
   const navigate = useNavigate();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!role) return;
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    setDuplicate(false);
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -34,7 +37,25 @@ function RegisterPage() {
       },
     });
     if (error) {
-      toast.error(error.message);
+      // Supabase may surface an explicit duplicate error when obfuscation is off.
+      if (/already regist|already been regist|user already exists/i.test(error.message)) {
+        setDuplicate(true);
+      } else {
+        toast.error(error.message);
+      }
+      setLoading(false);
+      return;
+    }
+    // Obfuscated duplicate signup: Supabase returns a user with no identities
+    // and never creates a second account or sends a new verification email.
+    if (data.user && (data.user.identities?.length ?? 0) === 0) {
+      setDuplicate(true);
+      setLoading(false);
+      return;
+    }
+    if (!data.session) {
+      // Email confirmation required — the user is NOT signed in yet.
+      setCheckEmail(true);
       setLoading(false);
       return;
     }
@@ -42,6 +63,21 @@ function RegisterPage() {
     toast.success("Welcome to MatchO!");
     navigate({ to: role === "tailor" ? "/dashboard/tailor" : "/dashboard/user" });
   };
+
+  if (checkEmail) {
+    return (
+      <AuthShell
+        title="Check your email"
+        subtitle="We sent a verification link to confirm your account."
+        footer={<>Already verified? <Link to="/login" className="font-medium text-primary">Sign in</Link></>}
+      >
+        <p className="text-sm text-muted-foreground">
+          Open the email we just sent to <span className="font-medium text-foreground">{email}</span> and click
+          “Verify Email”. You only need to do this once — after that you can sign in with your email and password.
+        </p>
+      </AuthShell>
+    );
+  }
 
   return (
     <AuthShell
@@ -58,6 +94,15 @@ function RegisterPage() {
         </div>
       ) : (
         <form className="space-y-4" onSubmit={submit}>
+          {duplicate && (
+            <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 text-sm">
+              <p className="font-medium">Email already registered.</p>
+              <p className="mt-1 text-muted-foreground">Please log in to access your account.</p>
+              <Link to="/login" className="mt-3 inline-flex rounded-full bg-gradient-primary px-4 py-2 text-xs font-medium text-primary-foreground shadow-soft">
+                Go to login
+              </Link>
+            </div>
+          )}
           <TextField label="Full name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Aanya Sharma" required />
           <TextField label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" required />
           <TextField label="City" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Bengaluru" required />
