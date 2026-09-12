@@ -19,13 +19,16 @@ function RegisterPage() {
   const [city, setCity] = useState("");
   const [specialization, setSpecialization] = useState("");
   const [loading, setLoading] = useState(false);
+  const [duplicate, setDuplicate] = useState(false);
+  const [checkEmail, setCheckEmail] = useState(false);
   const navigate = useNavigate();
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!role) return;
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    setDuplicate(false);
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -34,7 +37,25 @@ function RegisterPage() {
       },
     });
     if (error) {
-      toast.error(error.message);
+      // Supabase may surface an explicit duplicate error when obfuscation is off.
+      if (/already regist|already been regist|user already exists/i.test(error.message)) {
+        setDuplicate(true);
+      } else {
+        toast.error(error.message);
+      }
+      setLoading(false);
+      return;
+    }
+    // Obfuscated duplicate signup: Supabase returns a user with no identities
+    // and never creates a second account or sends a new verification email.
+    if (data.user && (data.user.identities?.length ?? 0) === 0) {
+      setDuplicate(true);
+      setLoading(false);
+      return;
+    }
+    if (!data.session) {
+      // Email confirmation required — the user is NOT signed in yet.
+      setCheckEmail(true);
       setLoading(false);
       return;
     }
@@ -42,6 +63,21 @@ function RegisterPage() {
     toast.success("Welcome to MatchO!");
     navigate({ to: role === "tailor" ? "/dashboard/tailor" : "/dashboard/user" });
   };
+
+  if (checkEmail) {
+    return (
+      <AuthShell
+        title="Check your email"
+        subtitle="We sent a verification link to confirm your account."
+        footer={<>Already verified? <Link to="/login" className="font-medium text-primary">Sign in</Link></>}
+      >
+        <p className="text-sm text-muted-foreground">
+          Open the email we just sent to <span className="font-medium text-foreground">{email}</span> and click
+          “Verify Email”. You only need to do this once — after that you can sign in with your email and password.
+        </p>
+      </AuthShell>
+    );
+  }
 
   return (
     <AuthShell
