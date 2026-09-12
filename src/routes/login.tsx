@@ -16,13 +16,31 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [unverified, setUnverified] = useState(false);
+
+  const resend = async () => {
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/dashboard` },
+    });
+    if (error) toast.error(error.message);
+    else toast.success("Verification email sent again.");
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setUnverified(false);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      toast.error(error.message);
+      // Only a genuinely unconfirmed email should show the verification notice;
+      // wrong passwords keep the normal credential error.
+      if ((error as { code?: string }).code === "email_not_confirmed" || /email not confirmed/i.test(error.message)) {
+        setUnverified(true);
+      } else {
+        toast.error(error.message);
+      }
       setLoading(false);
       return;
     }
