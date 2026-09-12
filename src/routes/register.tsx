@@ -94,6 +94,15 @@ function RegisterPage() {
         </div>
       ) : (
         <form className="space-y-4" onSubmit={submit}>
+          {duplicate && (
+            <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 text-sm">
+              <p className="font-medium">Email already registered.</p>
+              <p className="mt-1 text-muted-foreground">Please log in to access your account.</p>
+              <Link to="/login" className="mt-3 inline-flex rounded-full bg-gradient-primary px-4 py-2 text-xs font-medium text-primary-foreground shadow-soft">
+                Go to login
+              </Link>
+            </div>
+          )}
           <TextField label="Full name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Aanya Sharma" required />
           <TextField label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" required />
           <TextField label="City" value={city} onChange={(e) => setCity(e.target.value)} placeholder="Bengaluru" required />
