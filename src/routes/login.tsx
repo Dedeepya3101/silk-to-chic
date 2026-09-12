@@ -56,6 +56,15 @@ function LoginPage() {
       footer={<>New to MatchO? <Link to="/register" className="font-medium text-primary">Create an account</Link></>}
     >
       <form className="space-y-4" onSubmit={submit}>
+        {unverified && (
+          <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 text-sm">
+            <p className="font-medium">Please verify your email before logging in.</p>
+            <p className="mt-1 text-muted-foreground">Open the verification link we emailed you — you only need to do this once.</p>
+            <button type="button" onClick={resend} className="mt-3 inline-flex rounded-full border border-border bg-card px-4 py-2 text-xs font-medium shadow-soft">
+              Resend verification email
+            </button>
+          </div>
+        )}
         <TextField label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" required />
         <TextField label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
         <div className="flex items-center justify-between text-sm">
