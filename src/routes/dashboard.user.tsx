@@ -30,6 +30,12 @@ function UserDashboard() {
   const [notifs, setNotifs] = useState<NotifRow[]>([]);
   const [completedCount, setCompletedCount] = useState(0);
 
+  // Inspiration gallery: only the authenticated user's own saree images.
+  const galleryImages = uploads
+    .filter((u) => !!u.image_url)
+    .slice(0, 6)
+    .map((u) => ({ src: u.image_url, alt: u.title || "Your saree" }));
+
   useEffect(() => {
     const s = getSession();
     if (s?.name) setName(s.name.split(" ")[0]);
