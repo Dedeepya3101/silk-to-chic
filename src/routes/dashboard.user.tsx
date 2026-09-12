@@ -138,13 +138,22 @@ function UserDashboard() {
           </Panel>
 
           <Panel title="Inspiration gallery">
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {[transformAfter, saree2, saree3, saree1, transformAfter, saree2].map((src, i) => (
-                <div key={i} className="aspect-square overflow-hidden rounded-2xl shadow-soft">
-                  <img src={src} alt="" loading="lazy" className="h-full w-full object-cover transition hover:scale-105" />
-                </div>
-              ))}
-            </div>
+            {galleryImages.length === 0 ? (
+              <EmptyMini icon={Sparkles} text="Your uploaded sarees will appear here." />
+            ) : (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, i) => {
+                  const img = galleryImages[i];
+                  return img ? (
+                    <div key={i} className="aspect-square overflow-hidden rounded-2xl shadow-soft">
+                      <img src={img.src} alt={img.alt} loading="lazy" className="h-full w-full object-cover transition hover:scale-105" />
+                    </div>
+                  ) : (
+                    <div key={i} className="aspect-square overflow-hidden rounded-2xl bg-muted/40 shadow-soft" />
+                  );
+                })}
+              </div>
+            )}
           </Panel>
         </div>
 
