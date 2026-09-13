@@ -242,14 +242,17 @@ function UserMessages() {
                 </header>
                 <SafetyReminder />
                 <div className="flex-1 space-y-2 overflow-y-auto p-4">
-                  {activeReplies.length === 0 ? (
-                    <div className="grid h-full place-items-center text-center">
-                      <div>
-                        <MessageCircle className="mx-auto h-6 w-6 text-muted-foreground" />
-                        <p className="mt-2 text-sm text-muted-foreground">No messages yet. Start the conversation.</p>
-                      </div>
-                    </div>
-                  ) : activeReplies.map(r => (
+                  <SuggestionCard s={{
+                    silhouette: active.silhouette,
+                    sleeve_ideas: active.sleeve_ideas,
+                    color_suggestions: active.color_suggestions,
+                    stitching_notes: active.stitching_notes,
+                    created_at: active.created_at,
+                    tailor_name: active.tailor_name,
+                    avatar_url: active.avatar_url,
+                    image_url: active.image_url,
+                  }} />
+                  {activeReplies.map(r => (
                     <div key={r.id} className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${r.user_id === me ? "ml-auto bg-gradient-primary text-primary-foreground" : "bg-card border border-border"}`}>
                       {r.message}
                       <p className="mt-1 text-[10px] opacity-70">{new Date(r.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
