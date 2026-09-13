@@ -6,6 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { refreshSession } from "@/lib/session";
 import { hasSensitiveContent } from "@/lib/safety";
+import { SuggestionCard } from "@/components/SuggestionCard";
 import {
   SafetyReminder, SafetyWarningBanner, ConversationSafetyMenu, BlockedComposerNotice,
 } from "@/components/ChatSafety";
@@ -80,7 +81,7 @@ function TailorMessages() {
   const load = async (uid: string) => {
     const { data: sugs } = await supabase
       .from("suggestions")
-      .select("id, user_id, silhouette, created_at, saree_upload_id")
+      .select("id, user_id, silhouette, sleeve_ideas, color_suggestions, stitching_notes, created_at, saree_upload_id")
       .eq("tailor_id", uid)
       .order("created_at", { ascending: false });
     const list = (sugs || []) as Thread[];
