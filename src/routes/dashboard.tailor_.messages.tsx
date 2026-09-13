@@ -1,11 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Inbox, Send, MessageCircle } from "lucide-react";
+import { Loader2, Inbox, Send } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { refreshSession } from "@/lib/session";
 import { hasSensitiveContent } from "@/lib/safety";
+import { SuggestionCard } from "@/components/SuggestionCard";
 import {
   SafetyReminder, SafetyWarningBanner, ConversationSafetyMenu, BlockedComposerNotice,
 } from "@/components/ChatSafety";
@@ -22,6 +23,9 @@ type Thread = {
   id: string;
   user_id: string;
   silhouette: string | null;
+  sleeve_ideas?: string | null;
+  color_suggestions?: string | null;
+  stitching_notes?: string | null;
   created_at: string;
   user_name?: string;
   avatar_url?: string | null;
@@ -77,7 +81,7 @@ function TailorMessages() {
   const load = async (uid: string) => {
     const { data: sugs } = await supabase
       .from("suggestions")
-      .select("id, user_id, silhouette, created_at, saree_upload_id")
+      .select("id, user_id, silhouette, sleeve_ideas, color_suggestions, stitching_notes, created_at, saree_upload_id")
       .eq("tailor_id", uid)
       .order("created_at", { ascending: false });
     const list = (sugs || []) as Thread[];
@@ -230,14 +234,19 @@ function TailorMessages() {
                 </header>
                 <SafetyReminder />
                 <div className="flex-1 space-y-2 overflow-y-auto p-4">
-                  {activeReplies.length === 0 ? (
-                    <div className="grid h-full place-items-center text-center">
-                      <div>
-                        <MessageCircle className="mx-auto h-6 w-6 text-muted-foreground" />
-                        <p className="mt-2 text-sm text-muted-foreground">No replies yet. Wait for the user's response.</p>
-                      </div>
-                    </div>
-                  ) : activeReplies.map(r => (
+                  <SuggestionCard s={{
+                    silhouette: active.silhouette,
+                    sleeve_ideas: active.sleeve_ideas,
+                    color_suggestions: active.color_suggestions,
+                    stitching_notes: active.stitching_notes,
+                    created_at: active.created_at,
+                    image_url: active.image_url,
+                    mine: true,
+                  }} />
+                  {activeReplies.length === 0 && (
+                    <p className="pt-2 text-center text-xs text-muted-foreground">No replies yet. Wait for the user's response.</p>
+                  )}
+                  {activeReplies.map(r => (
                     <div key={r.id} className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${r.user_id === me ? "ml-auto bg-foreground text-background" : "bg-accent"}`}>
                       {r.message}
                     </div>
