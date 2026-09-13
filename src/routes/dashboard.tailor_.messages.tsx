@@ -22,6 +22,9 @@ type Thread = {
   id: string;
   user_id: string;
   silhouette: string | null;
+  sleeve_ideas?: string | null;
+  color_suggestions?: string | null;
+  stitching_notes?: string | null;
   created_at: string;
   user_name?: string;
   avatar_url?: string | null;
