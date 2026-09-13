@@ -79,7 +79,7 @@ function UserMessages() {
   const load = async (uid: string) => {
     const { data: sugs } = await supabase
       .from("suggestions")
-      .select("id, tailor_id, silhouette, created_at, saree_upload_id")
+      .select("id, tailor_id, silhouette, sleeve_ideas, color_suggestions, stitching_notes, created_at, saree_upload_id")
       .eq("user_id", uid)
       .order("created_at", { ascending: false });
     const list = (sugs || []) as Thread[];
