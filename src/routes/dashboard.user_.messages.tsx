@@ -21,6 +21,9 @@ type Thread = {
   id: string;
   tailor_id: string;
   silhouette: string | null;
+  sleeve_ideas?: string | null;
+  color_suggestions?: string | null;
+  stitching_notes?: string | null;
   created_at: string;
   saree_upload_id: string;
   tailor_name?: string;
