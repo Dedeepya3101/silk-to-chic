@@ -6,6 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { refreshSession } from "@/lib/session";
 import { hasSensitiveContent } from "@/lib/safety";
+import { SuggestionCard } from "@/components/SuggestionCard";
 import {
   SafetyReminder, SafetyWarningBanner, VerifiedBadges, ConversationSafetyMenu,
   BlockedComposerNotice, type Verification,
