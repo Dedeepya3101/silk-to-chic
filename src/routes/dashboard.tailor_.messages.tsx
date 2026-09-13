@@ -234,14 +234,19 @@ function TailorMessages() {
                 </header>
                 <SafetyReminder />
                 <div className="flex-1 space-y-2 overflow-y-auto p-4">
-                  {activeReplies.length === 0 ? (
-                    <div className="grid h-full place-items-center text-center">
-                      <div>
-                        <MessageCircle className="mx-auto h-6 w-6 text-muted-foreground" />
-                        <p className="mt-2 text-sm text-muted-foreground">No replies yet. Wait for the user's response.</p>
-                      </div>
-                    </div>
-                  ) : activeReplies.map(r => (
+                  <SuggestionCard s={{
+                    silhouette: active.silhouette,
+                    sleeve_ideas: active.sleeve_ideas,
+                    color_suggestions: active.color_suggestions,
+                    stitching_notes: active.stitching_notes,
+                    created_at: active.created_at,
+                    image_url: active.image_url,
+                    mine: true,
+                  }} />
+                  {activeReplies.length === 0 && (
+                    <p className="pt-2 text-center text-xs text-muted-foreground">No replies yet. Wait for the user's response.</p>
+                  )}
+                  {activeReplies.map(r => (
                     <div key={r.id} className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${r.user_id === me ? "ml-auto bg-foreground text-background" : "bg-accent"}`}>
                       {r.message}
                     </div>
