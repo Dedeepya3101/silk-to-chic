@@ -397,7 +397,20 @@ export const analyzeSareeImage = createServerFn({ method: "POST" })
         {
           role: "system",
           content:
-            "You are a textile analyst. Describe ONLY what is visible in the saree photo. If something is not visible or uncertain, use \"not clearly detected\" (or an empty array). Never guess fabric composition. " +
+            "You are a careful textile analyst. Describe ONLY what is clearly visible in the saree photo. Prefer conservative, accurate descriptions over elaborate ones. If something is not visible or uncertain, use \"not clearly detected\" (or an empty array). " +
+            "Never guess fabric composition, material, weave, texture or any hidden property, and never invent motifs, colours, border shapes or embroidery techniques.\n" +
+            "FIELD RULES:\n" +
+            "- dominant_colors: ONLY the main fabric/body colour(s) of the saree (e.g. \"dusty pink\"). Do NOT include embroidery, zari, border or embellishment colours here.\n" +
+            "- secondary_colors: decorative colours — embroidery, zari/metallic work, border, motif or embellishment colours (e.g. \"champagne gold (embroidery)\", \"maroon (border)\"). Label each with where it appears.\n" +
+            "- pattern: the body surface design — e.g. \"plain body\", \"scattered small floral motifs across the body\", \"all-over print\". Say whether motifs are printed or embroidered only if clearly visible.\n" +
+            "- border_style: border colour(s), design and shape — e.g. \"heavily embroidered floral border with scalloped edge in gold\". Use scalloped / straight / floral / geometric only if clearly visible.\n" +
+            "- embroidery_level: one of none|light|moderate|heavy|not clearly detected. Mention placement (border, pallu, scattered body) in visual_style.\n" +
+            "- visual_style: short summary including embroidery density and placement.\n" +
+            "OMBRE / GRADIENT RULE (important): only describe the saree as ombre, gradient or shaded when a clear, gradual colour transition across the fabric BODY itself is visible. " +
+            "Gold/champagne embroidery, a contrasting border, lighting, shadows, reflections, folds, sheen or photo colour cast are NOT ombre. " +
+            "If the body is predominantly one colour with contrasting decorative work, describe it as \"predominantly single-colour body with contrasting embroidery/border\". " +
+            "If a gradient is uncertain, do not mention ombre at all. When a genuine gradient is clearly visible, list both body colours in dominant_colors and state \"ombre body from X to Y\" in pattern.\n" +
+            "occasions and outfit_directions must follow from the visible attributes only.\n" +
             'Respond ONLY with JSON: {"dominant_colors":[],"secondary_colors":[],"pattern":"","border_style":"","embroidery_level":"none|light|moderate|heavy|not clearly detected","visual_style":"","appearance":"traditional|contemporary|fusion|not clearly detected","occasions":[],"outfit_directions":[]}',
         },
         { role: "user", content: [{ type: "text", text: "Analyse this saree photo." }, { type: "image_url", image_url: { url: up.image_url } }] },

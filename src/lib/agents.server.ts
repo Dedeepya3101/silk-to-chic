@@ -190,6 +190,7 @@ export async function runStyleAgent(
     `Allowed outfit types: ${SUPPORTED_TRANSFORMATIONS.join(", ")}. ` +
     "Use ONLY the supplied information and, when a photo is attached, what you can actually observe in it. " +
     "If no photo is attached, base the advice on the written details and say so in `confidence` — never pretend to have seen the fabric. " +
+    "When a saved photo analysis exists, treat it as the source of truth: respect the body colours (dominant colours), decorative colours, border and motifs as listed; never describe the saree as ombre/gradient unless the analysis says so; treat any \"not clearly detected\" attribute as unknown, not as fact; and plan designs around where and how much embroidery there is (e.g. keep a heavy embroidered border visible as a hem or neckline feature). " +
     "Never invent prices, tailors, or facts about the member. Only give an estimated_budget when the member supplied a budget or clear fabric details; otherwise use null. " +
     'Respond ONLY with JSON: {"ideas":[{"style_name","outfit_type","why_it_fits","occasion","design_direction","blouse_suggestion","silhouette","complexity","tailoring_considerations","estimated_budget","confidence"}]} with 3 or 4 distinct ideas, each field under 220 characters.';
 
