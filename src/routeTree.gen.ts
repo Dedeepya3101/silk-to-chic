@@ -9,69 +9,49 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as MessagesRouteImport } from './routes/messages'
-import { Route as RegisterRouteImport } from './routes/register'
-import { Route as SuspendedRouteImport } from './routes/suspended'
 import { Route as TailorRouteImport } from './routes/tailor'
-import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as SuspendedRouteImport } from './routes/suspended'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as MessagesRouteImport } from './routes/messages'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
-import { Route as DashboardAdminRouteImport } from './routes/dashboard.admin'
-import { Route as DashboardTailorRouteImport } from './routes/dashboard.tailor'
 import { Route as DashboardUserRouteImport } from './routes/dashboard.user'
-import { Route as DashboardAdminAnalyticsRouteImport } from './routes/dashboard.admin_.analytics'
-import { Route as DashboardAdminAppealsRouteImport } from './routes/dashboard.admin_.appeals'
-import { Route as DashboardAdminBlocksRouteImport } from './routes/dashboard.admin_.blocks'
-import { Route as DashboardAdminNotificationsRouteImport } from './routes/dashboard.admin_.notifications'
-import { Route as DashboardAdminReportsRouteImport } from './routes/dashboard.admin_.reports'
-import { Route as DashboardAdminSettingsRouteImport } from './routes/dashboard.admin_.settings'
-import { Route as DashboardAdminTailorsRouteImport } from './routes/dashboard.admin_.tailors'
-import { Route as DashboardAdminUsersRouteImport } from './routes/dashboard.admin_.users'
-import { Route as DashboardAdminVerificationRouteImport } from './routes/dashboard.admin_.verification'
-import { Route as DashboardTailorAssignedRouteImport } from './routes/dashboard.tailor_.assigned'
-import { Route as DashboardTailorCompletedRouteImport } from './routes/dashboard.tailor_.completed'
-import { Route as DashboardTailorMessagesRouteImport } from './routes/dashboard.tailor_.messages'
-import { Route as DashboardTailorPortfolioRouteImport } from './routes/dashboard.tailor_.portfolio'
-import { Route as DashboardTailorProfileRouteImport } from './routes/dashboard.tailor_.profile'
-import { Route as DashboardTailorProfileEditRouteImport } from './routes/dashboard.tailor_.profile-edit'
-import { Route as DashboardTailorReviewsRouteImport } from './routes/dashboard.tailor_.reviews'
-import { Route as DashboardTailorSettingsRouteImport } from './routes/dashboard.tailor_.settings'
-import { Route as DashboardTailorStudioProfileRouteImport } from './routes/dashboard.tailor_.studio-profile'
-import { Route as DashboardUserAssistantRouteImport } from './routes/dashboard.user_.assistant'
-import { Route as DashboardUserCompletedRouteImport } from './routes/dashboard.user_.completed'
-import { Route as DashboardUserMessagesRouteImport } from './routes/dashboard.user_.messages'
-import { Route as DashboardUserNotificationsRouteImport } from './routes/dashboard.user_.notifications'
-import { Route as DashboardUserProfileRouteImport } from './routes/dashboard.user_.profile'
-import { Route as DashboardUserSavedRouteImport } from './routes/dashboard.user_.saved'
+import { Route as DashboardTailorRouteImport } from './routes/dashboard.tailor'
+import { Route as DashboardAdminRouteImport } from './routes/dashboard.admin'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as DashboardUserSuggestionsRouteImport } from './routes/dashboard.user_.suggestions'
-import { Route as DashboardAdminReportsReportIdRouteImport } from './routes/dashboard.admin_.reports_.$reportId'
+import { Route as DashboardUserSavedRouteImport } from './routes/dashboard.user_.saved'
+import { Route as DashboardUserProfileRouteImport } from './routes/dashboard.user_.profile'
+import { Route as DashboardUserNotificationsRouteImport } from './routes/dashboard.user_.notifications'
+import { Route as DashboardUserMessagesRouteImport } from './routes/dashboard.user_.messages'
+import { Route as DashboardUserCompletedRouteImport } from './routes/dashboard.user_.completed'
+import { Route as DashboardUserAssistantRouteImport } from './routes/dashboard.user_.assistant'
+import { Route as DashboardTailorStudioProfileRouteImport } from './routes/dashboard.tailor_.studio-profile'
+import { Route as DashboardTailorSettingsRouteImport } from './routes/dashboard.tailor_.settings'
+import { Route as DashboardTailorReviewsRouteImport } from './routes/dashboard.tailor_.reviews'
+import { Route as DashboardTailorProfileEditRouteImport } from './routes/dashboard.tailor_.profile-edit'
+import { Route as DashboardTailorProfileRouteImport } from './routes/dashboard.tailor_.profile'
+import { Route as DashboardTailorPortfolioRouteImport } from './routes/dashboard.tailor_.portfolio'
+import { Route as DashboardTailorMessagesRouteImport } from './routes/dashboard.tailor_.messages'
+import { Route as DashboardTailorCompletedRouteImport } from './routes/dashboard.tailor_.completed'
+import { Route as DashboardTailorAssignedRouteImport } from './routes/dashboard.tailor_.assigned'
+import { Route as DashboardAdminVerificationRouteImport } from './routes/dashboard.admin_.verification'
+import { Route as DashboardAdminUsersRouteImport } from './routes/dashboard.admin_.users'
+import { Route as DashboardAdminTailorsRouteImport } from './routes/dashboard.admin_.tailors'
+import { Route as DashboardAdminSettingsRouteImport } from './routes/dashboard.admin_.settings'
+import { Route as DashboardAdminReportsRouteImport } from './routes/dashboard.admin_.reports'
+import { Route as DashboardAdminNotificationsRouteImport } from './routes/dashboard.admin_.notifications'
+import { Route as DashboardAdminBlocksRouteImport } from './routes/dashboard.admin_.blocks'
+import { Route as DashboardAdminAppealsRouteImport } from './routes/dashboard.admin_.appeals'
+import { Route as DashboardAdminAnalyticsRouteImport } from './routes/dashboard.admin_.analytics'
 import { Route as DashboardUserTailorsTailorIdRouteImport } from './routes/dashboard.user_.tailors.$tailorId'
+import { Route as DashboardAdminReportsReportIdRouteImport } from './routes/dashboard.admin_.reports_.$reportId'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MessagesRoute = MessagesRouteImport.update({
-  id: '/messages',
-  path: '/messages',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RegisterRoute = RegisterRouteImport.update({
-  id: '/register',
-  path: '/register',
+const TailorRoute = TailorRouteImport.update({
+  id: '/tailor',
+  path: '/tailor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SuspendedRoute = SuspendedRouteImport.update({
@@ -79,14 +59,29 @@ const SuspendedRoute = SuspendedRouteImport.update({
   path: '/suspended',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TailorRoute = TailorRouteImport.update({
-  id: '/tailor',
-  path: '/tailor',
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AdminLoginRoute = AdminLoginRouteImport.update({
-  id: '/admin/login',
-  path: '/admin/login',
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
@@ -94,9 +89,9 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardAdminRoute = DashboardAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const DashboardUserRoute = DashboardUserRouteImport.update({
+  id: '/user',
+  path: '/user',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardTailorRoute = DashboardTailorRouteImport.update({
@@ -104,120 +99,30 @@ const DashboardTailorRoute = DashboardTailorRouteImport.update({
   path: '/tailor',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardUserRoute = DashboardUserRouteImport.update({
-  id: '/user',
-  path: '/user',
+const DashboardAdminRoute = DashboardAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardAdminAnalyticsRoute = DashboardAdminAnalyticsRouteImport.update({
-  id: '/admin_/analytics',
-  path: '/admin/analytics',
-  getParentRoute: () => DashboardRoute,
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardAdminAppealsRoute = DashboardAdminAppealsRouteImport.update({
-  id: '/admin_/appeals',
-  path: '/admin/appeals',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardAdminBlocksRoute = DashboardAdminBlocksRouteImport.update({
-  id: '/admin_/blocks',
-  path: '/admin/blocks',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardAdminNotificationsRoute =
-  DashboardAdminNotificationsRouteImport.update({
-    id: '/admin_/notifications',
-    path: '/admin/notifications',
+const DashboardUserSuggestionsRoute =
+  DashboardUserSuggestionsRouteImport.update({
+    id: '/user_/suggestions',
+    path: '/user/suggestions',
     getParentRoute: () => DashboardRoute,
   } as any)
-const DashboardAdminReportsRoute = DashboardAdminReportsRouteImport.update({
-  id: '/admin_/reports',
-  path: '/admin/reports',
+const DashboardUserSavedRoute = DashboardUserSavedRouteImport.update({
+  id: '/user_/saved',
+  path: '/user/saved',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardAdminSettingsRoute = DashboardAdminSettingsRouteImport.update({
-  id: '/admin_/settings',
-  path: '/admin/settings',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardAdminTailorsRoute = DashboardAdminTailorsRouteImport.update({
-  id: '/admin_/tailors',
-  path: '/admin/tailors',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardAdminUsersRoute = DashboardAdminUsersRouteImport.update({
-  id: '/admin_/users',
-  path: '/admin/users',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardAdminVerificationRoute =
-  DashboardAdminVerificationRouteImport.update({
-    id: '/admin_/verification',
-    path: '/admin/verification',
-    getParentRoute: () => DashboardRoute,
-  } as any)
-const DashboardTailorAssignedRoute = DashboardTailorAssignedRouteImport.update({
-  id: '/tailor_/assigned',
-  path: '/tailor/assigned',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardTailorCompletedRoute =
-  DashboardTailorCompletedRouteImport.update({
-    id: '/tailor_/completed',
-    path: '/tailor/completed',
-    getParentRoute: () => DashboardRoute,
-  } as any)
-const DashboardTailorMessagesRoute = DashboardTailorMessagesRouteImport.update({
-  id: '/tailor_/messages',
-  path: '/tailor/messages',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardTailorPortfolioRoute =
-  DashboardTailorPortfolioRouteImport.update({
-    id: '/tailor_/portfolio',
-    path: '/tailor/portfolio',
-    getParentRoute: () => DashboardRoute,
-  } as any)
-const DashboardTailorProfileRoute = DashboardTailorProfileRouteImport.update({
-  id: '/tailor_/profile',
-  path: '/tailor/profile',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardTailorProfileEditRoute =
-  DashboardTailorProfileEditRouteImport.update({
-    id: '/tailor_/profile-edit',
-    path: '/tailor/profile-edit',
-    getParentRoute: () => DashboardRoute,
-  } as any)
-const DashboardTailorReviewsRoute = DashboardTailorReviewsRouteImport.update({
-  id: '/tailor_/reviews',
-  path: '/tailor/reviews',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardTailorSettingsRoute = DashboardTailorSettingsRouteImport.update({
-  id: '/tailor_/settings',
-  path: '/tailor/settings',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardTailorStudioProfileRoute =
-  DashboardTailorStudioProfileRouteImport.update({
-    id: '/tailor_/studio-profile',
-    path: '/tailor/studio-profile',
-    getParentRoute: () => DashboardRoute,
-  } as any)
-const DashboardUserAssistantRoute = DashboardUserAssistantRouteImport.update({
-  id: '/user_/assistant',
-  path: '/user/assistant',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardUserCompletedRoute = DashboardUserCompletedRouteImport.update({
-  id: '/user_/completed',
-  path: '/user/completed',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardUserMessagesRoute = DashboardUserMessagesRouteImport.update({
-  id: '/user_/messages',
-  path: '/user/messages',
+const DashboardUserProfileRoute = DashboardUserProfileRouteImport.update({
+  id: '/user_/profile',
+  path: '/user/profile',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardUserNotificationsRoute =
@@ -226,32 +131,127 @@ const DashboardUserNotificationsRoute =
     path: '/user/notifications',
     getParentRoute: () => DashboardRoute,
   } as any)
-const DashboardUserProfileRoute = DashboardUserProfileRouteImport.update({
-  id: '/user_/profile',
-  path: '/user/profile',
+const DashboardUserMessagesRoute = DashboardUserMessagesRouteImport.update({
+  id: '/user_/messages',
+  path: '/user/messages',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardUserSavedRoute = DashboardUserSavedRouteImport.update({
-  id: '/user_/saved',
-  path: '/user/saved',
+const DashboardUserCompletedRoute = DashboardUserCompletedRouteImport.update({
+  id: '/user_/completed',
+  path: '/user/completed',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardUserSuggestionsRoute =
-  DashboardUserSuggestionsRouteImport.update({
-    id: '/user_/suggestions',
-    path: '/user/suggestions',
+const DashboardUserAssistantRoute = DashboardUserAssistantRouteImport.update({
+  id: '/user_/assistant',
+  path: '/user/assistant',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardTailorStudioProfileRoute =
+  DashboardTailorStudioProfileRouteImport.update({
+    id: '/tailor_/studio-profile',
+    path: '/tailor/studio-profile',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+const DashboardTailorSettingsRoute = DashboardTailorSettingsRouteImport.update({
+  id: '/tailor_/settings',
+  path: '/tailor/settings',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardTailorReviewsRoute = DashboardTailorReviewsRouteImport.update({
+  id: '/tailor_/reviews',
+  path: '/tailor/reviews',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardTailorProfileEditRoute =
+  DashboardTailorProfileEditRouteImport.update({
+    id: '/tailor_/profile-edit',
+    path: '/tailor/profile-edit',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+const DashboardTailorProfileRoute = DashboardTailorProfileRouteImport.update({
+  id: '/tailor_/profile',
+  path: '/tailor/profile',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardTailorPortfolioRoute =
+  DashboardTailorPortfolioRouteImport.update({
+    id: '/tailor_/portfolio',
+    path: '/tailor/portfolio',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+const DashboardTailorMessagesRoute = DashboardTailorMessagesRouteImport.update({
+  id: '/tailor_/messages',
+  path: '/tailor/messages',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardTailorCompletedRoute =
+  DashboardTailorCompletedRouteImport.update({
+    id: '/tailor_/completed',
+    path: '/tailor/completed',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+const DashboardTailorAssignedRoute = DashboardTailorAssignedRouteImport.update({
+  id: '/tailor_/assigned',
+  path: '/tailor/assigned',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAdminVerificationRoute =
+  DashboardAdminVerificationRouteImport.update({
+    id: '/admin_/verification',
+    path: '/admin/verification',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+const DashboardAdminUsersRoute = DashboardAdminUsersRouteImport.update({
+  id: '/admin_/users',
+  path: '/admin/users',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAdminTailorsRoute = DashboardAdminTailorsRouteImport.update({
+  id: '/admin_/tailors',
+  path: '/admin/tailors',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAdminSettingsRoute = DashboardAdminSettingsRouteImport.update({
+  id: '/admin_/settings',
+  path: '/admin/settings',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAdminReportsRoute = DashboardAdminReportsRouteImport.update({
+  id: '/admin_/reports',
+  path: '/admin/reports',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAdminNotificationsRoute =
+  DashboardAdminNotificationsRouteImport.update({
+    id: '/admin_/notifications',
+    path: '/admin/notifications',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+const DashboardAdminBlocksRoute = DashboardAdminBlocksRouteImport.update({
+  id: '/admin_/blocks',
+  path: '/admin/blocks',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAdminAppealsRoute = DashboardAdminAppealsRouteImport.update({
+  id: '/admin_/appeals',
+  path: '/admin/appeals',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAdminAnalyticsRoute = DashboardAdminAnalyticsRouteImport.update({
+  id: '/admin_/analytics',
+  path: '/admin/analytics',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardUserTailorsTailorIdRoute =
+  DashboardUserTailorsTailorIdRouteImport.update({
+    id: '/user_/tailors/$tailorId',
+    path: '/user/tailors/$tailorId',
     getParentRoute: () => DashboardRoute,
   } as any)
 const DashboardAdminReportsReportIdRoute =
   DashboardAdminReportsReportIdRouteImport.update({
     id: '/admin_/reports_/$reportId',
     path: '/admin/reports/$reportId',
-    getParentRoute: () => DashboardRoute,
-  } as any)
-const DashboardUserTailorsTailorIdRoute =
-  DashboardUserTailorsTailorIdRouteImport.update({
-    id: '/user_/tailors/$tailorId',
-    path: '/user/tailors/$tailorId',
     getParentRoute: () => DashboardRoute,
   } as any)
 
@@ -516,39 +516,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/messages': {
-      id: '/messages'
-      path: '/messages'
-      fullPath: '/messages'
-      preLoaderRoute: typeof MessagesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/register': {
-      id: '/register'
-      path: '/register'
-      fullPath: '/register'
-      preLoaderRoute: typeof RegisterRouteImport
+    '/tailor': {
+      id: '/tailor'
+      path: '/tailor'
+      fullPath: '/tailor'
+      preLoaderRoute: typeof TailorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/suspended': {
@@ -558,18 +530,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SuspendedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/tailor': {
-      id: '/tailor'
-      path: '/tailor'
-      fullPath: '/tailor'
-      preLoaderRoute: typeof TailorRouteImport
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/admin/login': {
-      id: '/admin/login'
-      path: '/admin/login'
-      fullPath: '/admin/login'
-      preLoaderRoute: typeof AdminLoginRouteImport
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/': {
@@ -579,11 +572,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/dashboard/admin': {
-      id: '/dashboard/admin'
-      path: '/admin'
-      fullPath: '/dashboard/admin'
-      preLoaderRoute: typeof DashboardAdminRouteImport
+    '/dashboard/user': {
+      id: '/dashboard/user'
+      path: '/user'
+      fullPath: '/dashboard/user'
+      preLoaderRoute: typeof DashboardUserRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/tailor': {
@@ -593,172 +586,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardTailorRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/dashboard/user': {
-      id: '/dashboard/user'
-      path: '/user'
-      fullPath: '/dashboard/user'
-      preLoaderRoute: typeof DashboardUserRouteImport
+    '/dashboard/admin': {
+      id: '/dashboard/admin'
+      path: '/admin'
+      fullPath: '/dashboard/admin'
+      preLoaderRoute: typeof DashboardAdminRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/dashboard/admin_/analytics': {
-      id: '/dashboard/admin_/analytics'
-      path: '/admin/analytics'
-      fullPath: '/dashboard/admin/analytics'
-      preLoaderRoute: typeof DashboardAdminAnalyticsRouteImport
-      parentRoute: typeof DashboardRoute
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/dashboard/admin_/appeals': {
-      id: '/dashboard/admin_/appeals'
-      path: '/admin/appeals'
-      fullPath: '/dashboard/admin/appeals'
-      preLoaderRoute: typeof DashboardAdminAppealsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/admin_/blocks': {
-      id: '/dashboard/admin_/blocks'
-      path: '/admin/blocks'
-      fullPath: '/dashboard/admin/blocks'
-      preLoaderRoute: typeof DashboardAdminBlocksRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/admin_/notifications': {
-      id: '/dashboard/admin_/notifications'
-      path: '/admin/notifications'
-      fullPath: '/dashboard/admin/notifications'
-      preLoaderRoute: typeof DashboardAdminNotificationsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/admin_/reports': {
-      id: '/dashboard/admin_/reports'
-      path: '/admin/reports'
-      fullPath: '/dashboard/admin/reports'
-      preLoaderRoute: typeof DashboardAdminReportsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/admin_/settings': {
-      id: '/dashboard/admin_/settings'
-      path: '/admin/settings'
-      fullPath: '/dashboard/admin/settings'
-      preLoaderRoute: typeof DashboardAdminSettingsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/admin_/tailors': {
-      id: '/dashboard/admin_/tailors'
-      path: '/admin/tailors'
-      fullPath: '/dashboard/admin/tailors'
-      preLoaderRoute: typeof DashboardAdminTailorsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/admin_/users': {
-      id: '/dashboard/admin_/users'
-      path: '/admin/users'
-      fullPath: '/dashboard/admin/users'
-      preLoaderRoute: typeof DashboardAdminUsersRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/admin_/verification': {
-      id: '/dashboard/admin_/verification'
-      path: '/admin/verification'
-      fullPath: '/dashboard/admin/verification'
-      preLoaderRoute: typeof DashboardAdminVerificationRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/tailor_/assigned': {
-      id: '/dashboard/tailor_/assigned'
-      path: '/tailor/assigned'
-      fullPath: '/dashboard/tailor/assigned'
-      preLoaderRoute: typeof DashboardTailorAssignedRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/tailor_/completed': {
-      id: '/dashboard/tailor_/completed'
-      path: '/tailor/completed'
-      fullPath: '/dashboard/tailor/completed'
-      preLoaderRoute: typeof DashboardTailorCompletedRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/tailor_/messages': {
-      id: '/dashboard/tailor_/messages'
-      path: '/tailor/messages'
-      fullPath: '/dashboard/tailor/messages'
-      preLoaderRoute: typeof DashboardTailorMessagesRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/tailor_/portfolio': {
-      id: '/dashboard/tailor_/portfolio'
-      path: '/tailor/portfolio'
-      fullPath: '/dashboard/tailor/portfolio'
-      preLoaderRoute: typeof DashboardTailorPortfolioRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/tailor_/profile': {
-      id: '/dashboard/tailor_/profile'
-      path: '/tailor/profile'
-      fullPath: '/dashboard/tailor/profile'
-      preLoaderRoute: typeof DashboardTailorProfileRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/tailor_/profile-edit': {
-      id: '/dashboard/tailor_/profile-edit'
-      path: '/tailor/profile-edit'
-      fullPath: '/dashboard/tailor/profile-edit'
-      preLoaderRoute: typeof DashboardTailorProfileEditRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/tailor_/reviews': {
-      id: '/dashboard/tailor_/reviews'
-      path: '/tailor/reviews'
-      fullPath: '/dashboard/tailor/reviews'
-      preLoaderRoute: typeof DashboardTailorReviewsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/tailor_/settings': {
-      id: '/dashboard/tailor_/settings'
-      path: '/tailor/settings'
-      fullPath: '/dashboard/tailor/settings'
-      preLoaderRoute: typeof DashboardTailorSettingsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/tailor_/studio-profile': {
-      id: '/dashboard/tailor_/studio-profile'
-      path: '/tailor/studio-profile'
-      fullPath: '/dashboard/tailor/studio-profile'
-      preLoaderRoute: typeof DashboardTailorStudioProfileRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/user_/assistant': {
-      id: '/dashboard/user_/assistant'
-      path: '/user/assistant'
-      fullPath: '/dashboard/user/assistant'
-      preLoaderRoute: typeof DashboardUserAssistantRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/user_/completed': {
-      id: '/dashboard/user_/completed'
-      path: '/user/completed'
-      fullPath: '/dashboard/user/completed'
-      preLoaderRoute: typeof DashboardUserCompletedRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/user_/messages': {
-      id: '/dashboard/user_/messages'
-      path: '/user/messages'
-      fullPath: '/dashboard/user/messages'
-      preLoaderRoute: typeof DashboardUserMessagesRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/user_/notifications': {
-      id: '/dashboard/user_/notifications'
-      path: '/user/notifications'
-      fullPath: '/dashboard/user/notifications'
-      preLoaderRoute: typeof DashboardUserNotificationsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/dashboard/user_/profile': {
-      id: '/dashboard/user_/profile'
-      path: '/user/profile'
-      fullPath: '/dashboard/user/profile'
-      preLoaderRoute: typeof DashboardUserProfileRouteImport
+    '/dashboard/user_/suggestions': {
+      id: '/dashboard/user_/suggestions'
+      path: '/user/suggestions'
+      fullPath: '/dashboard/user/suggestions'
+      preLoaderRoute: typeof DashboardUserSuggestionsRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/user_/saved': {
@@ -768,18 +614,165 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardUserSavedRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/dashboard/user_/suggestions': {
-      id: '/dashboard/user_/suggestions'
-      path: '/user/suggestions'
-      fullPath: '/dashboard/user/suggestions'
-      preLoaderRoute: typeof DashboardUserSuggestionsRouteImport
+    '/dashboard/user_/profile': {
+      id: '/dashboard/user_/profile'
+      path: '/user/profile'
+      fullPath: '/dashboard/user/profile'
+      preLoaderRoute: typeof DashboardUserProfileRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/dashboard/admin_/reports_/$reportId': {
-      id: '/dashboard/admin_/reports_/$reportId'
-      path: '/admin/reports/$reportId'
-      fullPath: '/dashboard/admin/reports/$reportId'
-      preLoaderRoute: typeof DashboardAdminReportsReportIdRouteImport
+    '/dashboard/user_/notifications': {
+      id: '/dashboard/user_/notifications'
+      path: '/user/notifications'
+      fullPath: '/dashboard/user/notifications'
+      preLoaderRoute: typeof DashboardUserNotificationsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/user_/messages': {
+      id: '/dashboard/user_/messages'
+      path: '/user/messages'
+      fullPath: '/dashboard/user/messages'
+      preLoaderRoute: typeof DashboardUserMessagesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/user_/completed': {
+      id: '/dashboard/user_/completed'
+      path: '/user/completed'
+      fullPath: '/dashboard/user/completed'
+      preLoaderRoute: typeof DashboardUserCompletedRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/user_/assistant': {
+      id: '/dashboard/user_/assistant'
+      path: '/user/assistant'
+      fullPath: '/dashboard/user/assistant'
+      preLoaderRoute: typeof DashboardUserAssistantRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/tailor_/studio-profile': {
+      id: '/dashboard/tailor_/studio-profile'
+      path: '/tailor/studio-profile'
+      fullPath: '/dashboard/tailor/studio-profile'
+      preLoaderRoute: typeof DashboardTailorStudioProfileRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/tailor_/settings': {
+      id: '/dashboard/tailor_/settings'
+      path: '/tailor/settings'
+      fullPath: '/dashboard/tailor/settings'
+      preLoaderRoute: typeof DashboardTailorSettingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/tailor_/reviews': {
+      id: '/dashboard/tailor_/reviews'
+      path: '/tailor/reviews'
+      fullPath: '/dashboard/tailor/reviews'
+      preLoaderRoute: typeof DashboardTailorReviewsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/tailor_/profile-edit': {
+      id: '/dashboard/tailor_/profile-edit'
+      path: '/tailor/profile-edit'
+      fullPath: '/dashboard/tailor/profile-edit'
+      preLoaderRoute: typeof DashboardTailorProfileEditRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/tailor_/profile': {
+      id: '/dashboard/tailor_/profile'
+      path: '/tailor/profile'
+      fullPath: '/dashboard/tailor/profile'
+      preLoaderRoute: typeof DashboardTailorProfileRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/tailor_/portfolio': {
+      id: '/dashboard/tailor_/portfolio'
+      path: '/tailor/portfolio'
+      fullPath: '/dashboard/tailor/portfolio'
+      preLoaderRoute: typeof DashboardTailorPortfolioRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/tailor_/messages': {
+      id: '/dashboard/tailor_/messages'
+      path: '/tailor/messages'
+      fullPath: '/dashboard/tailor/messages'
+      preLoaderRoute: typeof DashboardTailorMessagesRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/tailor_/completed': {
+      id: '/dashboard/tailor_/completed'
+      path: '/tailor/completed'
+      fullPath: '/dashboard/tailor/completed'
+      preLoaderRoute: typeof DashboardTailorCompletedRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/tailor_/assigned': {
+      id: '/dashboard/tailor_/assigned'
+      path: '/tailor/assigned'
+      fullPath: '/dashboard/tailor/assigned'
+      preLoaderRoute: typeof DashboardTailorAssignedRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/admin_/verification': {
+      id: '/dashboard/admin_/verification'
+      path: '/admin/verification'
+      fullPath: '/dashboard/admin/verification'
+      preLoaderRoute: typeof DashboardAdminVerificationRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/admin_/users': {
+      id: '/dashboard/admin_/users'
+      path: '/admin/users'
+      fullPath: '/dashboard/admin/users'
+      preLoaderRoute: typeof DashboardAdminUsersRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/admin_/tailors': {
+      id: '/dashboard/admin_/tailors'
+      path: '/admin/tailors'
+      fullPath: '/dashboard/admin/tailors'
+      preLoaderRoute: typeof DashboardAdminTailorsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/admin_/settings': {
+      id: '/dashboard/admin_/settings'
+      path: '/admin/settings'
+      fullPath: '/dashboard/admin/settings'
+      preLoaderRoute: typeof DashboardAdminSettingsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/admin_/reports': {
+      id: '/dashboard/admin_/reports'
+      path: '/admin/reports'
+      fullPath: '/dashboard/admin/reports'
+      preLoaderRoute: typeof DashboardAdminReportsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/admin_/notifications': {
+      id: '/dashboard/admin_/notifications'
+      path: '/admin/notifications'
+      fullPath: '/dashboard/admin/notifications'
+      preLoaderRoute: typeof DashboardAdminNotificationsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/admin_/blocks': {
+      id: '/dashboard/admin_/blocks'
+      path: '/admin/blocks'
+      fullPath: '/dashboard/admin/blocks'
+      preLoaderRoute: typeof DashboardAdminBlocksRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/admin_/appeals': {
+      id: '/dashboard/admin_/appeals'
+      path: '/admin/appeals'
+      fullPath: '/dashboard/admin/appeals'
+      preLoaderRoute: typeof DashboardAdminAppealsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/admin_/analytics': {
+      id: '/dashboard/admin_/analytics'
+      path: '/admin/analytics'
+      fullPath: '/dashboard/admin/analytics'
+      preLoaderRoute: typeof DashboardAdminAnalyticsRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/dashboard/user_/tailors/$tailorId': {
@@ -787,6 +780,13 @@ declare module '@tanstack/react-router' {
       path: '/user/tailors/$tailorId'
       fullPath: '/dashboard/user/tailors/$tailorId'
       preLoaderRoute: typeof DashboardUserTailorsTailorIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/admin_/reports_/$reportId': {
+      id: '/dashboard/admin_/reports_/$reportId'
+      path: '/admin/reports/$reportId'
+      fullPath: '/dashboard/admin/reports/$reportId'
+      preLoaderRoute: typeof DashboardAdminReportsReportIdRouteImport
       parentRoute: typeof DashboardRoute
     }
   }
