@@ -623,6 +623,9 @@ export type Database = {
       }
       saree_uploads: {
         Row: {
+          ai_analysis: Json | null
+          ai_analysis_status: string
+          ai_analyzed_at: string | null
           ai_style_note: string | null
           assigned_tailor_id: string | null
           cancelled_at: string | null
@@ -639,6 +642,9 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ai_analysis?: Json | null
+          ai_analysis_status?: string
+          ai_analyzed_at?: string | null
           ai_style_note?: string | null
           assigned_tailor_id?: string | null
           cancelled_at?: string | null
@@ -655,6 +661,9 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ai_analysis?: Json | null
+          ai_analysis_status?: string
+          ai_analyzed_at?: string | null
           ai_style_note?: string | null
           assigned_tailor_id?: string | null
           cancelled_at?: string | null
