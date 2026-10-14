@@ -73,15 +73,18 @@ export const assistantTurn = createServerFn({ method: "POST" })
     if (data.sareeUploadId) {
       const { data: up } = await supabase
         .from("saree_uploads")
-        .select("id, title, description, occasion, status")
+        .select("id, title, description, occasion, status, ai_analysis")
         .eq("id", data.sareeUploadId)
         .eq("user_id", userId)
-        .maybeSingle<{ id: string; title: string | null; description: string | null; occasion: string | null; status: string | null }>();
+        .maybeSingle<{ id: string; title: string | null; description: string | null; occasion: string | null; status: string | null; ai_analysis: unknown }>();
       if (up) {
         sareeContext =
           `\n\nThe member is currently working with their uploaded saree (saree_upload_id: ${up.id}` +
           `, title: ${up.title || "untitled"}, notes: ${up.description || "none"}, preferred outfit: ${up.occasion || "unspecified"}` +
           `, status: ${up.status || "open"}). Use this id for tools unless told otherwise.`;
+        const { analysisToText } = await import("./saree-analysis");
+        const at = analysisToText(up.ai_analysis);
+        if (at) sareeContext += `\nSaved AI photo analysis of this saree (use these real traits to explain suggestions; never mention JSON): ${at}.`;
       }
     }
 

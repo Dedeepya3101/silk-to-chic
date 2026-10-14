@@ -1,0 +1,1 @@
+ALTER TABLE public.saree_uploads ADD COLUMN IF NOT EXISTS ai_analysis jsonb, ADD COLUMN IF NOT EXISTS ai_analysis_status text NOT NULL DEFAULT 'none', ADD COLUMN IF NOT EXISTS ai_analyzed_at timestamptz;

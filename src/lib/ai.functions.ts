@@ -345,3 +345,72 @@ export const getAssistantHistory = createServerFn({ method: "GET" })
       .limit(50);
     return { messages: data || [] };
   });
+
+export type SareeAnalysis = {
+  dominant_colors: string[];
+  secondary_colors: string[];
+  pattern: string;
+  border_style: string;
+  embroidery_level: string;
+  visual_style: string;
+  appearance: string;
+  occasions: string[];
+  outfit_directions: string[];
+};
+
+function cleanAnalysis(raw: unknown): SareeAnalysis | null {
+  if (!raw || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  const s = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim().slice(0, 200) : "not clearly detected");
+  const a = (v: unknown) => (Array.isArray(v) ? v.filter((x) => typeof x === "string" && x.trim()).map((x) => (x as string).trim().slice(0, 80)).slice(0, 6) : []);
+  const out: SareeAnalysis = {
+    dominant_colors: a(r.dominant_colors), secondary_colors: a(r.secondary_colors),
+    pattern: s(r.pattern), border_style: s(r.border_style), embroidery_level: s(r.embroidery_level),
+    visual_style: s(r.visual_style), appearance: s(r.appearance),
+    occasions: a(r.occasions), outfit_directions: a(r.outfit_directions),
+  };
+  if (!out.dominant_colors.length && out.pattern === "not clearly detected" && out.visual_style === "not clearly detected") return null;
+  return out;
+}
+
+/** Analyse the photo of one of the caller's own saree uploads and persist structured attributes. */
+export const analyzeSareeImage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { uploadId: string }) => {
+    if (!input?.uploadId) throw new Error("Missing saree.");
+    return { uploadId: input.uploadId };
+  })
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: up } = await supabase
+      .from("saree_uploads")
+      .select("id, image_url, ai_analysis_status")
+      .eq("id", data.uploadId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (!up?.image_url) throw new Error("Saree not found.");
+    if (up.ai_analysis_status === "pending") return { status: "pending" as const };
+    await supabase.from("saree_uploads").update({ ai_analysis_status: "pending" }).eq("id", up.id).eq("user_id", userId);
+    try {
+      const { callAiJson } = await import("./ai-gateway.server");
+      const raw = await callAiJson<unknown>([
+        {
+          role: "system",
+          content:
+            "You are a textile analyst. Describe ONLY what is visible in the saree photo. If something is not visible or uncertain, use \"not clearly detected\" (or an empty array). Never guess fabric composition. " +
+            'Respond ONLY with JSON: {"dominant_colors":[],"secondary_colors":[],"pattern":"","border_style":"","embroidery_level":"none|light|moderate|heavy|not clearly detected","visual_style":"","appearance":"traditional|contemporary|fusion|not clearly detected","occasions":[],"outfit_directions":[]}',
+        },
+        { role: "user", content: [{ type: "text", text: "Analyse this saree photo." }, { type: "image_url", image_url: { url: up.image_url } }] },
+      ]);
+      const analysis = cleanAnalysis(raw);
+      if (!analysis) throw new Error("MatchO AI could not read this photo clearly.");
+      await supabase
+        .from("saree_uploads")
+        .update({ ai_analysis: analysis as never, ai_analysis_status: "done", ai_analyzed_at: new Date().toISOString() })
+        .eq("id", up.id).eq("user_id", userId);
+      return { status: "done" as const, analysis };
+    } catch (e) {
+      await supabase.from("saree_uploads").update({ ai_analysis_status: "failed" }).eq("id", up.id).eq("user_id", userId);
+      fail(e);
+    }
+  });
