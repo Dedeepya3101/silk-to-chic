@@ -5,6 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import { getSession } from "@/lib/session";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { analyzeSareeImage } from "@/lib/ai.functions";
 import { useRef } from "react";
 
 export const Route = createFileRoute("/dashboard/user")({
@@ -227,11 +228,19 @@ function UploadCard({ onUploaded }: { onUploaded: () => void }) {
       const { error: upErr } = await supabase.storage.from("sarees").upload(path, file, { cacheControl: "3600", upsert: false });
       if (upErr) throw upErr;
       const { data: pub } = supabase.storage.from("sarees").getPublicUrl(path);
-      const { error: insErr } = await supabase.from("saree_uploads").insert({
+      const { data: ins, error: insErr } = await supabase.from("saree_uploads").insert({
         user_id: user.id, image_url: pub.publicUrl, title: title || file.name, description, occasion: category,
-      });
+      }).select("id").single();
       if (insErr) throw insErr;
       toast.success("Saree uploaded — tailors will see it instantly");
+      // Non-blocking AI photo analysis; upload already succeeded.
+      const tid = toast.loading("MatchO AI is analysing your saree…");
+      analyzeSareeImage({ data: { uploadId: ins.id } })
+        .then(() => toast.success("Saree analysis ready — the AI Assistant will use it", { id: tid }))
+        .catch((e: any) => toast.error(e?.message || "Analysis failed — your upload is safe.", {
+          id: tid,
+          action: { label: "Retry", onClick: () => { analyzeSareeImage({ data: { uploadId: ins.id } }).then(() => toast.success("Saree analysis ready")).catch(() => toast.error("Analysis still unavailable")); } },
+        }));
       setTitle(""); setDescription(""); setCategory("Custom");
       if (fileRef.current) fileRef.current.value = "";
       onUploaded();

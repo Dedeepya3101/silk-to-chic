@@ -1,3 +1,4 @@
+import { analysisToText } from "./saree-analysis";
 /**
  * MatchO Agentic Commerce layer (server-only).
  *
@@ -158,12 +159,12 @@ export async function runStyleAgent(
   userId: string,
   input: { saree_upload_id?: string | null; description?: string | null; occasion?: string | null; budget?: string | null; preferences?: string | null },
 ): Promise<StyleCard[]> {
-  type SareeBrief = { id: string; image_url: string; title: string | null; description: string | null; occasion: string | null };
+  type SareeBrief = { id: string; image_url: string; title: string | null; description: string | null; occasion: string | null; ai_analysis?: unknown };
   let upload: SareeBrief | null = null;
   if (input.saree_upload_id) {
     const { data } = await db
       .from("saree_uploads")
-      .select("id, image_url, title, description, occasion")
+      .select("id, image_url, title, description, occasion, ai_analysis")
       .eq("id", input.saree_upload_id)
       .eq("user_id", userId)
       .maybeSingle<SareeBrief>();
@@ -181,6 +182,7 @@ export async function runStyleAgent(
     `Member city: ${profile?.city || "not provided"}`,
     `Extra preferences: ${input.preferences || "none"}`,
     `Photo available: ${upload?.image_url ? "yes" : "no"}`,
+    `Saved photo analysis: ${analysisToText(upload?.ai_analysis) || "not available"}`,
   ].join("\n");
 
   const system =
